@@ -3,6 +3,8 @@ Release 307:
 from arthur:
     use double prec in pressure test accumulators
     fix potential excessive retx on bad packets
+
+from johnj:
     fix lc triggering fadc incorrectly bug
 
 ----------------------------------------------------------------------------
