@@ -14,6 +14,7 @@ export ECHOMODEBINGZ=$(BINDIR)/echomode.bin.gz
 export YMODEMBINGZ=$(BINDIR)/ymodem.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/lookback.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/domapp.bin.gz
+export DOMCALBINGZ=$(BINDIR)/domcal.bin.gz
 
 export KERNELX=$(WD)/public/loader/kernel.x
 export RAWX=$(WD)/public/loader/raw.x
@@ -60,7 +61,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu echomode stfsfe
+all: pld-versions versions iceboot stfserv menu echomode stfsfe domcal
 
 iceboot:
 	cd epxa10/booter; make config_files
@@ -117,6 +118,7 @@ clean:
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
 	cd $(PLATFORM)/configboot; make clean
+	cd $(PLATFORM)/dom-cal; make clean
 	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
 
 stfsfe:
@@ -128,5 +130,9 @@ domapp:
 	cd $(PLATFORM)/hal; make all
 	cd $(PLATFORM)/domapp; make -f ../../domapp.mk $(DOMAPPBINGZ)
 
-
-
+domcal:
+	cd $(PLATFORM)/booter; make config_files
+	cd $(PLATFORM)/loader; make all
+	cd $(PLATFORM)/hal; make all
+	cd $(PLATFORM)/iceboot; make all		
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" $(DOMCALBINGZ)
