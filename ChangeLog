@@ -1,7 +1,9 @@
-Proposed Release 238:
+Release 238:
 
 from johnj: add echo-mode-cb to release.hex
-
+from arthur: do not exit after setting non-blocking!
+from kalle: fix tcal dom clock bug (move trigger up to edge decoder).
+from arthur: do not use newlines in array fields in tcal-stf.sh.
 ----------------------------------------------------------------------------
 Release 237:
 
