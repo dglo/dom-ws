@@ -1,3 +1,13 @@
+Release 312:
+
+from george:
+    002: add atwd_led_nopmt test
+    003: clean out first few samples in pressure test
+
+from arthur:
+    001: do not multiply power up/down the hv
+
+----------------------------------------------------------------------------
 Release 311:
 
 from arthur:
