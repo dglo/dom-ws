@@ -1,3 +1,21 @@
+Release 302:
+
+from john kelley:
+    Numerous changes for FB CPLD v10 which include:
+    New enable sequence with CPLD configuration and clock validation
+    Enable sequence also deals with LED power-on state
+    CRC and presence checks for flasher ID
+    Improved error handling
+
+    New version (1.2) of flasherboard STF tests
+    Support new enable and ID HAL interfaces
+    Record times returned by enable sequence as output parameters
+
+    Support new enable and ID HAL interfaces
+    Native iceboot commands for all FB functions
+    Documentation for new iceboot commands
+
+----------------------------------------------------------------------------
 Release 301:
 
 from john jacobsen:
