@@ -1,3 +1,33 @@
+Release 314:
+
+from john kelly:
+   001: hal flasherboard v11
+        - Variable flasher rate control
+        - Correct measured clock stability time, removing offset
+        - Support for CPLD V11, including...
+        - Check reset time of CPLD in enableFB
+   002: iceboot flasherboard v11
+        - Support for new HAL enableFB API
+   003: stf flasherboard v11
+        - Support for new HAL enableFB API
+        - Record reset time as output parameter
+        - Change flasher_clock pass level to adjust for removal of offset
+        - Requires update of schemas in database
+
+from john jacobsen:
+    004: testdomapp support for new flasherboard api
+ 
+----------------------------------------------------------------------------
+Release 313:
+
+from arthur:
+    001: fix pressure.c loop count conditional
+    003: tcal-stf.sh added back to release
+
+from azriel:
+    002: new standard tests
+    
+----------------------------------------------------------------------------
 Release 312:
 
 from george:
