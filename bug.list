@@ -3,3 +3,7 @@ build	bug
 46	request reboot added
 46 	versioning added
 46	is fpga loaded added
+56	attempt to fix problem around flash boundries
+57	fix init problem, where chips were not erased
+68	fix reboot request issue
+71	fix install in iceboot

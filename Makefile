@@ -60,23 +60,52 @@ sendfile: sendfile.c
 release.hex: mkrelease.sh domserv all
 	/bin/sh mkrelease.sh ./epxa10/bin/iceboot.bin.gz \
 		./epxa10/bin/stfserv.bin.gz \
-		../iceboot/resources/startup.fs 
+		../iceboot/resources/startup.fs \
+		iceboot.sbi.gz \
+		stf.sbi.gz \
+		domapp.sbi.gz \
+		domapp.bin.gz
+
+DEVEL_RELEASE=0
+DEVEL_BUILD=0
+
+tag-build:
+	cd ../hal; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cd ../dom-loader; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cd ../configboot; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cd ../dom-cpld; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cd ../dom-fpga; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cd ../iceboot; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cd ../stf; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
+	cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
 
 viewtags:
-	cd ../hal; cvs status -v project.mk | \
+	@echo hal
+	@cd ../hal; cvs status -v project.mk | \
 		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	cd ../dom-loader; cvs status -v project.mk | \
+	@echo dom-loader
+	@cd ../dom-loader; cvs status -v project.mk | \
 		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-#	cd ../configboot; \
+#	@echo configboot
+#	@cd ../configboot; \
 #		cvs status -v \
 #			./private/epxa10/configboot/configboot.c | \
 #		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	cd ../dom-cpld; cvs status -v Dom_Cpld_rev2.vhd | \
+	@echo dom-cpld
+	@cd ../dom-cpld; cvs status -v Dom_Cpld_rev2.vhd | \
 		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	cd ../iceboot; cvs status -v project.mk | \
+	@echo dom-fpga
+	@cd ../dom-fpga; cvs status -v scripts/mkmif.sh | \
 		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	cd ../stf; cvs status -v project.mk | \
+	@echo iceboot
+	@cd ../iceboot; cvs status -v project.mk | \
 		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	cvs status Makefile | grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	@echo stf
+	@cd ../stf; cvs status -v project.mk | \
+		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	@echo dom-ws
+	@cvs status -v Makefile | grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+
+
 
 

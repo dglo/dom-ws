@@ -8,9 +8,17 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
+#include <sys/poll.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <signal.h>
+
+static void closeAlarm(int sig) {
+   _exit(0);
+}
 
 int main(int argc, char *argv[]) {
    int fd, sfd;
@@ -20,6 +28,7 @@ int main(int argc, char *argv[]) {
    int nretries = 0;
    struct hostent *he;
    struct sockaddr_in serv_addr;
+   char *mem;
 
    if (argc!=4) {
       fprintf(stderr, "usage: sendfile file host port\n");
@@ -37,6 +46,14 @@ int main(int argc, char *argv[]) {
       return 1;
    }
 
+#if 0
+   if ((mem=(char *) mmap(NULL, st.st_size, PROT_READ,
+			  MAP_SHARED, fd, 0))==MAP_FAILED) {
+      perror("mmap");
+      return 1;
+   }
+#endif
+
    if ((he=gethostbyname(argv[2]))==NULL) {
       fprintf(stderr, "sendfile: can't lookup host: '%s'\n",  argv[2]);
       return 1;
@@ -52,13 +69,14 @@ int main(int argc, char *argv[]) {
       perror("socket");
       return 1;
    }
-   
+
    if (connect(sfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
       perror("connect");
       return 1;
    }
    
    while (ts<st.st_size) {
+      off_t offset = 0;
       ssize_t ns = sendfile(sfd, fd, &offset, st.st_size-ts);
       
       if (ns<0) {
@@ -75,6 +93,46 @@ int main(int argc, char *argv[]) {
       }
       else ts+=ns;
    }
+
+   /* the famous lingering_close...
+    *
+    * we shutdown our side, and wait for the
+    * other side to shutdown before closing up
+    * shop...
+    *
+    * this code is necessary so that we're sure
+    * everything gets cleanup up on the other
+    * side...
+    */
+   printf("shutdown...\n");
+   shutdown(sfd, 1);
+
+   /* wait for other side to close...
+    */
+   signal(SIGALRM, closeAlarm);
+   alarm(60);
+
+   while (1) {
+      struct pollfd fds[1];
+      int ret;
+      
+      fds[0].fd = sfd;
+      fds[0].events = POLLIN;
+      
+      if ((ret=poll(fds, 1, 2000))<0) {
+	 perror("poll");
+	 return 1;
+      }
+
+      if (ret==1 && fds[0].revents&POLLIN) {
+	 char buf[1024];
+	 int nr = read(sfd, buf, sizeof(buf));
+	 if (nr==0) break;
+      }
+   }
+
+   printf("closing...\n");
+   close(sfd);
    
    return 0;
 }

@@ -13,11 +13,13 @@
  *
  * FIXME: need much better logging.
  * FIXME: nsims should be adjustable.
+ * FIXME: all fds should be set to non-blocking
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -540,18 +542,30 @@ int main(int argc, char *argv[]) {
 			
 			if (dl[k].ifd!=-1) {
 			   int nw = 0;
+			   int nretries = 0;
+			   
 			   while (nw<ret) {
 			      int n = write(dl[k].ifd, buffer + nw, ret - nw);
 			      if (n<0) {
-				 perror("write");
-				 closeSlave(dl + k);
-				 break;
+				 if (errno==EAGAIN && nretries<10) {
+				    /* pause a bit... */
+				    poll(NULL, 0, 100);
+				    nretries++;
+				 }
+				 else {
+				    perror("write");
+				    closeSlave(dl + k);
+				    break;
+				 }
 			      }
 			      else if (n==0) {
 				 closeSlave(dl+k);
 				 break;
 			      }
-			      else nw+=n;
+			      else {
+				 nw+=n;
+				 nretries = 0;
+			      }
 			   }
 			}
 		     }
@@ -584,20 +598,30 @@ int main(int argc, char *argv[]) {
 			int nw = 0;
 
 			if (dl[k].efd>0) {
+			   int nretries = 0;
 			   while (nw<ret) {
 			      int n = write(dl[k].efd, buffer + nw, ret - nw);
 			      if (n<0) {
-				 close(dl[k].efd);
-				 dl[k].efd = -1;
-				 perror("write");
-				 break;
+				 if (errno==EAGAIN && nretries<10) {
+				    poll(NULL, 0, 100);
+				    nretries++;
+				 }
+				 else {
+				    close(dl[k].efd);
+				    dl[k].efd = -1;
+				    perror("write");
+				    break;
+				 }
 			      }
 			      else if (n==0) {
 				 close(dl[k].efd);
 				 dl[k].efd = -1;
 				 break;
 			      }
-			      else nw+=n;
+			      else {
+				 nw+=n;
+				 nretries=0;
+			      }
 			   }
 			}
 		     }

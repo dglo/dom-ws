@@ -12,7 +12,7 @@ export EPXAHD = $(WD)/public
 export EPXAH = 
 
 export CPPFLAGS = -I../public -I.. -I../../../tools/expat-1.2/expat $(GENDEFS)
-export CFLAGS = -Wall $(CPPFLAGS)
+export CFLAGS = -g -Wall $(CPPFLAGS)
 
 export CPP = cpp
 export CC = gcc

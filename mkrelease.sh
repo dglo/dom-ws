@@ -17,7 +17,7 @@ expect init.exp localhost 5001
 #
 # for each file to install...
 #
-for f in $*; do {
+for f in $*; do
     echo "installing ${f}..."
 
     #
@@ -39,18 +39,29 @@ for f in $*; do {
     # is it a gzip file?
     #
     if echo $f | grep -q '\.gz$'; then
-	nm=`basename $f | sed 's/\..*//1'`
+	nm=`basename $f | sed 's/\.gz$//1'`
+	
+	#
+	# strip .bin if it exists...
+	#
+	nm=`echo ${nm} | sed 's/\.bin$//1'`
+
 	expect creategz.exp localhost 5001 $nm;
     else
 	nm=`basename $f`
 	expect create.exp localhost 5001 $nm;
     fi
-}; done
+done
 
 #
 # send sigusr1
 #
 kill -USR1 `pgrep iceboot`
+
+#
+# wait for dump to finish...
+#
+sleep 20
 
 #
 # convert dump file to hex...
