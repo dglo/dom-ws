@@ -21,7 +21,6 @@ cp=`/usr/bin/lessecho ./jars/*.jar | tr ' ' ':' | sed 's/:$//1'`
 #
 if [[ -f /proc/driver/domhub/blocking ]]; then
 	echo 0 > /proc/driver/domhub/blocking
-	exit 1
 fi
 
 #
