@@ -1,3 +1,20 @@
+Release 316:
+
+from arthur:
+   001: 3.3V scaler was inverted, this is now fixed
+   002: tcal-stf.sh all condition is now serialized
+
+----------------------------------------------------------------------------
+Release 315:
+
+from arthur:
+   001: use 3.3V reference to workaround internal reference
+        bug in the max1139 chip
+
+   002: slow down the max1139 serial clock so that is it in
+        spec
+ 
+----------------------------------------------------------------------------
 Release 314:
 
 from john kelly:
