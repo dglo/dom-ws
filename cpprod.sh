@@ -25,3 +25,5 @@ ssh glacier.lbl.gov \
   rm -f prod-latest.tar.gz; \
   ln -s prod-${rev}-${num}.tar.gz prod-latest.tar.gz"
 
+exec ./tagprod.sh
+
