@@ -5,7 +5,8 @@ from john kelley:
     increase delays in flasherboard power-up sequence to 100ms
 
 from john jacobsen:
-    average 9 readouts of SPE and MPE scalers every second
+    Sum 9 readouts of SPE and MPE scalars every second -> hardware state
+      monitoring record.
 
 ----------------------------------------------------------------------------
 Release 241:
