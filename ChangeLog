@@ -1,3 +1,15 @@
+Release 308:
+
+from arthur:
+    copy ChangeLog to the web page
+
+from johnj:
+    add trigger_disc_lc to hal public header
+
+from thorsten:
+    really swap lc up/down
+
+----------------------------------------------------------------------------
 Release 307:
 
 from arthur:

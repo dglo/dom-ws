@@ -25,5 +25,7 @@ ssh glacier.lbl.gov \
   rm -f prod-latest.tar.gz; \
   ln -s prod-${rev}-${num}.tar.gz prod-latest.tar.gz"
 
+scp ChangeLog glacier.lbl.gov:/home/icecube/system/httpd/htdocs/releases/DOM-MB/stable_hex
+
 exec ./tagprod.sh
 
