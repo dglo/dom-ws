@@ -13,7 +13,7 @@ pkgs="icecube.daq.stf icecube.daq.domhub icecube.daq.db.app"
 #
 # production build number
 #
-rev=REV4
+rev=REV5
 
 #
 # get and increment build number
@@ -36,9 +36,23 @@ if [[ -d ${dir} ]]; then
 fi
 
 #
-# cp std-tests (standard tests) -- read-only...
+# make dir
 #
 mkdir ${dir}
+
+#
+# cp configboot image...
+#
+cp configboot.pof ${dir}
+
+#
+# cp iceboot script...
+#
+cp iceboot.sh reboot.exp ${dir}
+
+#
+# cp std-tests (standard tests) -- read-only...
+#
 (cd ../stf/private; tar cf - std-tests/*.xml) | (cd ${dir}; tar xf -)
 chmod ugo-w ${dir}/std-tests
 

@@ -7,9 +7,10 @@
 #
 # first check parameter...
 #
-if (( $# != 1)); then
-    echo "usage: tcal-stf CWD"
+if (( $# != 2 )); then
+    echo "usage: tcal-stf CWD temperature"
     echo "  where C=card number, W=wire pair number, D=dom A or B"
+    echo "   temp=temperature in degrees C"
     exit 1
 fi
 
@@ -71,6 +72,15 @@ if (( $rte < 5000 )); then passed="true"; else passed="false"; fi
 dorwf=`awk -f dor.awk /tmp/$$.tcal | head -4800 | tr '\n' ' '`
 domwf=`awk -f dom.awk /tmp/$$.tcal | head -4800 | tr '\n' ' '`
 
+dortxhi=`awk '/^dor_tx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
+dortxlo=`awk '/^dor_tx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
+domrxhi=`awk '/^dom_rx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
+domrxlo=`awk '/^dom_rx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
+domtxhi=`awk '/^dom_tx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
+domtxlo=`awk '/^dom_tx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
+dorrxhi=`awk '/^dor_rx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
+dorrxlo=`awk '/^dor_rx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
+
 #
 # done with results file
 #
@@ -94,6 +104,14 @@ Time Calibration tests
    <round_trip_error>${rte}</round_trip_error>
    <dom_waveforms>${domwf}</dom_waveforms>
    <dor_waveforms>${dorwf}</dor_waveforms>
+   <dor_tx_hi>${dortxhi}</dor_tx_hi>
+   <dor_tx_lo>${dortxlo}</dor_tx_lo>
+   <dom_rx_hi>${domrxhi}</dom_rx_hi>
+   <dom_rx_lo>${domrxlo}</dom_rx_lo>
+   <dom_tx_hi>${domtxhi}</dom_tx_hi>
+   <dom_tx_lo>${domtxlo}</dom_tx_lo>
+   <dor_rx_hi>${dorrxhi}</dor_rx_hi>
+   <dor_rx_lo>${dorrxlo}</dor_rx_lo>
    <passed>${passed}</passed>
    <testRunnable>true</testRunnable>
    <boardID>${id}</boardID>
@@ -114,7 +132,8 @@ fi
 jbin=${JAVA_HOME}/bin
 cp=`/usr/bin/lessecho ./jars/*.jar | tr ' ' ':' | sed 's/:$//1'`
 
-if ! ${jbin}/java icecube.daq.db.app.AddResult /tmp/$$.stf.xml; then
+if ! ${jbin}/java -classpath ${cp} icecube.daq.db.app.AddResult \
+	-c $2 /tmp/$$.stf.xml; then
     echo "tcal-stf: can not load results into database"
     rm -f /tmp/$$.stf.xml
     exit 1
@@ -123,6 +142,13 @@ fi
 rm -f /tmp/$$.stf.xml
 
 echo ${rtt} ${rte}
+
+
+
+
+
+
+
 
 
 

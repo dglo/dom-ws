@@ -6,7 +6,7 @@
 REL=devel-release
 bindir=epxa10/bin
 fsdir=../iceboot/resources
-sbidir=../dom-fpga/resources/epxa10
+sbidir=../dom-fpga/stf/ComEPXA4DPM
 
 if [[ -d ${REL} ]]; then
     echo "devel-release directory already exists, please remove it"
@@ -16,7 +16,7 @@ fi
 mkdir ${REL}
 
 BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz echomode.bin.gz'
-SBI='simpletest_rev3_epxa4_com.sbi'
+SBI='simpletest.sbi'
 SBIL='stf.sbi domapp.sbi iceboot.sbi'
 FS='startup.fs az-setup.fs az-tests.fs'
 

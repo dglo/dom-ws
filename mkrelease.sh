@@ -152,6 +152,11 @@ for i in 0 1; do
 done
 
 #
+# display md5sum...
+#
+md5sum flash.dump
+
+#
 # cleanup...
 #
 echo "killing domserv..."
