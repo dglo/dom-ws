@@ -1,16 +1,3 @@
-? stfapp/src/all.src
-? stfapp/src/appendsrc.sh
-? stfapp/src/icecube.daq.stf.cf
-? stfapp/src/icecube.daq.stf.deps
-? stfapp/src/icecube.daq.stf.domio.cf
-? stfapp/src/icecube.daq.stf.domio.deps
-? stfapp/src/icecube.daq.stf.dorutil.cf
-? stfapp/src/icecube.daq.stf.dorutil.deps
-? stfapp/src/icecube.daq.stf.stfapp.cf
-? stfapp/src/icecube.daq.stf.stfapp.deps
-? stfapp/src/icecube.daq.stf.stfclient.cf
-? stfapp/src/icecube.daq.stf.stfclient.deps
-? stfapp/src/nlines.sh
 Index: stfapp/src/icecube/daq/stf/dorutil/DOR.java
 ===================================================================
 RCS file: /home/icecube/cvsroot/stfapp/src/icecube/daq/stf/dorutil/DOR.java,v
