@@ -22,10 +22,17 @@ projects=`echo ${jars} | sed 's/..\/lib\///g' | sed 's/\.jar[ ]/ /g' |\
 #
 # make sure projects exist...
 #
+#if (( ${#projects} == 0 )); then
+#    echo "can not find projects"
+#    exit 1
+#fi
+
 for p in ${projects}; do
     if [[ ! -d ../${p} ]]; then
-	echo "ckprod.sh: ../${p} does not exist"
-	exit 1
+	if ! ( cd ..; cvs checkout $p ); then
+		echo "ckprod.sh: ../${p} does not exist"
+		exit 1
+	fi
     fi
 done
 
@@ -43,36 +50,4 @@ if ! ./bldpkg.sh ${bldpkgs}; then
     echo "ckprod.sh: unable to build, exiting..."
     exit 1
 fi
-
-#
-# build jar files...
-#
-for p in ${projects}; do
-    found=0
-    j=../lib/${p}.jar
-    if [[ ! -f ${j} ]]; then 
-	found=1; 
-    else
-	nlines=`find ../build/${p} -name '*.class' -newer ${j} -print | \
-	    wc -l`
-
-	if (( ${nlines} > 0 )); then found=1; fi
-    fi
-
-    if [[ ${found} == 1 ]]; then
-	# rebuild jar file...
-	echo "jarring: ${p}"
-	(cd ../build/${p}; jar cf ../../lib/${p}.jar icecube)
-
-	# update dependencies...
-	make -f jardep.mk
-    fi
-done
-
-
-
-
-
-
-
 

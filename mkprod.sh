@@ -8,7 +8,7 @@
 #
 # required packages...
 #
-pkgs="icecube.daq.stf icecube.daq.domhub"
+pkgs="icecube.daq.stf icecube.daq.domhub icecube.daq.db.app"
 
 #
 # production build number
@@ -46,6 +46,7 @@ chmod ugo-w ${dir}/std-tests
 # cp templates
 #
 mkdir ${dir}/templates
+(cd epxa10/stf-apps; make templates.tar.gz)
 gzip -dc epxa10/stf-apps/templates.tar.gz | (cd ${dir}/templates; tar xf -)
 
 #
@@ -69,14 +70,42 @@ if [[ -f ${dir}/jars/daq-db.jar ]]; then
 fi
 
 #
+# make sure all stf tests schemas are in the db...
+#
+echo "adding stf schema files to db..."
+
+if ! ./add-schema epxa10/stf-apps/*.xml; then
+    echo "mkprod.sh: unable to add stf test schema files..."
+    exit 1
+fi
+#
 # cp run script
 #
 cp ./stf-client ${dir}
 chmod +x ${dir}/stf-client
 
 #
-# cp firmware files
+# cp tcal scripts...
 #
+if [[ ! -f tcalcycle ]]; then
+    echo 'mkprod.sh: can not find tcalcycle, trying to make it...'
+    if ! make tcalcycle; then
+	echo 'mkprod.sh: can not make tcalcyle...'
+	exit 1
+    fi
+fi
+
+cp dom.awk dor.awk tcal.awk tcal-calc.awk tcal-cvt.awk tcalcycle tcal.sh \
+    tcal-stf.sh ${dir}
+
+#
+# always build and cp firmware files
+#
+if ! /bin/bash dorel.sh; then
+	echo "can't create release.hex"
+	exit 1
+fi
+
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
 

@@ -27,9 +27,9 @@ export LIBEXPAT=/usr/lib/libexpat.a
 .c.o:
 	$(CC) -c $(CFLAGS) $<
 
-all: iceboot stfserv menu
+all: versions iceboot stfserv menu
 
-iceboot:
+iceboot: versions
 	cd Linux-i386/hal; make all
 	cd Linux-i386/iceboot; make all
 

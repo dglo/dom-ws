@@ -17,6 +17,7 @@ if [[ "${ret}" != "open 5001 5501" ]]; then
     echo "mkrelease.sh: unable to start domserv"
     kill -TERM `pgrep -P $$ domserv`
     wait
+    rm -f /tmp/ds.$$
     exit 1
 fi
 
@@ -59,20 +60,42 @@ for f in $*; do
 
 	expect creategz.exp localhost 5001 $nm;
     else
-	nm=`basename $f`
+	nm=`echo ${f} | sed 's/\.bin$//1'`
+	nm=`basename ${nm}`
 	expect create.exp localhost 5001 $nm;
     fi
 done
 
 #
-# send sigusr1
+# signal iceboot to dump flash image...
 #
+sleep 1
+rm -f flash.dump
 kill -USR1 `pgrep iceboot`
 
 #
 # wait for dump to finish...
 #
-sleep 20
+i=0
+while (( i < 30 )); do
+    fn=`/usr/sbin/lsof | grep '^iceboot ' | \
+	awk '{ if (substr($9, 1, 1)=="/") print $9; }' | \
+	grep '/flash.dump$'`
+    if [[ -f flash.dump && "${#fn}" == "0" ]]; then break; fi
+    sleep 1
+    i=`expr ${i} + 1`
+    echo "flash.dump: try ${i} of 30..."
+done
+
+#
+# never finished?
+#
+if (( ${i} == 100 )); then
+    echo "unable to read dump file..."
+    exit 1
+fi
+
+echo "convert dump file..."
 
 #
 # convert dump file to hex...
@@ -82,16 +105,11 @@ arm-elf-objcopy -I binary -O ihex flash.dump flash.hex
 #
 # remove redundant (empty) entries...
 #
-grep -E -v \
+# grep-2.5 is broken using UTF-8, set lang to workaround this...
+#
+env LANG=en_US grep -E -v \
     '^:[0-9A-Z]+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF[0-9A-Z]+.$' \
     flash.hex > release.hex
-
-#
-# FIXME: remove repeated address offsets...
-#
-#
-# awk { remove ^:02 dup }
-#
 
 #
 # now do the ebi0 and ebi1 flash files...
@@ -102,7 +120,8 @@ dd bs=4M count=1 skip=1 if=flash.dump of=flash.dump.1
 for i in 0 1; do
 	arm-elf-objcopy -I binary -O ihex flash.dump.${i} flash.hex.${i}
 
-	grep -E -v \
+	# grep-2.5 is broken using UTF-8, set lang to workaround this...
+	env LANG=en_US grep -E -v \
     		'^:[0-9A-Z]+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF[0-9A-Z]+.$' \
     		flash.hex.${i} > release.hex.${i}
 done
@@ -110,8 +129,12 @@ done
 #
 # cleanup...
 #
+echo "killing domserv..."
 kill -TERM `pgrep -P $$ domserv`
 wait
+
+echo "cleaning up..."
+rm -f /tmp/ds.$$
 rm -f flash.hex flash.dump
 rm -f flash.hex.[01] flash.dump.[01]
 

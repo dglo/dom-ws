@@ -37,6 +37,9 @@
 #include <pty.h>
 #include <poll.h>
 
+/* max packet size (500 - 12) */
+#define MAXPKTSIZE 4084
+
 /* port definitions... */
 #define SERIAL_PORT     2000
 #define SERIAL_PORT_RAW 3000
@@ -674,7 +677,7 @@ int main(int argc, char *argv[]) {
 	       /* find the device... */
 	       for (k=ld; k<ndevs(); k++) {
 		  /* buffer must _not_ be more than 4096 */
-		  unsigned char buffer[500];
+		  unsigned char buffer[MAXPKTSIZE];
 
 		  if (dl[k].sfd==fds[i].fd) {
 		     if (!dhmode) printf("accept: %d\n", dl[k].port);

@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # add projects of interest here...
 #
-projects=(dom-ws hal configboot iceboot dom-loader stf)
+projects=(dom-ws hal configboot iceboot dom-loader stf dor-test)
 #projects=(dom-ws)
 
 #
