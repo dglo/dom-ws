@@ -1,0 +1,40 @@
+Release 235:
+
+from kael (kaeld@amanda.wisc.edu):
+
+- fix hvid, add crc (modified by alj)
+
+from john j (john@johnj.com):
+
+- fix DOM MB and FPGA build numbers in monitoring records
+- Enable barometer to fix pressure readouts in monitoring records
+- update domapp release version number
+
+from george (lchao@lbl.gov) (approved by az):
+
+- fix 2 channels of ADC
+- fix baseline max-min value
+- increased the delay time, so we can read correct value
+- write atwd_pedestal_dac
+- fix one more ADC channel
+- turn off pmt at the end
+- fix pulser_exp_amp for adjustment in hot temperature
+- fix pressure problem
+- fix another ADC channel
+- longer delay in pmt led
+
+from arthur (aljones@lbl.gov):
+
+- query-build-type.patch: fix build and type query hal routines
+- hal-query-build.patch: use hal to query build and type in iceboot
+
+from dave glowacki (dglo@ssec.wisc.edu)
+	
+- close run threads so AddResult finishes
+
+from jim braun (jbraun@amanda.wisc.edu)
+
+- deal with configboot
+- do not softboot doms anymore
+- minor gui tweaks
+

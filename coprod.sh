@@ -8,8 +8,7 @@ fi
 #
 # coprod.sh, checkout a prod release by number
 #
-modules="configboot daq-db-common daq-db-stftest dom-cal dom-cpld dom-fpga dom-l
-oader dom-ws domhub-common dor-test hal iceboot stf stfapp testdomapp"
+modules="configboot daq-db-common daq-db-stftest dom-cal dom-cpld dom-fpga dom-loader dom-ws domhub-common dor-test hal iceboot stf stfapp testdomapp"
 
 cvs checkout -r az-prod-rel-$1 ${modules}
 
