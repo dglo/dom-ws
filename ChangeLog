@@ -1,7 +1,17 @@
+Release 305:
+
+from john jacobsen:
+    New features:
+       - selective enable of LC (upper only, lower only, or either)
+       - indication of LC enable in trigger bits of engineering format
+       - indication of LC state change in monitoring records
+       - message to reset contents of lookback memory
+
+----------------------------------------------------------------------------
 Release 304:
 
 from thorsten stezelberger:
-   swap UP/DOWN sense for local coincidence
+    swap UP/DOWN sense for local coincidence
  
 ----------------------------------------------------------------------------
 Release 303:
