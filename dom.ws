@@ -29,6 +29,7 @@ import dom-loader
 import iceboot iceboot iceboot-docs
 import stf stf stf-apps stf-docs stf-sfe std-tests
 import configboot configboot
+import dom-cal dom-cal
 
 #
 # one-off links...
