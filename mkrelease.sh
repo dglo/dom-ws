@@ -18,6 +18,8 @@ for f in $*; do
     echo 'expect "^domterm> "' >> /tmp/$$.se
     echo "send \"sz -k --ymodem $f\r\"" >> /tmp/$$.se 
     echo 'expect "^domterm> "' >> /tmp/$$.se
+    echo 'send "status\n"' >> /tmp/$$.se
+    echo 'expect "^0"' >> /tmp/$$.se
     echo 'send "\n"' >> /tmp/$$.se
     echo 'sleep 1' >> /tmp/$$.se
     echo 'send "\r"' >> /tmp/$$.se

@@ -1,5 +1,16 @@
 Proposed release 300:
 
+from thorsten:
+    latest and greatest comm and stf fpga with all local coincidence
+    features
+
+from arthur:
+    upgrade dom fpga to fix dom tx - rx timestamps off by about x2 bug
+    initialize rate in atwd_pulser_spe.c
+
+from arthur [dom-ws/stf-client]:
+    remove erroneous exit 1 in stf startup script
+
 from dglo [daq-db-common/daq-db-common/project.xml]:
     Add icecube.daq.db.app to package list
 
