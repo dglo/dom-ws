@@ -1,0 +1,303 @@
+Index: private/iceboot/sfi.c
+===================================================================
+RCS file: /home/icecube/cvsroot/iceboot/private/iceboot/sfi.c,v
+retrieving revision 1.116
+diff -u -r1.116 sfi.c
+--- private/iceboot/sfi.c	27 Sep 2004 15:00:38 -0000	1.116
++++ private/iceboot/sfi.c	24 Nov 2004 18:15:57 -0000
+@@ -85,9 +85,9 @@
+  * \section notes Notes
+  *   requires vt100 terminal set to 115200,N,8,1 hardware flow control...
+  *
+- * $Revision: 1.1.2.1 $
++ * $Revision: 1.1.2.1 $
+  * $Author: arthur $
+- * $Date: 2004-11-24 20:10:29 $
++ * $Date: 2004-11-24 20:10:29 $
+  */
+ #include <stdio.h>
+ #include <string.h>
+@@ -1018,8 +1018,30 @@
+ }
+ 
+ static const char *enableFB(const char *p) {
+-   hal_FB_enable();
+-   return p;
++    int err, config_t, valid_t;    
++    err = hal_FB_enable(&config_t, &valid_t);
++    if (err != 0) {
++        switch(err) {
++        case FB_HAL_ERR_CONFIG_TIME:
++            printf("Error: flasherboard configuration time too long\r\n");
++            break;
++        case FB_HAL_ERR_VALID_TIME:
++            printf("Error: flasherboard clock validation time too long\r\n");
++            break;
++        default:
++            printf("Error: unknown flasherboard enable failure\r\n");
++            break;
++        }
++    }
++    push(valid_t);
++    push(config_t);
++    push(err);
++    return p;
++}
++
++static const char *enableFBmin(const char *p) {
++    hal_FB_enable_min();
++    return p;
+ }
+ 
+ static const char *disableFB(const char *p) {
+@@ -1027,6 +1049,101 @@
+    return p;
+ }
+ 
++static const char *setFBbrightness(const char *p) {
++    if (hal_FB_isEnabled()) {
++        int value = pop();
++        hal_FB_set_brightness(value);
++    }
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
++
++    return p;
++}
++
++static const char *setFBwidth(const char *p) {
++    if (hal_FB_isEnabled()) {
++        int value = pop();
++        hal_FB_set_pulse_width(value);
++    }
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
++    return p;
++}
++
++static const char *setFBenables(const char *p) {
++    if (hal_FB_isEnabled()){ 
++        int value = pop();
++        hal_FB_enable_LEDs(value);
++    }
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
++    return p;
++}
++
++static const char *setFBmux(const char *p) {
++    if (hal_FB_isEnabled()) {
++        int value = pop();
++        hal_FB_select_mux_input(value);
++    }
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
++    return p;
++}
++
++static const char *startFBflashing(const char *p) {
++    if (hal_FB_isEnabled())
++        hal_FPGA_TEST_start_FB_flashing();
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
++    return p;
++}
++
++static const char *stopFBflashing(const char *p) {
++    if (hal_FB_isEnabled())
++        hal_FPGA_TEST_stop_FB_flashing();
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");    
++    return p;
++}
++
++static int getFBfw(void) {
++    int version = 0;
++    if (hal_FB_isEnabled())
++        version = hal_FB_get_fw_version();
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
++    return version;
++
++}
++
++static int getFBhw(void) {
++    int version = 0;
++    if (hal_FB_isEnabled())
++        version = hal_FB_get_hw_version();
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");    
++    return version;
++}
++
++static const char *setFBdcdc(const char *p) {
++    if (hal_FB_isEnabled()) {
++        int value = pop();
++        hal_FB_set_DCDCen(value);
++    }
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");    
++    return p;
++}
++
++static int getFBdcdc(void) {
++    int val = -1;
++    if (hal_FB_isEnabled())
++        val = hal_FB_get_DCDCen();
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");    
++    return val;
++}
++
+ /* crctab calculated by Mark G. Mendel, Network Systems Corporation */
+ static unsigned short crctab[256] = {
+     0x0000,  0x1021,  0x2042,  0x3063,  0x4084,  0x50a5,  0x60c6,  0x70e7,
+@@ -1563,9 +1680,30 @@
+ }
+ 
+ static const char *fbid(const char *p) {
+-   const char *id = hal_FB_get_serial();
+-   push((int) id);
+-   push(strlen(id));
++    char **id = 0;
++    int err;
++    if (hal_FB_isEnabled()) {        
++        err = hal_FB_get_serial(id);
++        if (err == 0) {
++            push((int)(*id));
++            push(strlen(*id));
++        }
++        else {
++            switch(err) {
++            case FB_HAL_ERR_ID_NOT_PRESENT:
++                printf("Error: flasherboard ID chip not detected\r\n");
++                break;
++            case FB_HAL_ERR_ID_BAD_CRC:
++                printf("Error: flasherboard ID CRC failure\r\n");
++                break;
++            default:
++                printf("Error: unknown flasherboard ID failure\r\n");
++                break;
++            }
++        }
++    }
++    else
++        printf("Please power the flasherboard with enableFB first!\r\n");
+    return p;
+ }
+ 
+@@ -2475,9 +2613,17 @@
+      { "enableLED", enableLED },
+      { "disableLED", disableLED },
+      { "setLEDdelay", setLEDdelay },
+-     { "enableFB", enableFB },
++     { "enableFB", enableFB},
++     { "enableFBmin", enableFBmin},
+      { "disableFB", disableFB },
+      { "fbid", fbid },
++     { "setFBbrightness", setFBbrightness },
++     { "setFBwidth", setFBwidth },
++     { "setFBenables", setFBenables },
++     { "setFBmux", setFBmux },
++     { "startFBflashing", startFBflashing },
++     { "stopFBflashing", stopFBflashing },
++     { "setFBdcdc", setFBdcdc },
+ #if defined(PSKHACK)
+      { "scan-angles", scanAngles },
+      { "dump-cordic", dumpCordic },
+@@ -2500,6 +2646,9 @@
+      { "readBaseDAC", readBaseDAC },
+      { "readBaseADC", readBaseADC },
+      { "readPressure", readPressure },
++     { "getFBfw", getFBfw },
++     { "getFBhw", getFBhw },
++     { "getFBdcdc", getFBdcdc },
+   };
+   const int nInitCFuncs0 = sizeof(initCFuncs0)/sizeof(initCFuncs0[0]);
+ 
+Index: private/epxa10/iceboot/osdep.c
+===================================================================
+RCS file: /home/icecube/cvsroot/iceboot/private/epxa10/iceboot/osdep.c,v
+retrieving revision 1.26
+diff -u -r1.26 osdep.c
+--- private/epxa10/iceboot/osdep.c	14 Aug 2004 02:06:44 -0000	1.26
++++ private/epxa10/iceboot/osdep.c	24 Nov 2004 18:15:58 -0000
+@@ -1,4 +1,5 @@
+ #include <stdlib.h>
++#include <stdio.h>
+ #include <string.h>
+ 
+ #include "iceboot/sfi.h"
+@@ -265,8 +266,11 @@
+         return 1;
+     }
+ 
+-    /* Turn on flasherboard */
+-    hal_FB_enable();
++    /* Check to make sure flasherboard is powered */
++    if (!hal_FB_isEnabled()) {
++        printf("Please power the flasherboard with enableFB first!\r\n");
++        return 1;
++    }
+     
+     /* Enable JTAG in PLD and FPGA */
+     hal_FPGA_TEST_FB_JTAG_enable();
+Index: private/iceboot-docs/iceboot-ug.tex
+===================================================================
+RCS file: /home/icecube/cvsroot/iceboot/private/iceboot-docs/iceboot-ug.tex,v
+retrieving revision 1.15
+diff -u -r1.15 iceboot-ug.tex
+--- private/iceboot-docs/iceboot-ug.tex	27 Sep 2004 15:26:51 -0000	1.15
++++ private/iceboot-docs/iceboot-ug.tex	24 Nov 2004 18:15:58 -0000
+@@ -446,7 +446,11 @@
+ dom id string}
+ \cmd{drop}{}{}{Drop the top stack element}
+ \cmd{dup}{a}{a a}{Duplicate the top stack element}
+-\cmd{enableFB}{}{}{Enable and power-up the flasherboard}
++\cmd{enableFB}{}{configtime validtime status}{ Enable and power-up the
++  flasherboard.  Returns status (0=success) or error code, along with
++  diagnostic timing information.  configtime is the time required to
++  configure the CPLD, in us, and validtime is the time required for
++  the clock to stabilize during power-up (also in us). }
+ \cmd{enableHV}{}{}{Enable PMT high-voltage base}
+ \cmd{enableLED}{}{}{Enable the onboard LED}
+ \cmd{exec}{execAddress execLength}{}{Execute the program at execAddress with
+@@ -486,6 +490,14 @@
+ fpga with the sbi file named stf.sbi in the flash filesystem}
+ 
+ \cmd{free}{address}{}{Free allocated data at address.}
++
++\cmd{getFBdcdc}{enabled}{}{ Get the enabled/disabled status of the DC/DC
++  converter on the flasherboard which drives the LEDs }
++\cmd{getFBfw}{version}{}{ Get the firmware version of the flasherboard CPLD
++  }
++\cmd{getFBhw}{version}{}{ Get the hardware (PCB artwork) version of the 
++  flasherboard }
++
+ \cmd{gunzip}{dataAddress dataLength}{destAddress destLength}{
+         Unzip a gzip file at dataAddress of length dataLength and
+ put the resulting data in destAddress with length destLength.  if
+@@ -554,8 +566,23 @@
+ \cmd{rshift}{value shift}{result}{ result = value right shifted shift}
+ \cmd{s`` words''}{}{wordsAddress wordsLength}{return string at wordsAddress
+ with length wordsLength}
++
++\cmd{setFBbrightness}{level}{}{ Set the flasherboard brightness level}
++\cmd{setFBenables}{enable mask}{} { Set the mask which enables the
++  individual flasherboard LEDs }
++\cmd{setFBmux}{channel}{}{ Select which LED current is muxed back to the
++  mainboard.  An argument of 0 disables the mux, while 13 selects the TTL
++  driver pulse. }
++\cmd{setFBwidth}{width}{}{ Set the flasherboard pulse width }
++\cmd{setFBdcdc}{}{enable}{ Enable/disable the DC/DC converter on the
++  flasherboard which drives the LEDs }
++
+ \cmd{setLEDdelay}{delay}{}{ Set the launch delay from the onboard LED to
+   the ATWD trigger.  Delay time is (2+\textit{delay})*25ns.}
++
++\cmd{startFBflashing}{}{}{ Start flashing the flasherboard }
++\cmd{stopFBflashing}{}{}{ Stop flashing the flasherboard }
++
+ \cmd{swap}{}{}{ swap the two top words of the stack}
+ \cmd{true}{}{result}{return a true result (-1)}
+ \cmd{type}{stringAddress stringLength}{}{print string at stringAddress
