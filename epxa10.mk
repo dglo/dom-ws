@@ -11,6 +11,7 @@ export MENUBINGZ=$(BINDIR)/menu.bin.gz
 export YMODEMBINGZ=$(BINDIR)/ymodem.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/lookback.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/domapp.bin.gz
+export DOMCALBINGZ=$(BINDIR)/domcal.bin.gz
 
 export KERNELX=$(WD)/public/loader/kernel.x
 export RAWX=$(WD)/public/loader/raw.x
@@ -56,7 +57,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu stfsfe newbuild
+all: pld-versions versions iceboot stfserv menu stfsfe newbuild domcal
 
 iceboot:
 	cd epxa10/booter; make config_files
@@ -77,7 +78,7 @@ menu:
 	cd epxa10/loader; make all
 	cd epxa10/hal; make all
 	cd epxa10/stf; make all
-	cd epxa10/stf-apps; make $(MENUBINGZ)
+	cd epxa10/stf-apps; make "CFLAGS=$(CFLAGS) -DVERBOSE" $(MENUBINGZ)
 
 ymodem:
 	cd epxa10/booter; make config_files
@@ -101,6 +102,7 @@ clean:
 	cd $(PLATFORM)/domapp; make -f ../../domapp.mk clean
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
+	cd $(PLATFORM)/dom-cal; make clean
 	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
 
 stfsfe:
@@ -112,5 +114,14 @@ domapp:
 	cd $(PLATFORM)/hal; make all
 	cd $(PLATFORM)/domapp; make -f ../../domapp.mk $(DOMAPPBINGZ)
 
+domcalbase:
+	cd $(PLATFORM)/booter; make config_files
+	cd $(PLATFORM)/loader; make all
+	cd $(PLATFORM)/hal; make all
+	cd $(PLATFORM)/iceboot; make all
 
+domcal2: domcalbase
+	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV2" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal2.bin.gz
 
