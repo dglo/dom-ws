@@ -8,12 +8,12 @@
 #
 # required packages...
 #
-pkgs="icecube.daq.stf icecube.daq.domhub icecube.daq.db.app"
+pkgs="icecube.daq.stf icecube.daq.domhub"
 
 #
 # production build number
 #
-rev=REV5
+rev=REV4
 
 #
 # get and increment build number
@@ -36,56 +36,29 @@ if [[ -d ${dir} ]]; then
 fi
 
 #
-# make dir
-#
-mkdir ${dir}
-
-#
-# cp configboot image...
-#
-cp configboot.pof ${dir}
-
-#
 # cp std-tests (standard tests) -- read-only...
 #
-(cd ../stf/private; tar cf - std-tests/*.xml std-integration-tests/*.xml fat-tests/*.xml std-hass-tests/*.xml std-tests-supershort/*.xml) | (cd ${dir}; tar xf -)
-chmod ugo-w ${dir}/std-tests ${dir}/std-integration-tests ${dir}/fat-tests
+mkdir ${dir}
+(cd ../stf/private; tar cf - std-tests/*.xml) | (cd ${dir}; tar xf -)
+chmod ugo-w ${dir}/std-tests
 
 #
 # cp templates
 #
 mkdir ${dir}/templates
-(cd epxa10/stf-apps; make templates.tar.gz)
 gzip -dc epxa10/stf-apps/templates.tar.gz | (cd ${dir}/templates; tar xf -)
 
 #
-# make sure java code is up-to-date
+# cp jar files 
 #
-(cd epxa10/stf-apps; make java)
-
-#
-# make clean...
-#
-rm -rf ../build/*
-
-#
-# build then cp jar files 
-#
-if ! ./prjbld.sh stfapp; then
-    echo "mkprod.sh: unable to build stfapp, exiting..."
-    exit 1
-fi
-
-echo "copying..."
-
 mkdir ${dir}/jars
-cp `./prjjars.sh stfapp | sort | uniq` ${dir}/jars
+cp `./getjars.sh ${pkgs} | sort | uniq` ${dir}/jars
 
 #
 # daq-db has a mysql connector to cp
 #
-if [[ -f ${dir}/jars/daq-db-common.jar ]]; then
-    cp ~/bfd-tools/tools/lib/mysql-connector-java.jar ${dir}/jars
+if [[ -f ${dir}/jars/daq-db.jar ]]; then
+    cp ../daq-db/resources/mysql-connector-java.jar ${dir}/jars
 fi
 
 #
@@ -95,56 +68,19 @@ cp ./stf-client ${dir}
 chmod +x ${dir}/stf-client
 
 #
-# always build and cp software/firmware files
-#
-if ! ( make clean && make PROJECT_TAG=az-prod ICESOFT_BUILD=${bldn} ) then
-	echo "mkprod.sh: can't build..."
-	exit 1
-fi
-
-if ! /bin/bash dorel.sh; then
-	echo "can't create release.hex"
-	exit 1
-fi
-
-#
-# cp release files...
+# cp firmware files
 #
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
-cp INSTALL ${dir}
-
-#
-# cp add-schema files...
-#
-cp add-schema ${dir}
-chmod +x ${dir}/add-schema
-mkdir ${dir}/stf-schema
-if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
-   grep -v -- '-template\.xml$' | cpio -p -L -d ../../${dir}/stf-schema); then
-   echo "unable to cp schema files"
-   exit 1
-fi
-
-#
-# cp tcal-stf.sh
-#
-cp tcal-stf.sh ${dir}
-chmod +x ${dir}/tcal-stf.sh
 
 #
 # now tar it all up...
 #
-echo "tarring..."
 tar cf - ${dir} | gzip -c > ${dir}.tar.gz
 
 #
 # clean up...
 #
-echo "cleaning up..."
-chmod u+w ${dir}/std-tests ${dir}/std-integration-tests ${dir}/std-hass-tests \
-	${dir}/std-tests-supershort ${dir}/fat-tests
 rm -rf ${dir}
-
 
 
