@@ -182,9 +182,58 @@ static void closeListeners(DOMList *dl) {
    }
 }
 
+static void icebootTerm(struct termios *buf) {
+   /* setup iceboot terminal.
+    *
+    * FIXME: what about raw?!?
+    */
+   buf->c_lflag = 0;
+   buf->c_iflag = IGNPAR | IGNBRK;
+   buf->c_oflag = 0;
+   buf->c_cflag = CLOCAL | CS8;
+   buf->c_cc[VMIN] = 1;
+   buf->c_cc[VTIME] = 0;
+}
+
 static int startSerial(DOMList *dl) {
    /* open tty, fork... */
-   return 1;
+   char dev[32];
+   struct termios buf;
+   int fd;
+   
+   sprintf(dev, "/dev/ttyS%d", dl->port-SERIAL_PORT-1);
+   if ((fd=open(dev, O_RDWR|O_NONBLOCK))<0) {
+      perror("can't open serial device");
+      return 1;
+   }
+   
+   /* setup termio parameters
+    */
+   buf.c_lflag = 0;
+   buf.c_iflag = IGNBRK | IGNPAR;
+   buf.c_cflag = B115200 | CS8 | CREAD | CLOCAL /* | CRTSXOFF | CRTSCTS */;
+   buf.c_oflag = 0;
+   buf.c_cc[VMIN] = 1;
+   buf.c_cc[VTIME] = 0;
+
+   cfsetispeed(&buf, B115200);
+   cfsetospeed(&buf, B115200);
+   
+   if (tcsetattr(fd, TCSAFLUSH, &buf)<0) {
+      fprintf(stderr, "can't set termios: %s\n", dev);
+      return 1;
+   }
+
+   /* blocking mode...
+    */
+   if (fcntl(fd, F_SETFL, O_RDWR)<0) {
+      perror("fcntl");
+      return 1;
+   }
+
+   dl->ifd = fd;
+
+   return 0;
 }
 
 static int forkDOM(DOMList *dl, const char *prog) {
@@ -192,17 +241,8 @@ static int forkDOM(DOMList *dl, const char *prog) {
    pid_t pid;
    int mfd;
    struct termios buf;
-
-   /* setup iceboot terminal.
-    *
-    * FIXME: what about raw?!?
-    */
-   buf.c_lflag = 0;
-   buf.c_iflag = IGNPAR | IGNBRK;
-   buf.c_oflag = 0;
-   buf.c_cflag = CLOCAL | CS8;
-   buf.c_cc[VMIN] = 1;
-   buf.c_cc[VTIME] = 0;
+   
+   icebootTerm(&buf);
 
    if ((pid=forkpty(&mfd, name, &buf, NULL))<0) {
       perror("forkpty");
@@ -259,8 +299,14 @@ static int openSlave(DOMList *dl) {
 	    return 1;
 	 }
       }
+      else if (strcmp(dl->type, "serial")==0) {
+	 if (startSerial(dl)) {
+	    fprintf(stderr, "domserv: unable to start serial!\n");
+	    return 1;
+	 }
+      }
       else {
-	 fprintf(stderr, "domserv: unknown type\n");
+	 fprintf(stderr, "domserv: unknown type: '%s'\n", dl->type);
 	 return 1;
       }
    }
