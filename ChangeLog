@@ -1,3 +1,13 @@
+Proposed Release 238:
+
+from johnj: add echo-mode-cb to release.hex
+
+----------------------------------------------------------------------------
+Release 237:
+
+from azriel: use 2pe instead of 1pe in fadc pulser test.
+
+----------------------------------------------------------------------------
 Release 236:
 
 from thorsten (tstezelberger@lbl.gov) and kalle:
