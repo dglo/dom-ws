@@ -1,0 +1,10 @@
+to install a release:
+
+gzip -dc prod-REVx-NNN.tar.gz | tar xf -
+
+cd prod-REVx-NNN
+./add-schema
+
+and you should be all set...
+
+
