@@ -26,11 +26,14 @@ if [[ "$1" == "all" ]]; then
     fi
     doms=`cat /proc/driver/domhub/card*/pair*/dom*/is-communicating | \
               grep -v NOT | awk '{ print $2 $4 $6; }'`
+    ret=0
     for dom in ${doms}; do
-        $0 ${dom} $2 &
+        if ! $0 ${dom} $2; then
+            echo "`basename $0`: unable to run on dom ${dom}"
+            ret=1
+        fi
     done
-    wait
-    exit $?
+    exit $ret
 fi
 
 card=`echo $1 | awk '{ print substr($0, 1, 1); }'`
