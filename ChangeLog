@@ -1,7 +1,26 @@
+Proposed Release 309:
+
+from jim braun:
+    006: add logging and sorting to stfapp
+
+from george chao:
+    005: 1 liner patch for stf
+
+from john kelley:
+    001: flasher brightness delay -- use correct parameter
+    002: check for presence bit reset for flasher board
+    003: add flasher clock test
+
+from arthur:
+    004: stf parameters for new flasher clock test
+    008: add domcal program to release
+
+----------------------------------------------------------------------------
 Release 308:
 
 from arthur:
     copy ChangeLog to the web page
+    minor build cleanup 
 
 from johnj:
     add trigger_disc_lc to hal public header
