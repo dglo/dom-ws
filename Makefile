@@ -75,7 +75,7 @@ release.hex: mkrelease.sh domserv all iceboot.sbi.gz stf.sbi.gz
 		domapp.bin.gz
 
 DEVEL_RELEASE=0
-DEVEL_BUILD=1
+DEVEL_BUILD=2
 
 tag-build:
 	cd ../hal; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
