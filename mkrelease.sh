@@ -7,7 +7,7 @@
 #
 # start dom server -- only open one port...
 #
-echo 'open sim 1' | ./domserv -dh >& /tmp/ds.$$ &
+echo 'open sim 1' | domserv -dh >& /tmp/ds.$$ &
 sleep 2
 
 # make sure everything was ok...
