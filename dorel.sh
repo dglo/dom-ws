@@ -44,6 +44,11 @@ fi
 (cd ${REL}; for f in ${SBIL}; do ln -s ../${sbidir}/${SBI} ${f}; done )
 
 #
+# copy configboot fpga
+#
+cp ../dom-fpga/configboot/epxa4DPM/configboot.sbi ${REL}
+
+#
 # cp .fs files
 #
 (cd ${fsdir}; cp ${FS} ../../dom-ws/${REL})
