@@ -86,7 +86,7 @@ menu:
 	cd epxa10/loader; make all
 	cd epxa10/hal; make all
 	cd epxa10/stf; make all
-	cd epxa10/stf-apps; make $(MENUBINGZ)
+	cd epxa10/stf-apps; make "CFLAGS=$(CFLAGS) -DVERBOSE" $(MENUBINGZ)
 
 echomode:
 	cd epxa10/booter; make config_files
@@ -130,9 +130,12 @@ domapp:
 	cd $(PLATFORM)/hal; make all
 	cd $(PLATFORM)/domapp; make -f ../../domapp.mk $(DOMAPPBINGZ)
 
-domcal:
+domcalbase:
 	cd $(PLATFORM)/booter; make config_files
 	cd $(PLATFORM)/loader; make all
 	cd $(PLATFORM)/hal; make all
 	cd $(PLATFORM)/iceboot; make all		
-	cd $(PLATFORM)/dom-cal; make -I "../iceboot"  "CFLAGS=$(CFLAGS) -DREV3HAL" $(DOMCALBINGZ)
+
+domcal3: domcalbase
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV3" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal3.bin.gz	
