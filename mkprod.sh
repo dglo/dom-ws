@@ -118,6 +118,7 @@ fi
 #
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
+cp INSTALL ${dir}
 
 #
 # cp add-schema files...
