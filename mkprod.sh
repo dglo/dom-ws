@@ -133,6 +133,12 @@ if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
 fi
 
 #
+# cp tcal-stf.sh
+#
+cp tcal-stf.sh ${dir}
+chmod +x ${dir}/tcal-stf.sh
+
+#
 # now tar it all up...
 #
 echo "tarring..."

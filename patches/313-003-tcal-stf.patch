@@ -168,3 +168,23 @@
 +
 +echo $1 ${rtt} ${rte}
 +
+Index: mkprod.sh
+===================================================================
+RCS file: /home/icecube/cvsroot/dom-ws/mkprod.sh,v
+retrieving revision 1.13.2.5
+diff -u -r1.13.2.5 mkprod.sh
+--- mkprod.sh	10 Mar 2005 17:56:02 -0000	1.13.2.5
++++ mkprod.sh	11 Mar 2005 21:03:43 -0000
+@@ -133,6 +133,12 @@
+ fi
+ 
+ #
++# cp tcal-stf.sh
++#
++cp tcal-stf.sh ${dir}
++chmod +x ${dir}/tcal-stf.sh
++
++#
+ # now tar it all up...
+ #
+ echo "tarring..."
