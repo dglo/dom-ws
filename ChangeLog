@@ -14,7 +14,7 @@ from john kelley:
 from arthur:
     004: stf parameters for new flasher clock test
     008: add domcal program to release
-
+    009: add-schema is now part of release
 ----------------------------------------------------------------------------
 Release 308:
 
