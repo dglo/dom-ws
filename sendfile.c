@@ -23,12 +23,10 @@ static void closeAlarm(int sig) {
 int main(int argc, char *argv[]) {
    int fd, sfd;
    ssize_t ts = 0;
-   off_t offset = 0;
    struct stat st;
    int nretries = 0;
    struct hostent *he;
    struct sockaddr_in serv_addr;
-   char *mem;
 
    if (argc!=4) {
       fprintf(stderr, "usage: sendfile file host port\n");

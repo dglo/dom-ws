@@ -5,7 +5,7 @@ PLATFORM=epxa10
 #PLATFORM=Linux-i386
 
 export PROJECT_TAG=devel
-export ICESOFT_BUILD=$(shell /bin/sh getbld.sh)
+export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export LIBEXPAT=/usr/arm-elf/lib/libexpat.a
@@ -30,9 +30,6 @@ doc:
 
 doc.install: doc
 	cd ../hal/html; tar cf - . | (cd ~/public_html/dom-mb; tar xf -)
-
-newbuild:
-	/bin/sh newbld.sh
 
 domserv: domserv.c
 	gcc -o domserv -Wall domserv.c -lutil

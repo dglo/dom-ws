@@ -6,6 +6,8 @@ export BINDIR=$(WD)/bin
 export SFIBIN=$(BINDIR)/sfi.bin
 export ICEBOOTHEX=$(BINDIR)/iceboot.hex
 export ICEBOOTBINGZ=$(BINDIR)/iceboot.bin.gz
+export CONFIGBOOTHEX=$(BINDIR)/configboot.hex
+export CONFIGBOOTBIN=$(BINDIR)/configboot.bin
 export STFSERVBINGZ=$(BINDIR)/stfserv.bin.gz
 export MENUBINGZ=$(BINDIR)/menu.bin.gz
 export YMODEMBINGZ=$(BINDIR)/ymodem.bin.gz
@@ -56,7 +58,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu stfsfe newbuild
+all: pld-versions versions iceboot stfserv menu stfsfe
 
 iceboot:
 	cd epxa10/booter; make config_files
@@ -64,6 +66,10 @@ iceboot:
 	cd epxa10/hal; make all
 	cd epxa10/iceboot; make all
 	cd epxa10/booter; make bin
+
+configboot:
+	cd epxa10/booter; make config_files
+	cd epxa10/configboot; make $(CONFIGBOOTHEX)
 
 stfserv:
 	cd epxa10/booter; make config_files
@@ -101,6 +107,7 @@ clean:
 	cd $(PLATFORM)/domapp; make -f ../../domapp.mk clean
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
+	cd $(PLATFORM)/configboot; make clean
 	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
 
 stfsfe:

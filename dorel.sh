@@ -6,7 +6,7 @@ mkdir ${REL}
 cd ${REL}
 
 BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz'
-SBI='simpletest_rev2_epxa1_com.sbi'
+SBI='simpletest_rev2_epxa4_com.sbi'
 SBIL='stf.sbi.gz domapp.sbi.gz iceboot.sbi.gz'
 FS=startup.fs
 
