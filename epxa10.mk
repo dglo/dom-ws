@@ -135,4 +135,4 @@ domcal:
 	cd $(PLATFORM)/loader; make all
 	cd $(PLATFORM)/hal; make all
 	cd $(PLATFORM)/iceboot; make all		
-	cd $(PLATFORM)/dom-cal; make -I "../iceboot" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot"  "CFLAGS=$(CFLAGS) -DREV3HAL" $(DOMCALBINGZ)
