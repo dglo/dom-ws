@@ -1,4 +1,10 @@
-Proposed Release 309:
+Release 310:
+
+from jim braun:
+    001: fix buffer overflow in run summary -- allows stf-client
+         to run again...
+----------------------------------------------------------------------------
+Release 309:
 
 from jim braun:
     006: add logging and sorting to stfapp
