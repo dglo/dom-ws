@@ -27,7 +27,7 @@ doc:
 	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
 doc.install: doc
-	cd ../hal/html; tar cf - . | ssh deimos.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
+	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
 
 domserv: domserv.c
 	gcc -o domserv -Wall domserv.c -lutil
@@ -103,4 +103,7 @@ rev-2004-06.pdf: rev-2004-06.tex
 
 dhsave: dhsave.c
 	gcc -Wall -g -o dhsave dhsave.c
+
+se: se.c
+	gcc -Wall -g -o se se.c -lutil
 

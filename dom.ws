@@ -27,7 +27,7 @@ platforms epxa10 Linux-i386
 import hal
 import dom-loader
 import iceboot iceboot iceboot-docs
-import stf stf stf-apps stf-docs stf-sfe std-tests
+import stf stf stf-apps stf-docs stf-sfe std-tests int-tests
 import configboot configboot
 import dom-cal dom-cal
 
@@ -64,6 +64,7 @@ link testdomapp expControl private expControl.h public expControl
 link testdomapp dataAccess private dataAccess.h public dataAccess
 link testdomapp dataAccess private dataAccessRoutines.h public dataAccess
 link testdomapp dataAccess private moniDataAccess.h public dataAccess
+link testdomapp dataAccess private compressEvent.h public dataAccess
 link testdomapp slowControl private domSControl.h public slowControl
 link testdomapp slowControl private domSControlRoutines.h public slowControl
 

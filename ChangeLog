@@ -1,51 +1,7 @@
-Release 243:
+Proposed Release 300:
 
-from john kelley:
-	loosen up stf hv test pass/fail parameters
-----------------------------------------------------------------------------
-Release 242:
-
-from john kelley:
-    tune pass conditions for flasherboard STF tests
-    increase delays in flasherboard power-up sequence to 100ms
-
-from john jacobsen:
-    Sum 9 readouts of SPE and MPE scalars every second -> hardware state
-      monitoring record.
-
-----------------------------------------------------------------------------
-Release 241:
-
-from thorsten stezelberger:
-    Cold boot fix -- hold nConfig low while nPOR is low
-
-----------------------------------------------------------------------------
-Release 240:
-
-from john jacobsen:
-    Fixed MiscBits (ATWD in engineering event)
-
-----------------------------------------------------------------------------
-
-Release 239:
-
-from john kelley:
-    hal_flasher_fw6.patch:
-        - for hal/private/expa10/hal
-        - updates flasherboard HAL routines for flasherboard CPLD firmware v6
-
-    stf_flasher_rev5atwd.patch:
-        - for stf/private/stf-apps
-        - updates STF flasherboard tests and XML params for Rev5.0 ATWDs
-        - bumps xml version number
-
-    stf_hv_passtune.patch
-        - for stf/private/stf-apps
-        - tunes HV test passing conditions for latest HV base
-        - bumps xml version number
-from arthur: rollback latest kalle firmware, there is some indication
-    that it is not better -- back to build 97
-
+from howard matis: scream failed in tcal-stf [apply] [approve]
+from john kelley: update to head to get latest fb stuff [apply] [approve]
 ----------------------------------------------------------------------------
 Release 238:
 

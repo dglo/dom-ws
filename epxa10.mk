@@ -61,7 +61,17 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu echomode stfsfe domapp
+all: pld-versions versions iceboot stfserv menu echomode stfsfe domapp \
+	domcal5 wiggle
+
+booter_config:
+	cd epxa10/booter; make config_files
+
+loader:
+	cd epxa10/loader; make all
+
+hal:
+	cd epxa10/hal; make all
 
 iceboot:
 	cd epxa10/booter; make config_files
@@ -72,6 +82,7 @@ iceboot:
 
 configboot:
 	cd epxa10/booter; make config_files
+	cd epxa10/hal; make all
 	cd epxa10/configboot; make $(CONFIGBOOTHEX) configboot.tar.gz
 
 stfserv:
@@ -86,7 +97,7 @@ menu:
 	cd epxa10/loader; make all
 	cd epxa10/hal; make all
 	cd epxa10/stf; make all
-	cd epxa10/stf-apps; make $(MENUBINGZ)
+	cd epxa10/stf-apps; make "CFLAGS=$(CFLAGS) -DVERBOSE" $(MENUBINGZ)
 
 echomode:
 	cd epxa10/booter; make config_files
@@ -95,11 +106,11 @@ echomode:
 	cd epxa10/stf; make all
 	cd epxa10/stf-apps; make $(ECHOMODEBINGZ)
 
-ymodem:
+wiggle:
 	cd epxa10/booter; make config_files
 	cd epxa10/loader; make all
 	cd epxa10/hal; make all
-	cd epxa10/iceboot; make $(YMODEMBINGZ)
+	cd epxa10/stf-apps; make ../bin/wiggle.bin.gz
 
 lookback:
 	cd epxa10/booter; make config_files
@@ -114,7 +125,7 @@ clean:
 	cd $(PLATFORM)/hal; make clean
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
-	cd $(PLATFORM)/domapp; make -f ../../domapp.mk clean
+	cd $(PLATFORM)/domapp; make -f ../../../testdomapp/domapp.mk clean
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
 	cd $(PLATFORM)/configboot; make clean
@@ -128,13 +139,36 @@ domapp:
 	cd $(PLATFORM)/booter; make config_files
 	cd $(PLATFORM)/loader; make all
 	cd $(PLATFORM)/hal; make all
-	cd $(PLATFORM)/domapp; make -f ../../domapp.mk $(DOMAPPBINGZ)
+	cd $(PLATFORM)/domapp; make -f ../../../testdomapp/domapp.mk
 
-domcal:
+domcalbase:
 	cd $(PLATFORM)/booter; make config_files
 	cd $(PLATFORM)/loader; make all
 	cd $(PLATFORM)/hal; make all
 	cd $(PLATFORM)/iceboot; make all
-	cd $(PLATFORM)/dom-cal; make -I "../iceboot" $(DOMCALBINGZ)
 
+domcal2: domcalbase
+	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV2" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal2.bin.gz	
+
+domcal3: domcalbase
+	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV3" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal3.bin.gz	
+
+domcal4: domcalbase
+	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV4" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal4.bin.gz	
+
+domcal5: domcalbase
+	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV5" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal5.bin.gz	
+hack:
+	cd $(PLATFORM)/configboot; make hack.hex
+
+real: booter_config loader hal
+	cd $(PLATFORM)/domapp-test; make ../bin/real-app.bin.gz
 

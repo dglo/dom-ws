@@ -48,7 +48,10 @@ cp configboot.pof ${dir}
 #
 # cp iceboot script...
 #
-cp iceboot.sh reboot.exp ${dir}
+if ! cp domhub-tools/iceboot.sh ${dir}; then
+    echo "mkprod.sh: unable to cp iceboot.sh"
+    exit 1
+fi
 
 #
 # cp std-tests (standard tests) -- read-only...
@@ -114,19 +117,12 @@ fi
 cp ./stf-client ${dir}
 chmod +x ${dir}/stf-client
 
-#
-# cp tcal scripts...
-#
-if [[ ! -f tcalcycle ]]; then
-    echo 'mkprod.sh: can not find tcalcycle, trying to make it...'
-    if ! make tcalcycle; then
-	echo 'mkprod.sh: can not make tcalcyle...'
-	exit 1
-    fi
+if ! (cd domhub-tools; \
+	cp dom.awk dor.awk tcal.awk tcal-calc.awk tcal-cvt.awk \
+	tcalcycle tcal.sh tcal-stf.sh ../${dir}) ; then
+    echo 'mkprod.sh: can not cp tcal routines...'
+    exit 1	
 fi
-
-cp dom.awk dor.awk tcal.awk tcal-calc.awk tcal-cvt.awk tcalcycle tcal.sh \
-    tcal-stf.sh ${dir}
 
 #
 # always build and cp software/firmware files

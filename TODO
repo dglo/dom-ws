@@ -1,3 +1,4 @@
+make sure warn on testname != filename in stf xml description files
 DONE dorel.sh in mkprod.sh
 fix monitor on domhub-prod
 atwd_baseline returns TRUE always
