@@ -1,0 +1,40 @@
+Index: iceboot/resources/startup.fs
+===================================================================
+RCS file: /home/icecube/cvsroot/iceboot/resources/startup.fs,v
+retrieving revision 1.23
+diff -u -r1.23 startup.fs
+--- iceboot/resources/startup.fs	4 Oct 2004 20:55:04 -0000	1.23
++++ iceboot/resources/startup.fs	10 Feb 2005 14:13:36 -0000
+@@ -42,6 +42,10 @@
+ : echo-mode-cb s" configboot.sbi" find if fpga echo-mode endif ;
+ 
+ \
++\ run domcal
++: echo-mode s" domcal" find if exec endif ;
++
++\
+ \ comm stuff...
+ \
+ $90081030 constant comctl
+Index: dom-ws/dorel.sh
+===================================================================
+RCS file: /home/icecube/cvsroot/dom-ws/dorel.sh,v
+retrieving revision 1.14
+diff -u -r1.14 dorel.sh
+--- dom-ws/dorel.sh	4 Oct 2004 21:04:22 -0000	1.14
++++ dom-ws/dorel.sh	10 Feb 2005 14:13:36 -0000
+@@ -37,6 +37,14 @@
+ done
+ 
+ #
++# cp domcal...
++#
++if ! cp ${bindir}/domcal5.bin.gz ${REL}/domcal.bin.gz; then
++    echo "unable to cp ${bindir}/domcal5.bin.gz..."
++    exit 1
++fi
++
++#
+ # cp and link sbi files...
+ #
+ # FIXME: we should be more flexible here...
