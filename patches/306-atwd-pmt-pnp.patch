@@ -1,0 +1,31 @@
+Index: private/stf-apps/atwd_pmt_spe.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/atwd_pmt_spe.c,v
+retrieving revision 1.7
+retrieving revision 1.9
+diff -u -r1.7 -r1.9
+--- private/stf-apps/atwd_pmt_spe.c	20 Jul 2004 18:34:23 -0000	1.7
++++ private/stf-apps/atwd_pmt_spe.c	22 Dec 2004 01:29:52 -0000	1.9
+@@ -45,7 +45,7 @@
+    int *sum_waveform = (int *) calloc(128, sizeof(int));
+    int trigger_mask = (atwd_chip_a_or_b) ? 
+       HAL_FPGA_TEST_TRIGGER_ATWD0 : HAL_FPGA_TEST_TRIGGER_ATWD1;
+-   int spe_dac_nominal, pmt_dac, use_pulser=0;
++   int pmt_dac, use_pulser=0;
+ 
+    /* pretest 1) all five atwd dac settings are programmed... */
+    halWriteDAC(ch, atwd_sampling_speed_dac);
+@@ -185,10 +185,9 @@
+    free(buffer);
+ 
+    return 
+-      *atwd_waveform_position > 2 &&
+-      *atwd_waveform_position < 10 &&
+-      *atwd_waveform_width > 7 &&
+-      *atwd_waveform_width < 11 &&
++      *atwd_waveform_position >= 9 &&
++      *atwd_waveform_position <= 11 &&
++      *atwd_waveform_amplitude > 15 &&
+       *real_hv_output > 0.95*pmt_hv_high_volt &&
+       *real_hv_output < 1.05*pmt_hv_high_volt;
+ }
