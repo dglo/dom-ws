@@ -8,7 +8,7 @@
 #
 # cvsroot must be relative!
 #
-cvsroot ../../icecube
+cvsroot ../../icecube-devel-0
 cvslogin :ext:glacier.lbl.gov:/home/icecube/cvsroot
 
 #
