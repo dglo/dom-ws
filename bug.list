@@ -1,0 +1,5 @@
+build	bug
+22	gunzip returns error when there was none
+46	request reboot added
+46 	versioning added
+46	is fpga loaded added

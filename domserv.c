@@ -10,22 +10,26 @@
  *   4500 DOR raw
  *   5000 SIM telnet
  *   5500 SIM raw
+ *
+ * FIXME: need much better logging.
+ * FIXME: nsims should be adjustable.
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/un.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/types.h>
 #include <netinet/in.h>
 #include <inttypes.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <pty.h>
 #include <poll.h>
@@ -44,18 +48,27 @@ static int servSim = 1;
 
 /* return number of devices we support...
  */
-static int nserial(void) {
-   /* FIXME: check for serial ports... */
-   return (servSerial) ? 2 : 0;
+static int nserial(void) { return (servSerial) ? 2 : 0; }
+
+static int isDORCard(int i) {
+   char path[128];
+   sprintf(path, "/proc/driver/domhub/card%d", i);
+   return access(path, R_OK|X_OK)==0;
 }
 
 static int ndors(void) {
-   /* FIXME: check for dors */
-   return (servDOR) ? 64 : 0;
+   static int nd = -1;
+   
+   if (nd==-1) {
+      int ncards = 0, i;
+      for (i=0; i<16; i++) if (isDORCard(i)) ncards++;
+      nd = ncards*8;
+   }
+   return (servDOR) ? nd : 0;
 }
 
 static int nsims(void) {
-   /* FIXME: check for sims? */
+   /* FIXME: make this adjustable... */
    return (servSim) ? 64 : 0;
 }
 
@@ -67,73 +80,28 @@ static int ndevs(void) {
    return n;
 }
 
-/* FIXME: listen for sigchld and update the slv field...
- */
-typedef struct DOMListStruct {
-   const char *ptyname;  /* NULL if no pty yet... */
+struct DOMListStruct;
+typedef struct DOMListStruct DOMList;
+
+struct DOMListStruct {
    const char *type;     /* "serial", "DOR", "sim" */
    pid_t slv;            /* slave pid */
    int sfd;              /* telnet listen socket fd... */
    int rsfd;             /* raw listen socket fd... */
-   int efd;              /* external descriptor (telnet socket) */
-   int rfd;              /* external descriptor (raw socket) */
+   int efd;              /* external descriptor (telnet/raw socket) */
    int ifd;              /* internal descriptor (master side of (p)tty) */
    int port;             /* telnet socket port */
    int rawport;          /* raw socket port */
-} DOMList;
+   int (*start)(DOMList *); /* startup routine... */
+   int isRaw;            /* is this a raw or telnet connection? */
+};
 
-static DOMList *newDOMList(void) {
-   const int n = ndevs();
-   int i, di;
-   
-   DOMList *dl = (DOMList *) calloc(n, sizeof(DOMList));
-   if (dl==NULL) {
-      fprintf(stderr, "domserv: can't allocate %d DOMs\n", n);
-      return NULL;
-   }
-   
-   for (i=di=0; i<nserial(); i++, di++) {
-      char nm[16];
-      sprintf(nm, "/dev/ttyS%d", i);
-      dl[di].ptyname = strdup(nm);
-      dl[di].type = "serial";
-      dl[di].slv = (pid_t) -1;
-      dl[di].sfd = -1;
-      dl[di].rsfd = -1;
-      dl[di].efd = -1;
-      dl[di].rfd = -1;
-      dl[di].ifd = -1;
-      dl[di].port = SERIAL_PORT + 1 + i;
-      dl[di].rawport = SERIAL_PORT_RAW + 1 + i;
-   }
-
-   for (i=0; i<ndors(); i++, di++) {
-      dl[di].ptyname = NULL;
-      dl[di].type = "DOR";
-      dl[di].slv = (pid_t) -1;
-      dl[di].sfd = -1;
-      dl[di].rsfd = -1;
-      dl[di].efd = -1;
-      dl[di].rfd = -1;
-      dl[di].ifd = -1;
-      dl[di].port = DOR_PORT + 1 + i;
-      dl[di].rawport = DOR_PORT_RAW + 1 + i;
-   }
-
-   for (i=0; i<nsims(); i++, di++) {
-      dl[di].ptyname = NULL;
-      dl[di].type = "sim";
-      dl[di].slv = (pid_t) -1;
-      dl[di].sfd = -1;
-      dl[di].rsfd = -1;
-      dl[di].efd = -1;
-      dl[di].rfd = -1;
-      dl[di].ifd = -1;
-      dl[di].port = SIM_PORT + 1 + i;
-      dl[di].rawport = SIM_PORT_RAW + 1 + i;
-   }
-   
-   return dl;
+static void initDOMList(DOMList *dl) {
+   dl->slv = (pid_t) -1;
+   dl->sfd = dl->rsfd = -1;
+   dl->efd = -1;
+   dl->ifd = -1;
+   dl->start = NULL;
 }
 
 static int sockListener(int port) {
@@ -144,6 +112,8 @@ static int sockListener(int port) {
       perror("opening stream socket");
       return -1;
    }
+
+   printf("bind: %d (%d)\n", port, sock);
   
    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
   
@@ -152,18 +122,24 @@ static int sockListener(int port) {
    server.sin_port        = ntohs(port);
    if (bind(sock, (struct sockaddr *) &server, sizeof server)<0) {
       perror("bind socket");
+      close(sock);
       return -1;
    }
   
    /* listen on new client socket...
     */
-   listen(sock, 1);
+   if (listen(sock, 1)<0) {
+      perror("listen");
+      close(sock);
+      return -1;
+   }
 
+   printf("listen: %d (%d)\n", port, sock);
    return sock;
 }
 
 static int openListeners(DOMList *dl) {
-   if (dl->sfd==-1 && dl->rsfd==-1 && dl->efd==-1 && dl->rfd==-1) {
+   if (dl->sfd==-1 && dl->rsfd==-1 && dl->efd==-1) {
       /* both ports are quiet, open listeners... */
       dl->sfd = sockListener(dl->port);
       dl->rsfd = sockListener(dl->rawport);
@@ -173,10 +149,18 @@ static int openListeners(DOMList *dl) {
 
 static void closeListeners(DOMList *dl) {
    if (dl->sfd!=-1) {
+      printf("close: %d (%d)\n", dl->port, dl->sfd);
+      if (shutdown(dl->sfd, SHUT_RDWR)<0) {
+	 perror("shutdown");
+      }
       close(dl->sfd);
       dl->sfd = -1;
    }
    if (dl->rsfd!=-1) {
+      printf("close: %d (%d)\n", dl->rawport, dl->rsfd);
+      if (shutdown(dl->rsfd, SHUT_RDWR)<0) {
+	 perror("shutdown");
+      }
       close(dl->rsfd);
       dl->rsfd = -1;
    }
@@ -196,11 +180,11 @@ static void icebootTerm(struct termios *buf) {
 }
 
 static int startSerial(DOMList *dl) {
-   /* open tty, fork... */
+   /* open tty... */
    char dev[32];
    struct termios buf;
    int fd;
-   
+
    sprintf(dev, "/dev/ttyS%d", dl->port-SERIAL_PORT-1);
    if ((fd=open(dev, O_RDWR|O_NONBLOCK))<0) {
       perror("can't open serial device");
@@ -224,12 +208,14 @@ static int startSerial(DOMList *dl) {
       return 1;
    }
 
+#if 0
    /* blocking mode...
     */
    if (fcntl(fd, F_SETFL, O_RDWR)<0) {
       perror("fcntl");
       return 1;
    }
+#endif
 
    dl->ifd = fd;
 
@@ -256,15 +242,32 @@ static int forkDOM(DOMList *dl, const char *prog) {
       }
    }
    
-   dl->ptyname = strdup(name);
    dl->slv = pid;
    dl->ifd = mfd;
    return 0;
 }
 
 static int startDOR(DOMList *dl) {
-   forkDOM(dl, "./Linux-i386/bin/dorslv");
-   return 1;
+   /* attempt to open dor...
+    */
+   char name[64];
+   const int dom = dl->port - DOR_PORT - 1;
+   const int card = dom/8;
+   const int wire = (dom%8)/4;
+   const int ab = dom%2;
+   int fd;
+
+   printf("dom(%d) card wire ab: %d %d %d\n", dom, card, wire, ab);
+   
+   sprintf(name, "/dev/dhc%dw%dd%c", card, wire, (ab==0) ? 'A' : 'B');
+   if ((fd=open(name, O_RDWR))<0) {
+      perror("open");
+      return 1;
+   }
+
+   dl->ifd = fd;
+
+   return 0;
 }
 
 static int startSim(DOMList *dl) {
@@ -288,30 +291,34 @@ static void telnetNeg(DOMList *dl) {
 }
 
 /* startup the slave if necessary...
- *
- * FIXME: should we close sockets on error?
  */
 static int openSlave(DOMList *dl) {
-   if ( (dl->efd!=-1 || dl->rfd!=-1) && dl->slv==(pid_t) -1) {
-      if (strcmp(dl->type, "sim")==0) {
-	 if (startSim(dl)) {
-	    fprintf(stderr, "domserv: unable to start sim!\n");
-	    return 1;
-	 }
-      }
-      else if (strcmp(dl->type, "serial")==0) {
-	 if (startSerial(dl)) {
-	    fprintf(stderr, "domserv: unable to start serial!\n");
-	    return 1;
-	 }
-      }
-      else {
-	 fprintf(stderr, "domserv: unknown type: '%s'\n", dl->type);
+   if ( (dl->efd!=-1) && dl->slv==(pid_t) -1 && dl->ifd==-1) {
+      if (dl->start(dl)) {
+	 fprintf(stderr, "domserv: unable to start %s\n", dl->type);
 	 return 1;
       }
    }
    
    return 0;
+}
+
+/* clean up after slave error...
+ */
+static void closeSlave(DOMList *dl) {
+   if (dl->slv!=(pid_t) -1) kill(dl->slv, SIGTERM);
+   if (dl->efd!=-1) { close(dl->efd); dl->efd = -1; }
+   if (dl->ifd!=-1) { close(dl->ifd); dl->ifd = -1; }
+   if (dl->slv!=(pid_t) -1) {
+      int status;
+      
+      printf("domserv: closeSlave: waiting for %d to die...\n",
+	     dl->slv);
+      waitpid(dl->slv, &status, 0);
+      printf("domserv: closeSlave: %d died with status %d...\n",
+	     dl->slv, status);
+      dl->slv = (pid_t) -1;
+   }
 }
 
 static int scanTelnet(unsigned char *buffer, int len) {
@@ -355,6 +362,45 @@ static int scanTelnet(unsigned char *buffer, int len) {
    return len;
 }
 
+static DOMList *newDOMList(void) {
+   const int n = ndevs();
+   int i, di;
+   
+   DOMList *dl = (DOMList *) calloc(n, sizeof(DOMList));
+   if (dl==NULL) {
+      fprintf(stderr, "domserv: can't allocate %d DOMs\n", n);
+      return NULL;
+   }
+   
+   for (i=di=0; i<nserial(); i++, di++) {
+      initDOMList(dl + di);
+      dl[di].type = "serial";
+      dl[di].port = SERIAL_PORT + 1 + i;
+      dl[di].rawport = SERIAL_PORT_RAW + 1 + i;
+      dl[di].start = startSerial;
+   }
+
+   for (i=0; i<ndors(); i++, di++) {
+      if (isDORCard(i/8)) {
+	 initDOMList(dl+di);
+	 dl[di].type = "DOR";
+	 dl[di].port = DOR_PORT + 1 + i;
+	 dl[di].rawport = DOR_PORT_RAW + 1 + i;
+	 dl[di].start = startDOR;
+      }
+   }
+
+   for (i=0; i<nsims(); i++, di++) {
+      initDOMList(dl + di);
+      dl[di].type = "sim";
+      dl[di].port = SIM_PORT + 1 + i;
+      dl[di].rawport = SIM_PORT_RAW + 1 + i;
+      dl[di].start = startSim;
+   }
+   
+   return dl;
+}
+
 int main(int argc, char *argv[]) {
    DOMList *dl = NULL;
    struct pollfd *fds = NULL;
@@ -383,6 +429,8 @@ int main(int argc, char *argv[]) {
    while (1) {
       int nfds = 0;
       int ret, j;
+      int ld = 0;
+      int lfd = 0;
 
       for (i=0; i<ndevs(); i++) {
 	 if (openSlave(dl + i)) {
@@ -414,11 +462,6 @@ int main(int argc, char *argv[]) {
 	    fds[nfds].events = POLLIN;
 	    nfds++;
 	 }
-	 if (dl[i].rfd!=-1) {
-	    fds[nfds].fd = dl[i].rfd;
-	    fds[nfds].events = POLLIN;
-	    nfds++;
-	 }
 	 if (dl[i].ifd!=-1) {
 	    fds[nfds].fd = dl[i].ifd;
 	    fds[nfds].events = POLLIN;
@@ -432,38 +475,52 @@ int main(int argc, char *argv[]) {
 	 return 1;
       }
 
-      /* search out events... */
+      /* FIXME: fd -> DOMList map would be nice if
+       * there are too many fds here...
+       */
       for (j=0; j<ret; j++) {
-	 for (i=0; i<nfds; i++) {
+	 for (i=lfd; i<nfds; i++) {
 	    if (fds[i].revents) {
 	       int k;
 
 	       /* find the device... */
-	       for (k=0; k<ndevs(); k++) {
-		  unsigned char buffer[4096];
+	       for (k=ld; k<ndevs(); k++) {
+		  /* buffer must _not_ be more than 4096 */
+		  unsigned char buffer[400];
 
 		  if (dl[k].sfd==fds[i].fd) {
+		     printf("accept: %d\n", dl[k].port);
 		     if ((dl[k].efd = accept(dl[k].sfd, NULL, NULL))<0) {
 			perror("accept");
 		     }
 		     closeListeners(dl+k);
 		     telnetNeg(dl+k);
-		     printf("accept: %d\n", dl[k].port);
+		     dl[k].isRaw = 0;
+		     ld = k + 1;
+		     break;
 		  }
 		  else if (dl[k].rsfd==fds[i].fd) {
-		     if ((dl[k].rfd = accept(dl[k].rsfd, NULL, NULL))<0) {
+		     printf("accept: %d\n", dl[k].rawport);
+		     if ((dl[k].efd = accept(dl[k].rsfd, NULL, NULL))<0) {
 			perror("accept");
 		     }
 		     closeListeners(dl+k);
-
-		     printf("accept: %d\n", dl[k].rawport);
+		     dl[k].isRaw = 1;
+		     ld = k + 1;
+		     break;
 		  }
 		  else if (dl[k].efd==fds[i].fd) {
 		     /* data coming in on telnet... */
 		     int ret = read(fds[i].fd, buffer, sizeof(buffer));
+		     int pp;
 
-		     printf("read %d from telnet\n", ret);
-
+		     printf("read %d from %s: ", ret, 
+			    dl[k].isRaw ? "raw" : "telnet");
+		     for (pp=0; pp<10 && pp<ret; pp++)
+			printf("0x%02x ", buffer[pp]);
+		     if (pp<ret) printf("...");
+		     printf("\n");
+		     
 		     if (ret<0) {
 			/* FIXME: eintr?!?!? */
 			perror("read");
@@ -471,118 +528,85 @@ int main(int argc, char *argv[]) {
 			dl[k].efd = -1;
 		     }
 		     else if (ret==0) {
-			/* terminal closed... */
+			/* socket closed... */
 			close(dl[k].efd);
 			dl[k].efd = -1;
 		     }
 		     else {
-			ret = scanTelnet(buffer, ret);
+			/* FIXME: should we put writes in the poll
+			 * loop too?
+			 */
+			if (!dl[k].isRaw) ret = scanTelnet(buffer, ret);
 			
-			/* FIXME: data dump file! */
 			if (dl[k].ifd!=-1) {
 			   int nw = 0;
 			   while (nw<ret) {
 			      int n = write(dl[k].ifd, buffer + nw, ret - nw);
 			      if (n<0) {
-				 close(dl[k].ifd);
-				 dl[k].ifd = -1;
 				 perror("write");
+				 closeSlave(dl + k);
+				 break;
 			      }
 			      else if (n==0) {
-				 close(dl[k].ifd);
-				 dl[k].ifd = -1;
+				 closeSlave(dl+k);
 				 break;
 			      }
 			      else nw+=n;
 			   }
 			}
 		     }
-		  }
-		  else if (dl[k].rfd==fds[i].fd) {
-		     /* data coming in on raw... */
-		     int ret = read(fds[i].fd, buffer, sizeof(buffer));
-
-		     printf("read %d from raw\n", ret);
-		     
-		     if (ret<0) {
-			/* FIXME: eintr?!?!? */
-			perror("read");
-			close(dl[k].rfd);
-			dl[k].rfd = -1;
-		     }
-		     else if (ret==0) {
-			/* terminal closed... */
-			close(dl[k].rfd);
-			dl[k].rfd = -1;
-		     }
-		     else {
-			/* FIXME: data dump file! */
-
-			if (dl[k].ifd!=-1) { 
-			   int nw = 0;
-			   while (nw<ret) {
-			      int n = write(dl[k].ifd, buffer + nw, ret - nw);
-			      if (n<0) {
-				 close(dl[k].ifd);
-				 dl[k].ifd = -1;
-				 perror("write");
-			      }
-			      else if (n==0) {
-				 close(dl[k].ifd);
-				 dl[k].ifd = -1;
-				 break;
-			      }
-			      else nw+=n;
-			   }
-			}
-		     }
+		     ld = k + 1;
+		     break;
 		  }
 		  else if (dl[k].ifd==fds[i].fd) {
 		     /* data coming in on terminal -- push it along... */
 		     int ret = read(fds[i].fd, buffer, sizeof(buffer));
+		     int pp;
 
-		     
-		     printf("read %d from pty\n", ret);
+		     printf("read %d from pty: ", ret);
+		     for (pp=0; pp<10 && pp<ret; pp++)
+			printf("0x%02x ", buffer[pp]);
+		     if (pp<ret) printf("...");
+		     printf("\n");
 		     
 		     if (ret<0) {
 			/* FIXME: eintr?!?!? */
 			perror("read");
-			close(dl[k].ifd);
-			dl[k].ifd = -1;
+			closeSlave(dl+k);
 		     }
 		     else if (ret==0) {
-			/* terminal closed... */
-			close(dl[k].ifd);
-			dl[k].ifd = -1;
+			/* terminal closed -- close sockets
+			 * as well... 
+			 */
+			closeSlave(dl+k);
 		     }
 		     else {
 			int nw = 0;
-			int fd = -1;
-			int *fdp = &fd;
 
-			/* FIXME: data dump file! */
-
-			if (dl[k].efd!=-1)      { fdp = &dl[k].efd; }
-			else if (dl[k].rfd!=-1) { fdp = &dl[k].rfd; }
-			if (*fdp>0) {
+			if (dl[k].efd>0) {
 			   while (nw<ret) {
-			      int n = write(*fdp, buffer + nw, ret - nw);
+			      int n = write(dl[k].efd, buffer + nw, ret - nw);
 			      if (n<0) {
-				 close(*fdp);
-				 *fdp = -1;
+				 close(dl[k].efd);
+				 dl[k].efd = -1;
 				 perror("write");
+				 break;
 			      }
 			      else if (n==0) {
-				 close(*fdp);
-				 *fdp = -1;
+				 close(dl[k].efd);
+				 dl[k].efd = -1;
 				 break;
 			      }
 			      else nw+=n;
 			   }
 			}
 		     }
+		     ld = k + 1;
+		     break;
 		  }
 	       }
+	       lfd = i + 1;
+	       break;
 	    }
 	 }
       }
@@ -590,7 +614,5 @@ int main(int argc, char *argv[]) {
 
    /* FIXME: wait for children before exiting...
     */
-
-   
    return 0;
 }

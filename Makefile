@@ -2,7 +2,7 @@ PLATFORM=epxa10
 #PLATFORM=Linux-i386
 
 export PROJECT_TAG=devel
-export ICESOFT_BUILD=$(shell cat build_num)
+export ICESOFT_BUILD=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export LIBEXPAT=../../../tools/$(PLATFORM)/lib/libexpat.a
@@ -25,12 +25,22 @@ update:
 	cd ../hal; cvs update -d .
 	cd ../iceboot; cvs update -d .
 	cd ../stf; cvs update -d .
+	cvs update -d .
 
 diff:
-	cd ../dom-loader; cvs diff -d .
-	cd ../hal; cvs diff -d .
-	cd ../iceboot; cvs diff -d .
-	cd ../stf; cvs diff -d .
+	cd ../dom-loader; cvs diff .
+	cd ../hal; cvs diff .
+	cd ../iceboot; cvs diff .
+	cd ../stf; cvs diff .
+	cvs diff .
+
+hwdiff:
+	cd ../dom-fpga; cvs diff .
+	cd ../dom-cpld; cvs diff .
+
+hwupdate:
+	cd ../dom-fpga; cvs update -d .
+	cd ../dom-cpld; cvs update -d .
 
 doc:
 	cd ../hal; doxygen doxygen.conf
@@ -38,16 +48,35 @@ doc:
 doc.install: doc
 	cd ../hal/html; tar cf - . | (cd ~/public_html/dom-mb; tar xf -)
 
+newbuild:
+	/bin/sh newbld.sh
 
+domserv: domserv.c
+	gcc -o domserv -Wall domserv.c -lutil
 
+sendfile: sendfile.c
+	gcc -o sendfile -Wall sendfile.c
 
+release.hex: mkrelease.sh domserv all
+	/bin/sh mkrelease.sh ./epxa10/bin/iceboot.bin.gz \
+		./epxa10/bin/stfserv.bin.gz \
+		../iceboot/resources/startup.fs 
 
-
-
-
-
-
-
-
+viewtags:
+	cd ../hal; cvs status -v project.mk | \
+		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	cd ../dom-loader; cvs status -v project.mk | \
+		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+#	cd ../configboot; \
+#		cvs status -v \
+#			./private/epxa10/configboot/configboot.c | \
+#		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	cd ../dom-cpld; cvs status -v Dom_Cpld_rev2.vhd | \
+		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	cd ../iceboot; cvs status -v project.mk | \
+		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	cd ../stf; cvs status -v project.mk | \
+		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+	cvs status Makefile | grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
 
 

@@ -28,6 +28,8 @@ import hal
 import dom-loader
 import iceboot iceboot doc
 import stf stf stf-apps docs stf-modules
+import dom-fpga dom-fpga
+import configboot configboot
 
 #
 # one-off links...

@@ -53,7 +53,9 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(LD) --script=$(RAWX) -o $*-raw.elf $*-raw.o
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
-all: iceboot stfserv menu
+FPGA_VERSIONS = epxa10/public/dom-fpga/fpga-versions.h
+
+all: versions iceboot stfserv menu newbuild
 
 iceboot:
 	cd epxa10/booter; make config_files
@@ -90,3 +92,6 @@ clean:
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
 	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/*
+
+versions:
+	cd ../dom-fpga/scripts; ./mkhdr.sh > ../public/dom-fpga/fpga-versions.h
