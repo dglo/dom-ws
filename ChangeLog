@@ -1,3 +1,13 @@
+Release 306:
+
+from george chao:
+    fix atwd pmt led pass/no pass conditions
+    fix atwd pmt spe pass/no pass conditions
+    
+from john kelley:
+    Fix CRC check on flasherboard ID readout
+
+----------------------------------------------------------------------------
 Release 305:
 
 from john jacobsen:
