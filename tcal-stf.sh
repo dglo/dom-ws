@@ -72,14 +72,22 @@ if (( $rte < 5000 )); then passed="true"; else passed="false"; fi
 dorwf=`awk -f dor.awk /tmp/$$.tcal | head -4800 | tr '\n' ' '`
 domwf=`awk -f dom.awk /tmp/$$.tcal | head -4800 | tr '\n' ' '`
 
-dortxhi=`awk '/^dor_tx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
-dortxlo=`awk '/^dor_tx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
-domrxhi=`awk '/^dom_rx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
-domrxlo=`awk '/^dom_rx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
-domtxhi=`awk '/^dom_tx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
-domtxlo=`awk '/^dom_tx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
-dorrxhi=`awk '/^dor_rx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | dc`
-dorrxlo=`awk '/^dor_rx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | dc`
+dortxhi=`awk '/^dor_tx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+dortxlo=`awk '/^dor_tx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+domrxhi=`awk '/^dom_rx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+domrxlo=`awk '/^dom_rx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+domtxhi=`awk '/^dom_tx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+domtxlo=`awk '/^dom_tx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+dorrxhi=`awk '/^dor_rx_time / { print $2 " 2 32 ^ / p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
+dorrxlo=`awk '/^dor_rx_time / { print $2 " 2 32 ^ % p"; }' /tmp/$$.tcal | \
+    dc | tr '\n' ' '`
 
 #
 # done with results file
