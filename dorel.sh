@@ -37,6 +37,14 @@ for f in ${BINS}; do
 done
 
 #
+# cp domcal...
+#
+if ! cp ${bindir}/domcal5.bin.gz ${REL}/domcal.bin.gz; then
+    echo "unable to cp ${bindir}/domcal5.bin.gz..."
+    exit 1
+fi
+
+#
 # cp and link sbi files...
 #
 # FIXME: we should be more flexible here...
