@@ -57,7 +57,15 @@ domserv: domserv.c
 sendfile: sendfile.c
 	gcc -o sendfile -Wall sendfile.c
 
-release.hex: mkrelease.sh domserv all
+iceboot.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
+	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
+		iceboot.sbi.gz
+
+stf.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
+	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
+		stf.sbi.gz
+
+release.hex: mkrelease.sh domserv all iceboot.sbi.gz stf.sbi.gz
 	/bin/sh mkrelease.sh ./epxa10/bin/iceboot.bin.gz \
 		./epxa10/bin/stfserv.bin.gz \
 		../iceboot/resources/startup.fs \
@@ -67,7 +75,7 @@ release.hex: mkrelease.sh domserv all
 		domapp.bin.gz
 
 DEVEL_RELEASE=0
-DEVEL_BUILD=0
+DEVEL_BUILD=1
 
 tag-build:
 	cd ../hal; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) .
