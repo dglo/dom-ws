@@ -142,7 +142,7 @@ tar cf - ${dir} | gzip -c > ${dir}.tar.gz
 # clean up...
 #
 echo "cleaning up..."
-chmod u+w ${dir}/std-tests
+chmod u+w ${dir}/std-tests ${dir}/std-integration-tests
 rm -rf ${dir}
 
 
