@@ -1,3 +1,9 @@
+Release 303:
+
+from thorsten stezelberger:
+    fix ATWD auto restart I did not do the AnalogReset
+
+----------------------------------------------------------------------------
 Release 302:
 
 from john kelley:
