@@ -64,6 +64,22 @@ mkdir ${dir}/templates
 gzip -dc epxa10/stf-apps/templates.tar.gz | (cd ${dir}/templates; tar xf -)
 
 #
+# make clean for packages...
+#
+if ! target=clean ./bldpkg.sh `./deppkgs.sh icecube.daq.stf`; then
+    echo "mkprod.sh: unable to make dep in java directories"
+    exit 1
+fi
+
+#
+# make deps for packages...
+#
+if ! target=dep ./bldpkg.sh `./deppkgs.sh icecube.daq.stf`; then
+    echo "mkprod.sh: unable to make dep in java directories"
+    exit 1
+fi
+
+#
 # build then cp jar files 
 #
 if ! ./bldpkgs.sh icecube.daq.stf; then
