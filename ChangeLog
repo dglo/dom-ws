@@ -1,3 +1,9 @@
+Release 241:
+
+from thorsten stezelberger:
+    Cold boot fix -- hold nConfig low while nPOR is low
+
+----------------------------------------------------------------------------
 Release 240:
 
 from john jacobsen:
