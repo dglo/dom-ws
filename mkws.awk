@@ -69,46 +69,63 @@ function doLink(project, directory, scope, file, lscope, location,
    }
 
    for (p in platforms) {
-       loc = platforms[p] "/" location;
-       if ( system("/bin/sh -c '[[ -d " loc " ]]'") ) {
-	   if ( system("mkdir -p " loc) ) {
+       if (lscope=="private") {
+	   adj = "../../";
+	   ploc = platforms[p] "/" location "/";
+       }
+       else {
+	   adj = "../../../";
+	   ploc = platforms[p] "/public/" location "/";
+       }
+
+       #
+       # make sure location exists...
+       #
+       if ( system("/bin/sh -c '[[ -d " ploc " ]]'") ) {
+	   if ( system("mkdir -p " ploc) ) {
 	       print "link: can't create directory: " loc;
 	       exit(1);
 	   }
        }
 
-       if (lscope=="private") {
-	   adj = "../../";
-	   loc = platforms[p] "/" location "/" file;
-       }
-       else {
-	   adj = "../../../";
-	   loc = platforms[p] "/public/" location "/" file;
-       }
-
-       if (system("/bin/sh -c '[[ -h " loc " ]]'") == 0) {
-	   if (system("rm -f " loc)) {
-	       print "link: can't remove: " loc;
-	       exit(1);
-	   }
+       #
+       # get target path
+       #
+       ptarget = cvsroot "/" project "/" scope "/";
+       ptarget = ptarget platforms[p] "/" directory;
+       if ( system("/bin/sh -c '[[ -d " ptarget " ]]'") != 0) {
+	   ptarget = cvsroot "/" project "/" scope "/" directory;
        }
        
-
-       target = cvsroot "/" project "/" scope "/";
-       target = target platforms[p] "/" directory "/" file;
-       if ( system("/bin/sh -c '[[ -f " target " ]]'") == 0) {
-	   if (system("ln -s " adj target " " loc)) {
-	       print "link: can't link " adj target " <- " loc;
-	       exit(1);
-	   }
+       if (file== "*") {
+	   #
+	   # ls all files in this directory and link them
+	   # to target, if there are dups, we get an error!
+	   #
+	   ff = findFiles(ptarget);
        }
        else {
-	   target = cvsroot "/" scope "/" directory;
-	   if ( system("/bin/sh -c '[[ -f " target " ]]'") == 0) {
-	       if (system("ln -s " adj target " " loc)) {
-		   print "link: can't link " adj target " <- " loc;
+	   ff = file;
+       }
+       split(ff, files, ":");
+
+
+       for (f in files) {
+	   file = files[f];
+	   
+	   loc = ploc file;
+
+	   if (system("/bin/sh -c '[[ -h " loc " ]]'") == 0) {
+	       if (system("rm -f " loc)) {
+		   print "link: can't remove: " loc;
 		   exit(1);
 	       }
+	   }
+
+	   # print "link: " "ln -s " adj ptarget "/" file " " loc;
+	   if (system("ln -s " adj ptarget "/" file " " loc)) {
+	       print "link: can't link " adj ptarget "/" file " <- " loc;
+	       exit(1);
 	   }
        }
    }

@@ -79,11 +79,22 @@ grep -E -v \
 # FIXME: remove repeated address offsets...
 #
 #
-rev release.hex > flash.hex
-#
 # awk { remove ^:02 dup }
 #
-rev flash.hex > release.hex
+
+#
+# now do the ebi0 and ebi1 flash files...
+#
+dd bs=4M count=1 if=flash.dump of=flash.dump.0
+dd bs=4M count=1 skip=1 if=flash.dump of=flash.dump.1
+
+for i in 0 1; do
+	arm-elf-objcopy -I binary -O ihex flash.dump.${i} flash.hex.${i}
+
+	grep -E -v \
+    		'^:[0-9A-Z]+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF[0-9A-Z]+.$' \
+    		flash.hex.${i} > release.hex.${i}
+done
 
 #
 # cleanup...
@@ -91,9 +102,7 @@ rev flash.hex > release.hex
 kill `pgrep domserv`
 wait
 rm -f flash.hex flash.dump
-
-
-
+rm -f flash.hex.[01] flash.dump.[01]
 
 
 

@@ -1,0 +1,25 @@
+make sure there is one spe dac noise threshold routine...
+DONE make sure fvco is less than 600MHz
+if > max, set dac to max...
+stf docs need to get updated
+DONE split release.hex into ebi0 and ebi1 .hex files...
+SFE boolean doesn't pick up true/false..
+DONE arrays for stf
+DONE fpga components support
+DONE status updates for chuck
+DONE install latest iceboot on doms
+DONE crap in ATWD channel 3 in ping-pong...
+test acq-pp
+DONE [maybe?] iceboot echo bug (don't break up packets)
+DONE better looking fonts in PDF 
+CHINH ADVISES NO! check in entire cpld code into CVS
+DONE dom for eric
+CAN'T BE DONE move .jed file in xilinx...
+why is epxa4 failing at low temps!!! 
+new jed file gets released -- FRI?
+DONE test epxa4 at cold temps
+DONE get eric and doyle going -- tomorrow 8a
+get configboot debugged (quartus problem?)
+DONE get stf tests to use pdflatex (find tabtotex.awk)
+get jerry to signoff on cpld docs
+DONE timeout on disc and ping pong trigger...

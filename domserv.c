@@ -20,6 +20,7 @@
 #include <string.h>
 #include <signal.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -47,6 +48,10 @@
 static int servSerial = 1;
 static int servDOR = 1;
 static int servSim = 1;
+
+/* are we in dh mode? */
+static int dhmode = 0;
+static int dhReqOutput = 0;
 
 /* return number of devices we support...
  */
@@ -115,8 +120,6 @@ static int sockListener(int port) {
       return -1;
    }
 
-   printf("bind: %d (%d)\n", port, sock);
-  
    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
   
    server.sin_family      = AF_INET;
@@ -136,13 +139,17 @@ static int sockListener(int port) {
       return -1;
    }
 
-   printf("listen: %d (%d)\n", port, sock);
    return sock;
 }
 
 static int openListeners(DOMList *dl) {
    if (dl->sfd==-1 && dl->rsfd==-1 && dl->efd==-1) {
       /* both ports are quiet, open listeners... */
+      if (!dhmode || dhReqOutput) {
+	 printf("open %d %d\n", dl->port, dl->rawport); fflush(stdout);
+	 dhReqOutput = 0;
+      }
+      
       dl->sfd = sockListener(dl->port);
       dl->rsfd = sockListener(dl->rawport);
    }
@@ -150,8 +157,14 @@ static int openListeners(DOMList *dl) {
 }
 
 static void closeListeners(DOMList *dl) {
+   if (dl->sfd!=-1 || dl->rsfd!=-1) {
+      if (!dhmode || dhReqOutput) {
+	 printf("close %d %d\n", dl->port, dl->rawport); fflush(stdout);
+	 dhReqOutput = 0;
+      }
+   }
+   
    if (dl->sfd!=-1) {
-      printf("close: %d (%d)\n", dl->port, dl->sfd);
       if (shutdown(dl->sfd, SHUT_RDWR)<0) {
 	 perror("shutdown");
       }
@@ -159,7 +172,6 @@ static void closeListeners(DOMList *dl) {
       dl->sfd = -1;
    }
    if (dl->rsfd!=-1) {
-      printf("close: %d (%d)\n", dl->rawport, dl->rsfd);
       if (shutdown(dl->rsfd, SHUT_RDWR)<0) {
 	 perror("shutdown");
       }
@@ -255,11 +267,12 @@ static int startDOR(DOMList *dl) {
    char name[64];
    const int dom = dl->port - DOR_PORT - 1;
    const int card = dom/8;
-   const int wire = (dom%8)/4;
+   const int wire = (dom/2)%4;
    const int ab = dom%2;
    int fd;
 
-   printf("dom(%d) card wire ab: %d %d %d\n", dom, card, wire, ab);
+   if (!dhmode) 
+      printf("dom(%d) card wire ab: %d %d %d\n", dom, card, wire, ab);
    
    sprintf(name, "/dev/dhc%dw%dd%c", card, wire, (ab==0) ? 'A' : 'B');
    if ((fd=open(name, O_RDWR))<0) {
@@ -314,11 +327,18 @@ static void closeSlave(DOMList *dl) {
    if (dl->slv!=(pid_t) -1) {
       int status;
       
-      printf("domserv: closeSlave: waiting for %d to die...\n",
-	     dl->slv);
+      if (!dhmode) {
+	 printf("domserv: closeSlave: waiting for %d to die...\n",
+		dl->slv);
+      }
+      
       waitpid(dl->slv, &status, 0);
-      printf("domserv: closeSlave: %d died with status %d...\n",
-	     dl->slv, status);
+	
+      if (!dhmode) {
+	 printf("domserv: closeSlave: %d died with status %d...\n",
+		dl->slv, status);
+      }
+      
       dl->slv = (pid_t) -1;
    }
 }
@@ -329,10 +349,6 @@ static int scanTelnet(unsigned char *buffer, int len) {
 		     
    i = 0;
    while (i<len) {
-#if 0
-      printf("i, len, iac, ch: %d %d %d 0x%02x\n", 
-	     i, len, iac, buffer[i]);
-#endif
       if (iac) {
 	 if (buffer[i]==0xff) {
 	    iac=0;
@@ -382,13 +398,16 @@ static DOMList *newDOMList(void) {
       dl[di].start = startSerial;
    }
 
-   for (i=0; i<ndors(); i++, di++) {
-      if (isDORCard(i/8)) {
-	 initDOMList(dl+di);
-	 dl[di].type = "DOR";
-	 dl[di].port = DOR_PORT + 1 + i;
-	 dl[di].rawport = DOR_PORT_RAW + 1 + i;
-	 dl[di].start = startDOR;
+   for (i=0; i<8; i++) {
+      int j;
+      if (isDORCard(i)) {
+	 for (j=0; j<8; j++, di++) {
+	    initDOMList(dl+di);
+	    dl[di].type = "DOR";
+	    dl[di].port = DOR_PORT + 1 + i*8+j;
+	    dl[di].rawport = DOR_PORT_RAW + 1 + i*8+j;
+	    dl[di].start = startDOR;
+	 }
       }
    }
 
@@ -403,10 +422,87 @@ static DOMList *newDOMList(void) {
    return dl;
 }
 
+static int linetoidx(const char *line, DOMList *dl) {
+   const int n = ndevs();
+   const char *type;
+   int port, i;
+
+   /* parse line:
+    *
+    * dom card pair dom
+    * serial port
+    * sim instance
+    *
+    * responses:
+    *
+    * ports 1024 1524 (telnet raw)
+    * failed msg...
+    */
+   if (strncmp(line, "dom ", 4)==0) {
+      line += 4;
+      type = "DOR";
+      port = DOR_PORT;
+   }
+   else if (strncmp(line, "serial ", 7)==0) {
+      line += 7;
+      type = "serial";
+      port = SERIAL_PORT;
+   }
+   else if (strncmp(line, "sim ", 4)==0) {
+      line += 4;
+      type = "sim";
+      port = SIM_PORT;
+   }
+   else {
+      printf("failed invalid command (dom|serial|sim)\n");
+      return -1;
+   }
+
+   if (strcmp(type, "DOR")==0) {
+      /* card pair dom */
+      if (strlen(line)<3 || 
+	  !isdigit(line[0]) ||
+	  !isdigit(line[1]) ||
+	  !(line[2]=='A' || line[2]=='B')) {
+	 printf("failed invalid command (card pair dom)\n");
+	 return -1;
+      }
+
+      port += 1 + (line[0]-'0')*8 + (line[1]-'0')*2 + (line[2]-'A') ;
+   }
+   else if (strcmp(type, "serial")==0) {
+      /* port (1-2) */
+      if (!isdigit(line[0])) {
+	 printf("failed invalid command (1|2)\n");
+	 return -1;
+      }
+      
+      port += 1 + (line[0]-'1');
+   }
+   else if (strcmp(type, "sim")==0) {
+      /* sim (1-64) */
+      char b[8];
+      int i;
+      memset(b, 0, sizeof(b));
+      for (i=0; i<sizeof(b)-1 && isdigit(line[i]); i++) b[i] = line[i];
+      port += atoi(b);
+   }
+
+   for (i=0; i<n; i++) {
+      if (strcmp(dl[i].type, type)==0) {
+	 if (dl[i].port==port) return i;
+      }
+   }
+
+   printf("failed can not find device for port (%d)\n", port);
+   return -1;
+}
+
 int main(int argc, char *argv[]) {
    DOMList *dl = NULL;
    struct pollfd *fds = NULL;
-   int i;
+   int i, ai;
+   char *dhe = NULL;
 
    if ((dl=newDOMList()) == NULL) {
       fprintf(stderr, "domserv: can't get DOR list...\n");
@@ -414,9 +510,29 @@ int main(int argc, char *argv[]) {
    }
 
    if ((fds=(struct pollfd *)
-	calloc(ndevs()*3, sizeof(struct pollfd)))==NULL) {
+	calloc(1+ndevs()*3, sizeof(struct pollfd)))==NULL) {
       fprintf(stderr, "domserv: can't allocate pollfds\n");
       return 1;
+   }
+
+   /* process options...
+    */
+   for (ai=1; ai<argc; ai++) {
+      if (strcmp(argv[ai], "-dh")==0) {
+	 dhmode = 1;
+      }
+      else {
+	 fprintf(stderr, "usage: domserv [-dh]\n");
+	 return 1;
+      }
+   }
+
+   /* open dh mode flags... */
+   if (dhmode) {
+      if ((dhe = (char *) calloc(ndevs(), 1)) == NULL) {
+	 fprintf(stderr, "unable to calloc\n");
+	 return 1;
+      }
    }
 
    /* FIXME: daemonize
@@ -434,7 +550,16 @@ int main(int argc, char *argv[]) {
       int ld = 0;
       int lfd = 0;
 
+      if (dhmode) {
+	 fds[nfds].fd = 0;
+	 fds[nfds].events = POLLIN;
+	 nfds++;
+      }
+      
       for (i=0; i<ndevs(); i++) {
+	 /* if this dom is not enabled, don't do anything... */
+	 if (dhmode && dhe[i]==0) continue;
+
 	 if (openSlave(dl + i)) {
 	    fprintf(stderr, "can't start slave for DOM %d\n", i);
 	    return 1;
@@ -473,8 +598,50 @@ int main(int argc, char *argv[]) {
 
       /* wait for events... */
       if ((ret=poll(fds, nfds, -1))<0) {
-	 perror("poll");
-	 return 1;
+	 if (errno==EINTR) {
+	    /* ignore interrupts... */
+	 }
+	 else {
+	    perror("poll");
+	    return 1;
+	 }
+      }
+
+      /* check for stdin... */
+      if (dhmode && fds[0].revents) {
+	 char line[128];
+	 int idx = -1, en;
+
+	 /* deal with input... */
+	 memset(line, 0, sizeof(line));
+	 read(0, line, sizeof(line)-1);
+
+	 if (strncmp(line, "open ", 5)==0) {
+	    idx=linetoidx(line + 5, dl);
+	    en = 1;
+	 }
+	 else if (strncmp(line, "close ", 6)==0) {
+	    idx=linetoidx(line + 6, dl);
+	    en = 0;
+	 }
+	 else {
+	    printf("failed invalid command (open|close)\n");
+	 }
+
+	 if (idx!=-1) {
+	    /* found one! */
+	    dhe[idx] = en;
+
+	    /* request output... */
+	    dhReqOutput = 1;
+
+	    /* close input... */
+	    if (en==0) {
+	       /* cleanup port... */
+	       closeSlave(dl+idx);
+	       closeListeners(dl+idx);
+	    }
+	 }
       }
 
       /* FIXME: fd -> DOMList map would be nice if
@@ -491,7 +658,7 @@ int main(int argc, char *argv[]) {
 		  unsigned char buffer[400];
 
 		  if (dl[k].sfd==fds[i].fd) {
-		     printf("accept: %d\n", dl[k].port);
+		     if (!dhmode) printf("accept: %d\n", dl[k].port);
 		     if ((dl[k].efd = accept(dl[k].sfd, NULL, NULL))<0) {
 			perror("accept");
 		     }
@@ -502,7 +669,7 @@ int main(int argc, char *argv[]) {
 		     break;
 		  }
 		  else if (dl[k].rsfd==fds[i].fd) {
-		     printf("accept: %d\n", dl[k].rawport);
+		     if (!dhmode) printf("accept: %d\n", dl[k].rawport);
 		     if ((dl[k].efd = accept(dl[k].rsfd, NULL, NULL))<0) {
 			perror("accept");
 		     }
@@ -516,12 +683,15 @@ int main(int argc, char *argv[]) {
 		     int ret = read(fds[i].fd, buffer, sizeof(buffer));
 		     int pp;
 
-		     printf("read %d from %s: ", ret, 
-			    dl[k].isRaw ? "raw" : "telnet");
-		     for (pp=0; pp<10 && pp<ret; pp++)
-			printf("0x%02x ", buffer[pp]);
-		     if (pp<ret) printf("...");
-		     printf("\n");
+		     if (!dhmode) {
+			printf("read %d from %s: ", ret, 
+			       dl[k].isRaw ? "raw" : "telnet");
+		     
+			for (pp=0; pp<10 && pp<ret; pp++)
+			   printf("0x%02x ", buffer[pp]);
+			if (pp<ret) printf("...");
+			printf("\n");
+		     }
 		     
 		     if (ret<0) {
 			/* FIXME: eintr?!?!? */
@@ -577,11 +747,13 @@ int main(int argc, char *argv[]) {
 		     int ret = read(fds[i].fd, buffer, sizeof(buffer));
 		     int pp;
 
-		     printf("read %d from pty: ", ret);
-		     for (pp=0; pp<10 && pp<ret; pp++)
-			printf("0x%02x ", buffer[pp]);
-		     if (pp<ret) printf("...");
-		     printf("\n");
+		     if (!dhmode) {
+			printf("read %d from pty: ", ret);
+			for (pp=0; pp<10 && pp<ret; pp++)
+			   printf("0x%02x ", buffer[pp]);
+			if (pp<ret) printf("...");
+			printf("\n");
+		     }
 		     
 		     if (ret<0) {
 			/* FIXME: eintr?!?!? */

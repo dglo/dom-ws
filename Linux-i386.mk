@@ -48,10 +48,7 @@ clean:
 	cd $(PLATFORM)/hal; make clean
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
-	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/*
-
-
-
+	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
 
 
 

@@ -26,9 +26,8 @@ platforms epxa10 Linux-i386
 # import project [directories...]
 import hal
 import dom-loader
-import iceboot iceboot doc
-import stf stf stf-apps docs stf-modules
-import dom-fpga dom-fpga
+import iceboot iceboot iceboot-docs
+import stf stf stf-apps stf-docs stf-sfe std-tests
 import configboot configboot
 
 #
@@ -37,12 +36,35 @@ import configboot configboot
 # project: the project to get files from...
 # directory: the directory in the project...
 # scope: public or private
-# file: the file to link -- if none given use all...
+# file: the file to link -- if * given use all...
 # location: directory where link should sit...
 # 
 # link project directory scope file scope location
 link dom-loader booter public boot.S private booter
 link dom-loader booter public boot.x private booter
+
+link testdomapp domapp public * public domapp
+link testdomapp expControl public * public expControl
+link testdomapp msgHandler public * public msgHandler
+link testdomapp dataAccess public * public dataAccess
+link testdomapp domapp_common public * public domapp_common
+link testdomapp message public * public message
+link testdomapp slowControl public * public slowControl
+
+link testdomapp domapp private * private domapp
+link testdomapp expControl private * private domapp
+link testdomapp msgHandler private * private domapp
+link testdomapp dataAccess private * private domapp
+link testdomapp domapp_common private * private domapp
+link testdomapp message private * private domapp
+link testdomapp slowControl private * private domapp
+
+link testdomapp expControl private expControl.h public expControl
+link testdomapp dataAccess private dataAccess.h public dataAccess
+link testdomapp dataAccess private dataAccessRoutines.h public dataAccess
+link testdomapp dataAccess private moniDataAccess.h public dataAccess
+link testdomapp slowControl private domSControl.h public slowControl
+link testdomapp slowControl private domSControlRoutines.h public slowControl
 
 #
 # more will go here when simon is done...
