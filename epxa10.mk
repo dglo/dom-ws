@@ -125,7 +125,7 @@ clean:
 	cd $(PLATFORM)/hal; make clean
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
-	cd $(PLATFORM)/domapp; make -f ../../../testdomapp/domapp.mk clean
+	cd $(PLATFORM)/domapp; make -f ../../domapp.mk clean
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
 	cd $(PLATFORM)/configboot; make clean
@@ -139,7 +139,7 @@ domapp:
 	cd $(PLATFORM)/booter; make config_files
 	cd $(PLATFORM)/loader; make all
 	cd $(PLATFORM)/hal; make all
-	cd $(PLATFORM)/domapp; make -f ../../../testdomapp/domapp.mk
+	cd $(PLATFORM)/domapp; make -f ../../domapp.mk
 
 domcalbase:
 	cd $(PLATFORM)/booter; make config_files
