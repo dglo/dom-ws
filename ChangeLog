@@ -1,4 +1,13 @@
-Proposed release 300:
+Release 301:
+
+from john jacobsen:
+    move testdomapp up to the HEAD to support new
+    LC in firmware
+
+    update hal to support new LC in firmware
+
+----------------------------------------------------------------------------
+Release 300:
 
 from thorsten:
     latest and greatest comm and stf fpga with all local coincidence
