@@ -1,3 +1,13 @@
+Release 242:
+
+from john kelley:
+    tune pass conditions for flasherboard STF tests
+    increase delays in flasherboard power-up sequence to 100ms
+
+from john jacobsen:
+    average 9 readouts of SPE and MPE scalers every second
+
+----------------------------------------------------------------------------
 Release 241:
 
 from thorsten stezelberger:
