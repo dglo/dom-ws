@@ -1,3 +1,16 @@
+Release 236:
+
+from thorsten (tstezelberger@lbl.gov) and kalle:
+
+- new dom fpga comm (build 97)
+
+from arthur:
+
+- put driver in non-blocking mode for stf-client
+- more thorough re-build of java code to catch all changes
+- missed dglo's fix for daq-db-stftest -- it's in there now
+
+----------------------------------------------------------------------------
 Release 235:
 
 from kael (kaeld@amanda.wisc.edu):
