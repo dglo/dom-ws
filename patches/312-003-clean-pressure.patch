@@ -1,3 +1,5 @@
+clear out first few samples in pressure test...
+
 Index: stf/private/stf-apps/pressure.c
 ===================================================================
 RCS file: /home/icecube/cvsroot/stf/private/stf-apps/pressure.c,v
