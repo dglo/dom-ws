@@ -1,4 +1,5 @@
 eval spawn telnet $argv
+sleep 2
 send "\r"
 expect "> "
 send "ymodem1k\r"

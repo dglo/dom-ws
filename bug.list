@@ -16,4 +16,4 @@ build	bug
 138	no more timeout in comm send
 
 364	workaround extra zero on epxa4
-
+519	iceboot hash bucket re-initialization bug fixed...

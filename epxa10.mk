@@ -10,6 +10,7 @@ export CONFIGBOOTHEX=$(BINDIR)/configboot.hex
 export CONFIGBOOTBIN=$(BINDIR)/configboot.bin
 export STFSERVBINGZ=$(BINDIR)/stfserv.bin.gz
 export MENUBINGZ=$(BINDIR)/menu.bin.gz
+export ECHOMODEBINGZ=$(BINDIR)/echomode.bin.gz
 export YMODEMBINGZ=$(BINDIR)/ymodem.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/lookback.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/domapp.bin.gz
@@ -32,8 +33,9 @@ SYSINCLUDE :=-I$(ARM_HOME)/arm-elf/arm-elf/include \
 	-I$(ARM_HOME)/arm-elf/lib/gcc-lib/arm-elf/3.2/include \
 	-I$(ARM_HOME)/arm-elf/include
 
+export LIBEXPAT=$(ARM_HOME)/arm-elf/lib/libexpat.a
 export CPPFLAGS = -I$(EPXAHD) $(GENDEFS)
-export CFLAGS = -mlittle-endian -mcpu=arm920 -Wall -nostdinc \
+export CFLAGS = -O -mlittle-endian -mcpu=arm920 -Wall -nostdinc \
 	$(CPPFLAGS) $(SYSINCLUDE) -I..
 
 export CPP = arm-elf-cpp
@@ -58,7 +60,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu stfsfe
+all: pld-versions versions iceboot stfserv menu echomode stfsfe domapp
 
 iceboot:
 	cd epxa10/booter; make config_files
@@ -84,6 +86,13 @@ menu:
 	cd epxa10/hal; make all
 	cd epxa10/stf; make all
 	cd epxa10/stf-apps; make $(MENUBINGZ)
+
+echomode:
+	cd epxa10/booter; make config_files
+	cd epxa10/loader; make all
+	cd epxa10/hal; make all
+	cd epxa10/stf; make all
+	cd epxa10/stf-apps; make $(ECHOMODEBINGZ)
 
 ymodem:
 	cd epxa10/booter; make config_files
