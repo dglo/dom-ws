@@ -2,10 +2,10 @@ To setup the production environment:
 
 overall we:
 
-1) build the production env code (./bldpkgs.sh icecube.daq.stf)
+1) build the production env code (./ckprod.sh)
 2) create a new directory with the code and data
    laid out (./mkprod.sh) then tar and gzip this
-3) copy the tar.gz file (./cpprod.sh) to a webserver for downloading
+3) copy the tar.gz file to a webserver for downloading
    with getprod.sh
 
 1) build:

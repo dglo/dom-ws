@@ -1,14 +1,19 @@
 #!/bin/bash
 
-projects=""
+if [[ $# > 0 && $1 == "-v" ]]; then verbose=1; shift; else verbose=0; fi
 
 #
-# bldpkg.sh, build a java package...
+# bldpkg.sh, build a java package.  java
+# is incredibly slow to startup, so
+# we'll make a list of .java files
+# to compile and give them all at once
+# to javac...
 #
 while [[ $# > 0 ]]; do
+    echo "building: $1"
 
     #
-    # figure out the project for this package
+    # get the project for this package
     #
     ap=`printf "%c2 ~ /^$1%c/ { print %c1; }" '$' '$' '$'`
     jar=`awk "${ap}" jardep.deps/all.dep`
@@ -17,31 +22,37 @@ while [[ $# > 0 ]]; do
     # maybe more than one jar file for a package?
     #
     if echo ${jar} | grep -q ' '; then
-	echo "bldpkg.sh: multiple jars for package: $1:"
-	echo "${jar}"
+	echo "bldpkg.sh: multiple jars for package: $1: ${jar}"
 	exit 1
     fi
-
-    #
-    # maybe no jar file found!
-    #
-    if (( ${#jar} == 0 )); then
-	echo "bldpkg.sh: can't find jar file for package: $1"
-	echo "  you may need to compile this project by hand (bldproject.sh)"
-	exit 1
-    fi
-
-    #
-    # extract project name from jar file...
-    #
     project=`basename ${jar} | sed 's/.jar$//1'`
-    projects="$projects $project"
 
     #
-    # get the src path...
+    # get classpath, first the tools as jars, then the projects as paths...
+    #
+    tcp=`./getjars.sh $1 | grep '^../tools/lib' | sort | uniq | \
+	awk '{ print "../" $1; }'`
+    pcp=`./getjars.sh $1 | grep '^../lib' | sort | uniq | \
+	sed 's/.jar$//1' | sed 's/\.\.\/lib\//\.\.\/\.\.\/build\//1'`
+    cp=`echo ${tcp} ${pcp} | tr ' ' ':' | sed 's/:$//1'`
+
+    #
+    # get the src and bld paths...
     #
     pkgpath=`echo $1 | tr '.' '/'`
     srcpath=../${project}/src/${pkgpath}
+    bldpath=../build/${project}/${pkgpath}
+
+    #
+    # make sure the build path exists...
+    #
+    if [[ ! -d ${bldpath} ]]; then
+	echo "creating ${bldpath}... "
+	if ! mkdir -p ${bldpath}; then
+	    echo "bldpkg.sh: error: can not create ${bldpath}"
+	    exit 1
+	fi
+    fi
 
     #
     # make sure the src path exists...
@@ -52,48 +63,52 @@ while [[ $# > 0 ]]; do
     fi
 
     #
-    # run make...
+    # get the list of java files in the pkg...
     #
-    echo "building $1 [${project}]"
-    if ! (cd ../${project}/src; make -f ../../dom-ws/pkgmf.tmpl \
-	  PACKAGE=$1 ${target:=all}); then
-	echo "bldpkg: unable to make ${target}"
-	exit 1
+    java=`cd ${srcpath}; lessecho *.java`
+
+    rm -f /tmp/bldpkg.$$.files
+    touch /tmp/bldpkg.$$.files
+    for j in ${java}; do
+	class=`echo ${j} | sed 's/\.java$/\.class/1'`
+	bldclass=${bldpath}/${class}
+
+	#
+	# if the build file does not exist, or if the
+	# build file is older than the java file, add
+	# it to the list...
+	#
+	if [[ ${verbose} == 1 ]]; then
+	    if [[ ! -f ${bldclass} ]]; then 
+		echo "${srcpath}/${j}: ${bldclass} does not exist"
+	    fi
+	    if [[ ${srcpath}/${j} -nt ${bldclass} ]]; then 
+		echo "${srcpath}/${j}: ${bldclass} is out of date"
+	    fi
+	fi
+
+	if [[ ! -f ${bldclass} || ${srcpath}/${j} -nt ${bldclass} ]]; then
+	    echo ${pkgpath}/${j} >> /tmp/bldpkg.$$.files
+	fi
+    done
+
+    nfiles=`cat /tmp/bldpkg.$$.files | wc -l`
+    if (( ${nfiles} > 0 )); then
+	echo "compiling: $1"
+	echo "classpath: ${cp}"
+	#
+	# the . allows within project circular dependencies...
+	#
+	ncp=.:${cp}
+	if ! (cd ../${project}/src; \
+	 javac  -d ../../build/${project} -classpath ${ncp} @/tmp/bldpkg.$$.files ); then
+	    echo "$1 failed"
+	    exit 1
+	fi
     fi
+
+    # clean up build file
+    rm -f /tmp/bldpkg.$$.files
 
     shift
 done
-
-#
-# now that everything is built, update the
-# dependencies...
-#
-anyjar=0
-np=`echo ${projects} | tr ' ' '\n' | sort | uniq`
-for p in $np; do
-	#
-	# check for newer files, if there are any, rebuild
-	# the jar file...
-	#
-	if [[ -f ../lib/${p}.jar ]]; then
-		rm -f ../build/${p}/jar.touch
-		find ../build/${p} -type f -newer ../lib/${p}.jar \
-			-exec touch ../build/${p}/jar.touch \;
-	else
-		touch ../build/${p}/jar.touch
-	fi
-
-	if [[ -f ../build/${p}/jar.touch ]]; then
-		echo "bldpkg: creating jar file: $p"
-		(cd ../build/${p}; jar cf ../../lib/${p}.jar .)
-		anyjar=1
-	fi
-
-	rm -f ../build/${p}/jar.touch	
-done
-
-# any jars updated, if so, make deps...
-if [[ ${anyjar} == "1" ]]; then
-	make -f jardep.mk
-fi
-

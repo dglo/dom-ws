@@ -1,6 +1,3 @@
-DONE dorel.sh in mkprod.sh
-fix monitor on domhub-prod
-atwd_baseline returns TRUE always
 disc_scan.c
 get virtual cables.
 make sure there is one spe dac noise threshold routine...

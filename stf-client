@@ -17,6 +17,19 @@ jbin=${JAVA_HOME}/bin
 cp=`/usr/bin/lessecho ./jars/*.jar | tr ' ' ':' | sed 's/:$//1'`
 
 #
+# make sure rmiregistry is running
+#
+rmir=`pgrep rmiregistry`
+if [[ ${#rmir} == 0 ]]; then
+    echo "stf-client starting rmiregistry..."
+    ${jbin}/rmiregistry &
+
+    sleep 2
+    ${jbin}/java -classpath "${cp}" icecube.daq.domhub.DOMHub >& /tmp/dh.log &
+    sleep 4
+fi
+
+#
 # run stf...
 #
 exec ${jbin}/java -classpath "${cp}" icecube.daq.stf.STF $*

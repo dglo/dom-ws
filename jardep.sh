@@ -32,4 +32,3 @@ java jdepend.textui.JDepend /tmp/jardep.$$ | \
 # clean up...
 #
 rm -rf /tmp/jardep.$$
-

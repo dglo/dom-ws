@@ -35,7 +35,7 @@ SYSINCLUDE :=-I$(ARM_HOME)/arm-elf/arm-elf/include \
 
 export LIBEXPAT=$(ARM_HOME)/arm-elf/lib/libexpat.a
 export CPPFLAGS = -I$(EPXAHD) $(GENDEFS)
-export CFLAGS = -O -mlittle-endian -mcpu=arm920 -Wall -nostdinc \
+export CFLAGS = -mlittle-endian -mcpu=arm920 -Wall -nostdinc \
 	$(CPPFLAGS) $(SYSINCLUDE) -I..
 
 export CPP = arm-elf-cpp
@@ -60,7 +60,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu echomode stfsfe domapp
+all: pld-versions versions iceboot stfserv menu echomode stfsfe
 
 iceboot:
 	cd epxa10/booter; make config_files
