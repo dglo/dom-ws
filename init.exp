@@ -1,7 +1,14 @@
+eval spawn telnet [lrange $argv 0 1]
+sleep 2
 send "\r"
-expect "^> "
+sleep 1
+expect "> "
+sleep 1
 send "init\r"
-expect "^fis init: all data on flash will be lost: are you sure \[y/n\]\? "
+sleep 1
+expect "fis init: all data on flash will be lost: are you sure "
+sleep 5
 send "y"
-expect "^> "
+sleep 5
+
 

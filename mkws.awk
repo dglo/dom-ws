@@ -2,12 +2,17 @@
 # mkws.awk, make a workspace...
 #
 BEGIN {
+   cvslogin = ":ext:glacier.lbl.gov:/home/icecube/cvsroot";
    cvsroot = "..";
    print "creating...";
 }
 
 /^cvsroot[ \t]/ {
    cvsroot = $2;
+}
+
+/^cvslogin[ \t]/ {
+   cvslogin = $2;
 }
 
 /^platforms[ \t]/ {
@@ -76,7 +81,7 @@ function doLink(project, directory, scope, file, lscope, location,
        #
        ptarget = cvsroot "/" project "/" scope "/";
        ptarget = ptarget platforms[p] "/" directory;
-       if ( system("/bin/bash -c '[[ -d " ptarget " ]]'") != 0) {
+       if ( system("/bin/sh -c '[[ -d " ptarget " ]]'") != 0) {
 	   ptarget = cvsroot "/" project "/" scope "/" directory;
        }
        
@@ -89,7 +94,7 @@ function doLink(project, directory, scope, file, lscope, location,
        }
        else {
 	   ff = adj ptarget "/" file;
-	   if ( system("/bin/bash -c '[[ -f " ptarget "/" file " ]];'") ) {
+	   if ( system("/bin/sh -c '[[ -f " ptarget "/" file " ]];'") ) {
 	       ff = "";
 	   }
        }
@@ -124,7 +129,7 @@ function mkImport(platform, project, directory,
    adj[3] = "../../../";
 
    for (d=0; d<4; d++) {
-       ret = system("/bin/bash -c '[[ -d " dirs[d] " ]]'");
+       ret = system("/bin/sh -c '[[ -d " dirs[d] " ]]'");
        if (ret == 0) {
 	   files = findFiles(dirs[d], adj[d]);
 	   if (files!="") {
@@ -149,7 +154,7 @@ function chkProject(project,
    #
    # check for cvs root directory...
    #
-   ret = system("/bin/bash -c '[[ -d " cvsroot " ]]'");
+   ret = system("/bin/sh -c '[[ -d " cvsroot " ]]'");
    if (ret) {
       print "mkdir -p " cvsroot;
       system("mkdir -p " cvsroot);
@@ -158,23 +163,32 @@ function chkProject(project,
    #
    # check for project...
    #
-   system("/bin/bash -c '[[ -d " cvsroot "/" project " ]]'");
+   ret = system("/bin/sh -c '[[ -d " cvsroot "/" project " ]]'");
+   if (ret) {
+      #
+      # check it out -- if it doesn't exist yet...
+      #
+      cvscmd = "cvs -d " cvslogin " checkout " project;
+      cmd = "(export CVS_RSH=ssh; cd " cvsroot "; " cvscmd ")";
+      system("/bin/sh -c '" cmd "'");
+   }
 
    return isDir(cvsroot "/" project);
 }
 
-function isDir(dir) { return system("/bin/bash -c '[[ -d " dir " ]]'")==0; }
+function isDir(dir) { return system("/bin/sh -c '[[ -d " dir " ]]'")==0; }
 
 #
 # find all files and return colon separated list...
 #
+# we now grab all the files that are in CVS rather
+# than in the directory...
+#
 function findFiles(directory, adj,
-                   cmd, files, name, filename) {
-   cmd = "find " directory " -maxdepth 1 -type f -print";
-
-   while ( (cmd | getline filename)>0 ) {
-      files=files " " adj filename
-   }
+		   cmd, files) {
+   cmd = "tr '/' '\t' < " directory "/CVS/Entries | grep -v '^D' | \
+awk '{ print \"" adj directory "/\"$1; }' | tr '\n' ' '; # | sed 's/:$//1' ";
+   cmd | getline files;
    close(cmd);
    return files;
 }
@@ -196,7 +210,7 @@ function findDirs(platform, project,
 }
 
 function isProject(project) {
-   return system("/bin/bash -c '[[ -d " cvsroot "/" project " ]]'")==0;
+   return system("/bin/sh -c '[[ -d " cvsroot "/" project " ]]'")==0;
 }
 
 function isInColonList(ldirs, mdir, 
@@ -209,14 +223,14 @@ function isInColonList(ldirs, mdir,
 END {
    for (p in platforms) {
        loc = platforms[p] "/bin";
-       if ( system("/bin/bash -c '[[ -d " loc " ]]'") ) {
+       if ( system("/bin/sh -c '[[ -d " loc " ]]'") ) {
 	   if ( system("mkdir -p " loc) ) {
 	       print "can't create directory: " loc;
 	       exit(1);
 	   }
        }
        loc = platforms[p] "/lib";
-       if ( system("/bin/bash -c '[[ -d " loc " ]]'") ) {
+       if ( system("/bin/sh -c '[[ -d " loc " ]]'") ) {
 	   if ( system("mkdir -p " loc) ) {
 	       print "can't create directory: " loc;
 	       exit(1);

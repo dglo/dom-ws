@@ -1,0 +1,258 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{longtable}
+\usepackage{bytefield}
+\usepackage[pdftex]{color}
+\usepackage[pdftex,bookmarksopen=true]{hyperref}
+
+\title{Icecube Communications Packet Format}
+\author{Arthur Jones}
+\date{15 April 2004}
+\hypersetup{%
+pdftitle={Icecube packet format},
+pdfauthor={Arthur Jones <aljones@lbl.gov>},
+pdfsubject={Packet format},
+pdfkeywords={packet format}}
+
+% Set up hyperlink colors
+\definecolor{darkred}{rgb}{0.5,0,0}
+\definecolor{darkgreen}{rgb}{0,0.3,0}
+\definecolor{darkblue}{rgb}{0,0,0.5}
+\definecolor{darkbrown}{rgb}{0.28,0.07,0.07}
+\hypersetup{%
+colorlinks=true,
+citecolor=darkblue,
+urlcolor=darkgreen,
+linkcolor=darkred,
+menucolor=darkbrown}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+This document describes the packet format used in
+the DOR/DOM communications.  It is a description of
+the "on-the-wire" format.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{section}{1}
+
+\section{Protocol description}
+
+The Icecube communications protocol is a positive
+acknowledgement protocol that allows reliable delivery
+of data between the DOM and the surface.
+
+\subsection{Packet format}
+
+   A packet consists of a single 32 bit header followed
+by a variable amount of data.  The protocol header, shown
+in Figure~\ref{fig:packet-format}, is part of every packet.
+Finally, a 32 bit CRC is 
+\begin{figure}[htbp]
+  \begin{center}
+  \setlength{\byteheight}{6ex}
+  \begin{bytefield}{32}
+    \bitheader[b]{0,11-12,14,15,16,31} \\
+    \wordgroupr{header}
+      % We have to do the \parbox explicitly in the next line because
+      % \hyperlink typesets its argument in horizontal mode.
+      \bitbox{16}{\hyperlink{sequence-number}{sequence number}}
+      \bitbox{1}{\hyperlink{dom-type}{D}} &
+      \bitbox{3}{\hyperlink{packet-type}{type}} &
+      \bitbox{12}{\hyperlink{packet-length}{\parbox{\width}{\centering packet length}}} &
+    \endwordgroupr \\
+
+  \wordgroupr{data}
+    \wordbox[lrt]{1}{%
+      \parbox{0.6\width}{\centering \hyperlink{data-format}{Data (32 bit aligned)}}} \\
+    \skippedwords \\
+    \wordbox[lrb]{1}{}
+  \endwordgroupr \\
+
+  \wordgroupr{crc}
+	\wordbox[lrb]{1}{\hyperlink{crc-format}{CRC32}}
+  \endwordgroupr \\
+
+  \end{bytefield}
+  \end{center}
+  \caption{packet format}
+  \label{fig:packet-format}
+\end{figure}
+
+\hypertarget{packet-length}{\subsubsection{Packet length}}
+
+  this field allows us to know how big the data portion of
+  the packet will be.  the actual packet length can be calculated
+  from this number using the "C" code (integer math):
+
+\[ packet\_length = \frac{ length + 3 }{4} \times 4 + 8 \]
+
+  rationale: this field is first in the header as hardware crc
+  detection and creation would require the length of the data
+  in order to work (and nothing else).  the 12 bits of packet
+  length allow us up to 4095 byte packets (4103 bytes including
+  header and crc).  at 4095 byte packets the header/crc overhead
+  is about 1 part in 512.  this should be negligible overhead
+  for the high speed data throughput mode.  keeping the length 
+  reasonably small allows us to buffer less data on the dor and 
+  dom side when using software error correction mode.
+
+\hypertarget{packet-type}{\subsubsection{Packet type}}
+
+\begin{center}
+\begin{longtable}{lp{0.6\textwidth}}
+   packet type (binary) & description \\ \hline
+    \hyperlink{data-packet-no-syn-fin}{000} & data packet in the beginning/middle of a sequence. \\
+    \hyperlink{ack-packet}{001} & acknowledgement of a data packet. \\
+    \hyperlink{data-packet-syn-fin}{010} & data packet, at the end of a sequence. \\
+    \hyperlink{control-packet}{011} & control packet. \\
+    \hyperlink{initiate-connection}{100} & initiate connection \\
+    \hyperlink{connection-initiated}{101} & connection initiated \\
+    \hyperlink{dor-control-packet}{110} & DOR control message \\
+    111 & undefined
+\end{longtable}
+\end{center}
+
+  rationale: in order to support software error correction,
+  we need the first 6 messages.  we use these as follows:
+
+\hypertarget{data-packet-no-syn-fin}{\subsubsection{Data packet, no syn fin (000)}}
+	this is a data packet that
+         is not yet ready to be passed to the user.  it has
+         another packet behind it with the rest of the data.
+	 the sequence number field contains the sequence number
+         of this data packet.  using this scheme we are able
+         to translate "software" packets of any length to
+	 "hardware" packets of a fixed maximum length.
+
+\hypertarget{ack-packet}{\subsubsection{Acknowledgement packet (001)}}
+
+	acknowledge a data packet.  the sequence
+         number field describes the data packet that we are
+         acknowledging.  no payload with this packet.
+
+\hypertarget{data-packet-syn-fin}{\subsubsection{Data packet, syn fin (010)}}
+    this is a data packet that
+         is complete and ready to ship to the user.  any previous
+         packets with no syn fin are prepended in order to this
+         packet when shipping to the user.
+
+\hypertarget{control-packet}{\subsubsection{Control packet (011)}}
+	 this packet never makes it to the user
+         but is used to communicate unreliably between the "kernel"
+         communications agents.  we are currently using this type
+         of packet to pass comm statistics from the dom to the dor. 
+
+\hypertarget{initiate-connection}{\subsubsection{Initiate connection (100)}}
+on startup, the dom and dor must
+         negotiate sequence numbers.  this packet type allows us
+         to signal that we want to start the negotiation.  there is
+         no payload to this packet.
+
+\hypertarget{connection-initiated}{\subsubsection{Connection initiated (101)}}
+this packet type confirms to the
+         other side of the comm link that we are alive and ready
+         to start our tx and rx sequence numbers from zero.
+
+\hypertarget{dor-control-packet}{\subsubsection{DOR control packet (110)}}
+this packet type allows DOR control
+         messages to be added to the packets.  the control message
+         data are put in the sequence number field of the packet, the
+         only messages defined now are (from DOR API Rev 1.9):
+
+\begin{tabular}[]{ccl}
+	value & name & description \\ \hline \\
+	0x0000 & & data or control packet \\
+	0x0001 & & time calibration packet \\
+	0x0002 & & DOM ID packet \\ \hline \\
+        0x0300 & IDREQ  & dom id request \\
+        0x0400 & UNDEF  & undefined \\
+        0x0500 & DRREQ  & data read request \\
+        0x0600 & DRAND  & data read ack by dom, dom tx has no data \\
+        0x0700 & DRBT   & dom reboot --  \\
+        0x0800 & MRWB   & message received, more Rx buffer avail \\
+        0x0900 & MRNB   & message received, no more Rx buffer avail \\
+        0x0a00 & MRWE   & message received, error detected \\
+        0x0b00 & COMRES & comm reset \\
+        0x0c00 & BFSTAT & DOM Rx Buffer status request \\
+        0x0d00 & SYSRES & DOM System Reset (softboot) \\
+        0x0e00 & TCAL   & start time calibration \\
+        0x0f00 & IDLE   & DOR idle, answered by DOM idle \\
+\end{tabular}
+
+\hypertarget{dom-type}{\subsubsection{DOM Type}}
+
+  this bit allows us to determine whether this packet 
+  was destined for the A dom (1) or the B dom(0).  in the 
+  case of packets heading for the surface, this bit indicates 
+  whether packets are sourced from the A dom or the B dom.
+
+  rationale: tagging each packet with the destined
+  dom may allow simplifications of the hardware
+  design at a later state.  esp on the dor side,
+  where it would allow the doms sharing a cable to also
+  share a tx fifo -- hence, more effectively using
+  the available fifo space...
+
+\hypertarget{sequence-number}{\subsubsection{Sequence number}}
+
+the (unsigned 16 bit) sequence number of the 
+data packet sent or, if the packet is an acknowledge 
+(ack) the sequence number of the packet that is
+being acknowledged.  the sequence number is only
+used in data and ack packets, other packet types
+could use this field for other purposes, see
+the type field description below for other uses
+of this field by other packet types.
+
+rationale: in order to do error correction in software, 
+we need to keep track of the packet sequence number.
+16 bits of sequence number allows us to look
+forward or backware 32K packets, this is
+far more than we are ever going to buffer, 
+but the next byte aligned step down (8 bits)
+only gives us +-128 of range which is currently
+less that we're using now and so would not be
+enough margin for a safe design.  a non-byte
+aligned sequence number size would not allow
+us to use a standard "C" type to hold the
+value, hence all sequence number arithmetic
+would require masks, a process that would be
+error-prone and probably more complicated than
+could be justified by the savings in bits
+on the wire.
+
+\hypertarget{data-format}{\subsubsection{Data format}}
+
+  this is the payload of the packet.  the data are organized in
+  little endian.  and padding is added to the end of this field
+  so that the data are a multiple of 4 bytes.
+
+  rationale: 4 byte alignment allows the software to be greatly
+  simplified and also allows us to use 32 bit dual ported memory
+  in the dom side.  also, the pci bus core we're using on the dor
+  side has a 32 bit bus, so data can be directly dropped into
+  the packets.  also, 32 bit alignment allows us to drop in the
+  32 bit crc more cleanly using firmware.  the overhead of average
+  loss of 12 bits is not significant compared to the common packet
+  sizes that we expect.
+
+\hypertarget{crc-format}{\subsubsection{CRC32}}
+
+  this field is the 32 bit aligned CRC32.
+
+  rationale: crc32 is commonly used to detect data transmission errors,
+  32 bits gives us quite a bit of confidence in the packet integrity,
+  and is relatively easy to calculate in firmware.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%\begin{thebibliography}
+%%\end{thebibliography}
+\end{document}
+

@@ -3,7 +3,7 @@
 #
 # autoincrementing build number...
 #
-bnf=build.num
+bnf=build_num
 
 #
 # create file if it doesn't exist yet...

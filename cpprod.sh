@@ -3,7 +3,7 @@
 #
 # set revision...
 #
-rev=REV5
+rev=REV4
 
 #
 # get latest production run
@@ -13,12 +13,9 @@ num=`cat prod.num`
 #
 # cp files and setup new link...
 #
-scp ChangeLog prod-${rev}-${num}.tar.gz \
-  glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
-
+scp prod-REV4-${num}.tar.gz getprod.sh glacier.lbl.gov:public_html/prod
 ssh glacier.lbl.gov \
- "cd /var/www/html/releases/DOM-MB/stable_hex; \
-  rm -f prod-latest.tar.gz; \
-  ln -s prod-${rev}-${num}.tar.gz prod-latest.tar.gz"
+ "cd public_html/prod; rm -f prod-latest.tar.gz;\
+ ln -s prod-REV4-${num}.tar.gz prod-latest.tar.gz"
 
-exec ./tagprod.sh
+

@@ -1,0 +1,181 @@
+\documentclass[pdf,serpaggi,slideColor,colorBG]{prosper}
+
+\usepackage[latin1]{inputenc}
+\usepackage{pstricks,pst-node,pst-text,pst-3d}
+\usepackage{amsmath}
+% Definition of new colors
+\newrgbcolor{LemonChiffon}{1. 0.98 0.8}
+\newrgbcolor{LightBlue}{0.68 0.85 0.9}
+
+% > BEGIN OF OVERLAPPED COLORS
+% Code below devised by Denis Girou (CNRS/IDRIS - France, Denis.Girou@idris.fr)
+\newrgbcolor{LemonChiffon}{1. 0.98 0.8}
+\newrgbcolor{LightBlue}{0.68 0.85 0.9}
+\makeatletter
+\newdimen\pst@dimz
+
+% Draw two overlapped surfaces, with computation of the mixed color for
+% the intersection of the surfaces 
+% #1=first  surface, #2=color of first  surface,
+% #3=second surface, #4=color of second surface
+\def\ColoredOverlappedSurfaces#1#2#3#4{%
+\psset{fillstyle=solid}
+% Decode the three components of the first RGB color
+\DecodeRGBFirstColor{\csname color@#2\endcsname}%
+\psset{fillcolor=#2}
+% Draw first surface
+#1
+% Decode the three components of the second RGB color
+\DecodeRGBSecondColor{\csname color@#4\endcsname}%
+% Compute the mixed color
+\BuildMixedColor
+% Draw second surface
+\psclip{\psset{fillcolor=#4}#3}
+\psset{fillcolor=MixedColor}
+% Redraw overlapped surface in the mixed color
+#1
+\endpsclip}
+
+% Get the three components of the first color
+\def\DecodeRGBFirstColor#1{%
+\pst@expandafter\pst@getnumiii{#1} {} {} {} {}\@nil
+\edef\pst@FirstColorR{\pst@tempg}%
+\edef\pst@FirstColorG{\pst@temph}%
+\edef\pst@FirstColorB{\pst@tempi}%
+%\typeout{Color 1=\pst@tempg,\pst@temph,\pst@tempi}% Debug
+}
+
+% Get the three components of the second color
+\def\DecodeRGBSecondColor#1{%
+\pst@expandafter\pst@getnumiii{#1} {} {} {} {}\@nil
+\edef\pst@SecondColorR{\pst@tempg}%
+\edef\pst@SecondColorG{\pst@temph}%
+\edef\pst@SecondColorB{\pst@tempi}%
+%\typeout{Color 2=\pst@tempg,\pst@temph,\pst@tempi}% Debug
+}
+
+% Build the mixed RBG color (by means of each three components)
+\def\BuildMixedColor{%
+% Resulting R component
+\pst@dimz=\pst@FirstColorR pt
+\advance\pst@dimz\pst@SecondColorR pt
+\divide\pst@dimz\tw@
+\pst@dimtonum{\pst@dimz}{\pst@MixedColorR}%
+% Resulting G component
+\pst@dimz=\pst@FirstColorG pt
+\advance\pst@dimz\pst@SecondColorG pt
+\divide\pst@dimz\tw@
+\pst@dimtonum{\pst@dimz}{\pst@MixedColorG}%
+% Resulting B component
+\pst@dimz=\pst@FirstColorB pt
+\advance\pst@dimz\pst@SecondColorB pt
+\divide\pst@dimz\tw@
+\pst@dimtonum{\pst@dimz}{\pst@MixedColorB}%
+% Definition of the mixed color MixedColor
+\newrgbcolor{MixedColor}{%
+\pst@MixedColorR\space \pst@MixedColorG\space \pst@MixedColorB}
+%\typeout{Mixed color=\csname color@MixedColor\endcsname}% Debug
+}
+\makeatother
+% < END OF OVERLAPPED COLORS
+
+\title{Icecube Communications}
+\subtitle{Error Correction in Software}
+\author{Arthur Jones}
+\institution{LBNL}
+
+\begin{document}
+\maketitle
+
+%---------------------------------------------------------------------- SLIDE -
+\begin{slide}{Why Error Correction?}
+\begin{itemize}
+
+\item Increase reliability
+\subitem We can constrain the errors to a relatively small part
+of the entire system -- and correct them before they are seen
+by the rest of the software.
+
+\item Enhance performance
+\subitem We can push the system harder, knowing that errors
+will be fixed up.
+
+\end{itemize}
+\end{slide}
+%------------------------------------------------------------------------------
+
+%---------------------------------------------------------------------- SLIDE -
+\begin{slide}{Types of Error Correction}
+\begin{itemize}
+
+\item No error correction, just send the bytes over the wire
+and hope for the best \ldots
+\subitem Not an optimal use of bandwidth.
+
+\item Forward error correction, use an encoding scheme
+where each block has redundant information in it, so that single
+bit errors can be corrected on the fly.
+\subitem Used by ECC memory in computers, Cell phones
+\subitem E.G.: Hamming, Convolutional, Turbo coding
+
+\item Packet based algorithms, detect an error in a packet
+and retransmit the entire packet.
+\subitem Negative acknowledgement (ZModem)
+\subitem Positive acknowledgment (X/YModem, TCP, \ldots)
+
+\end{itemize}
+\end{slide}
+%------------------------------------------------------------------------------
+
+%---------------------------------------------------------------------- SLIDE -
+\begin{slide}{Error Correction in Icecube}
+\begin{itemize}
+
+\item We started with no error correction
+\subitem Initially, we found errors every day or so
+\subitem Error rates were very sensitive to environment
+
+\item We added a positive acknowledgement packet based system at
+the software layer only.
+\subitem Stripped down version of TCP
+\subitem Eliminated errors, with negligible bandwidth loss
+
+\item Now we have firmware support for this algorithm so that
+all packets are protected.
+\subitem Low level flow control
+\subitem Communications hangups are much less likely
+
+\end{itemize}
+\end{slide}
+%------------------------------------------------------------------------------
+
+
+%---------------------------------------------------------------------- SLIDE -
+\begin{slide}{How does it work?}
+\begin{itemize}
+
+\item Sending
+\subitem Packetize data, add sequence number and other control information
+\subitem Place packets in a retransmit buffer
+\subitem Send the packet and mark the time it was sent
+\subitem Occasionally check to see if "old" packets are
+in the retransmit buffer, if so, resend them.
+
+\item Receiving
+\subitem Send an acknowledgement for every data packet
+received that is in sequence -- immediately pass it along
+\subitem If the packet is an acknowledgement, delete appropriate packet from
+retransmit buffer
+\end{itemize}
+\end{slide}
+%------------------------------------------------------------------------------
+
+%---------------------------------------------------------------------- SLIDE -
+\begin{slide}{Conclusion}
+
+It works!  No more errors, no loss of bandwidth.
+
+\end{slide}
+%------------------------------------------------------------------------------
+
+\end{document}

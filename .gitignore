@@ -1,7 +1,2 @@
-epxa10
-Linux-i386
-prod-REV5-*.tar.gz
-release.hex*
-dom-mb-*.tar.gz
 # Ignore Subversion directory during Git transition
 .svn

@@ -1,0 +1,19 @@
+build	bug
+22	gunzip returns error when there was none
+46	request reboot added
+46 	versioning added
+46	is fpga loaded added
+56	attempt to fix problem around flash boundries
+57	fix init problem, where chips were not erased
+68	fix reboot request issue
+71	fix install in iceboot
+86	add back readBaseADC
+102	epxa4 memory map fixed
+110	try to fix echo packet size breakups
+121	don't request reboot unless the tx fifo is empty
+123	don't timeout on reboot grant
+133	ping pong not writing channel 3
+138	no more timeout in comm send
+
+364	workaround extra zero on epxa4
+519	iceboot hash bucket re-initialization bug fixed...
