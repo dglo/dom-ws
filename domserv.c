@@ -37,9 +37,6 @@
 #include <pty.h>
 #include <poll.h>
 
-/* max packet size (500 - 12) */
-#define MAXPKTSIZE 4084
-
 /* port definitions... */
 #define SERIAL_PORT     2000
 #define SERIAL_PORT_RAW 3000
@@ -129,7 +126,7 @@ static int sockListener(int port) {
    server.sin_addr.s_addr = INADDR_ANY;
    server.sin_port        = ntohs(port);
    if (bind(sock, (struct sockaddr *) &server, sizeof server)<0) {
-      if (!dhmode) perror("bind socket");
+      perror("bind socket");
       close(sock);
       return -1;
    }
@@ -137,7 +134,7 @@ static int sockListener(int port) {
    /* listen on new client socket...
     */
    if (listen(sock, 1)<0) {
-      if (!dhmode) perror("listen");
+      perror("listen");
       close(sock);
       return -1;
    }
@@ -147,22 +144,14 @@ static int sockListener(int port) {
 
 static int openListeners(DOMList *dl) {
    if (dl->sfd==-1 && dl->rsfd==-1 && dl->efd==-1) {
-      dl->sfd = sockListener(dl->port);
-      dl->rsfd = sockListener(dl->rawport);
-
       /* both ports are quiet, open listeners... */
       if (!dhmode || dhReqOutput) {
-	 if (dl->sfd>=0 && dl->rsfd>=0) {
-	    printf("open %d %d\n", dl->port, dl->rawport);
-	 }
-	 else {
-	    printf("failed '%s'\n", strerror(errno)); 
-	    if (dl->sfd>=0) close(dl->sfd);
-	    if (dl->rsfd>=0) close(dl->rsfd);
-	 }
-	 fflush(stdout);
+	 printf("open %d %d\n", dl->port, dl->rawport); fflush(stdout);
 	 dhReqOutput = 0;
       }
+      
+      dl->sfd = sockListener(dl->port);
+      dl->rsfd = sockListener(dl->rawport);
    }
    return 0;
 }
@@ -514,7 +503,6 @@ int main(int argc, char *argv[]) {
    struct pollfd *fds = NULL;
    int i, ai;
    char *dhe = NULL;
-   int chkStdin = 0;
 
    if ((dl=newDOMList()) == NULL) {
       fprintf(stderr, "domserv: can't get DOR list...\n");
@@ -532,7 +520,6 @@ int main(int argc, char *argv[]) {
    for (ai=1; ai<argc; ai++) {
       if (strcmp(argv[ai], "-dh")==0) {
 	 dhmode = 1;
-	 chkStdin = 1;
       }
       else {
 	 fprintf(stderr, "usage: domserv [-dh]\n");
@@ -563,7 +550,7 @@ int main(int argc, char *argv[]) {
       int ld = 0;
       int lfd = 0;
 
-      if (chkStdin) {
+      if (dhmode) {
 	 fds[nfds].fd = 0;
 	 fds[nfds].events = POLLIN;
 	 nfds++;
@@ -621,35 +608,26 @@ int main(int argc, char *argv[]) {
       }
 
       /* check for stdin... */
-      if (chkStdin && (fds[0].revents&POLLIN)) {
+      if (dhmode && fds[0].revents) {
 	 char line[128];
-	 int idx = -1, en, nr;
+	 int idx = -1, en;
 
 	 /* deal with input... */
 	 memset(line, 0, sizeof(line));
-	 
-	 if ((nr=read(0, line, sizeof(line)-1))<0) {
-	    perror("read from stdin");
-	    return 0;
+	 read(0, line, sizeof(line)-1);
+
+	 if (strncmp(line, "open ", 5)==0) {
+	    idx=linetoidx(line + 5, dl);
+	    en = 1;
 	 }
-	 else if (nr==0) {
-	    /* stdin is closed! */
-	    chkStdin = 0;
+	 else if (strncmp(line, "close ", 6)==0) {
+	    idx=linetoidx(line + 6, dl);
+	    en = 0;
 	 }
 	 else {
-	    if (strncmp(line, "open ", 5)==0) {
-	       idx=linetoidx(line + 5, dl);
-	       en = 1;
-	    }
-	    else if (strncmp(line, "close ", 6)==0) {
-	       idx=linetoidx(line + 6, dl);
-	       en = 0;
-	    }
-	    else {
-	       printf("failed invalid command (open|close)\n");
-	    }
+	    printf("failed invalid command (open|close)\n");
 	 }
-	 
+
 	 if (idx!=-1) {
 	    /* found one! */
 	    dhe[idx] = en;
@@ -677,7 +655,7 @@ int main(int argc, char *argv[]) {
 	       /* find the device... */
 	       for (k=ld; k<ndevs(); k++) {
 		  /* buffer must _not_ be more than 4096 */
-		  unsigned char buffer[MAXPKTSIZE];
+		  unsigned char buffer[400];
 
 		  if (dl[k].sfd==fds[i].fd) {
 		     if (!dhmode) printf("accept: %d\n", dl[k].port);

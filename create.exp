@@ -1,5 +1,4 @@
 eval spawn telnet [lrange $argv 0 1]
-sleep 2
 send "\r"
 expect "> "
 send "s\" [lrange $argv 2 2]\" create\r"

@@ -1,62 +1,34 @@
-#!/bin/bash 
+# !/bin/sh 
 
-#
-# setup directories here...
-#
-REL=devel-release
-bindir=epxa10/bin
-fsdir=../iceboot/resources
-sbidir=../dom-fpga/resources/epxa10
-
-if [[ -d ${REL} ]]; then
-    echo "devel-release directory already exists, please remove it"
-    exit 1
-fi
+REL=devel-2003-10-14
 
 mkdir ${REL}
+cd ${REL}
 
-BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz echomode.bin.gz'
-SBI='simpletest_rev3_epxa4_com.sbi'
-SBIL='stf.sbi domapp.sbi iceboot.sbi'
-FS='startup.fs az-setup.fs az-tests.fs'
+BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz'
+SBI='simpletest_rev2_epxa1_com.sbi'
+SBIL='stf.sbi.gz domapp.sbi.gz iceboot.sbi.gz'
+FS=startup.fs
 
-#
-# cp and unzip binaries...
-#
 for f in ${BINS}; do
-    if [[ ! -f ${bindir}/${f} ]]; then
+    if [[ ! -f ../epxa10/bin/${f} ]]; then
        echo "can not find: ${f}"
        exit 1
     fi
-    cp ${bindir}/${f} ${REL}
-    gunzip ${REL}/${f}
+    cp ../epxa10/bin/${f} .
 done
 
-#
-# cp and link sbi files...
-#
-# FIXME: we should be more flexible here...
-#
-if [[ ! -f ${sbidir}/${SBI} ]]; then
-    echo "can not find sbi file: ${sbidir}/${SBI}"
-    exit 1
-fi
-(cd ${REL}; for f in ${SBIL}; do ln -s ../${sbidir}/${SBI} ${f}; done )
+cp ../../dom-fpga/resources/epxa10/${SBI} .
+cp ../../iceboot/resources/${FS} .
 
-#
-# cp .fs files
-#
-(cd ${fsdir}; cp ${FS} ../../dom-ws/${REL})
+gzip -c ${SBI} > ${SBI}.gz
 
-#
-# create release.hex files... 
-#
-if ! /bin/bash mkrelease.sh ${REL}/* ; then
-    rm -rf devel-release
-    echo "unable to create release.hex files..."
-    exit 1
-fi
+for f in ${SBIL}; do
+    ln -s ${SBI}.gz $f
+done
+
+cd ..
+/bin/sh mkrelease.sh ${REL}/iceboot.bin.gz ${REL}/stfserv.bin.gz ${REL}/startup.fs ${REL}/iceboot.sbi.gz ${REL}/stf.sbi.gz ${REL}/domapp.sbi.gz ${REL}/domapp.bin.gz ${REL}/menu.bin.gz 
 
 rm -rf ${REL}
 
-exit 0

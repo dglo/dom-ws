@@ -14,6 +14,3 @@ build	bug
 123	don't timeout on reboot grant
 133	ping pong not writing channel 3
 138	no more timeout in comm send
-
-364	workaround extra zero on epxa4
-519	iceboot hash bucket re-initialization bug fixed...

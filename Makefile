@@ -5,8 +5,10 @@ PLATFORM=epxa10
 #PLATFORM=Linux-i386
 
 export PROJECT_TAG=devel
-export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
+export ICESOFT_BUILD=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
+
+export LIBEXPAT=/usr/arm-elf/lib/libexpat.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
 
@@ -27,25 +29,37 @@ doc:
 	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
 doc.install: doc
-	cd ../hal/html; tar cf - . | ssh deimos.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
+	cd ../hal/html; tar cf - . | (cd ~/public_html/dom-mb; tar xf -)
+
+newbuild:
+	/bin/sh newbld.sh
 
 domserv: domserv.c
 	gcc -o domserv -Wall domserv.c -lutil
 
-dhserv: dhserv.c
-	gcc -o dhserv -Wall dhserv.c
-
-xmln: xmln.c
-	gcc -o xmln -Wall -O -g xmln.c -lexpat
-
-dhclient: dhclient.c
-	gcc -o dhclient -Wall dhclient.c
-
 sendfile: sendfile.c
 	gcc -o sendfile -Wall sendfile.c
 
-tcalcycle: tcalcycle.c
-	gcc -o tcalcycle -Wall tcalcycle.c
+iceboot.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
+	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
+		iceboot.sbi.gz
+
+stf.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
+	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
+		stf.sbi.gz
+
+domapp.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
+	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
+		domapp.sbi.gz
+
+release.hex: mkrelease.sh domserv all iceboot.sbi.gz stf.sbi.gz domapp.sbi.gz
+	/bin/sh mkrelease.sh ./epxa10/bin/iceboot.bin.gz \
+		./epxa10/bin/stfserv.bin.gz \
+		../iceboot/resources/startup.fs \
+		iceboot.sbi.gz \
+		stf.sbi.gz \
+		domapp.sbi.gz \
+		domapp.bin.gz
 
 HWPROJECTS=dom-cpld dom-fpga
 SWPROJECTS=hal dom-loader configboot iceboot stf dom-ws
@@ -111,17 +125,10 @@ stfmode.class: stfmode.java
 alloff.class: alloff.java
 	javac alloff.java
 
-addresults.class: addresults.java
-	javac addresults.java
-
-addhw.class: addhw.java
-	javac addhw.java
-
-html-install: dt dhclient
-	if [[ ! -d /usr/lib/cgi-bin/stf/xml/bin ]]; then mkdir -p /usr/lib/cgi-bin/stf/xml/bin; fi
+html-install: stfmode.class
+	cp stfmode.class alloff.class /usr/lib/cgi-bin/stf/xml/bin
 	cd epxa10/stf-sfe; make html-install
 	cd epxa10/std-tests; make install
-	cp dhclient dt /usr/lib/cgi-bin/stf/xml/bin
 
 
 VERDIR = $(PLATFORM)/public/dom-fpga
@@ -136,15 +143,4 @@ pld-versions:
 	if [[ ! -d $(PVERDIR) ]]; then mkdir -p $(PVERDIR); fi
 	cd ../dom-cpld; make
 	cp ../dom-cpld/pld-version.h $(PVERDIR)
-
-
-
-
-
-
-
-
-
-
-
 
