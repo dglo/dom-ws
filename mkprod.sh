@@ -48,8 +48,8 @@ cp configboot.pof ${dir}
 #
 # cp std-tests (standard tests) -- read-only...
 #
-(cd ../stf/private; tar cf - std-tests/*.xml) | (cd ${dir}; tar xf -)
-chmod ugo-w ${dir}/std-tests
+(cd ../stf/private; tar cf - std-tests/*.xml std-integration-tests/*.xml) | (cd ${dir}; tar xf -)
+chmod ugo-w ${dir}/std-tests ${dir}/std-integration-tests
 
 #
 # cp templates
