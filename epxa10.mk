@@ -61,7 +61,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu echomode stfsfe domcal
+all: pld-versions versions iceboot stfserv menu echomode stfsfe domcal3
 
 iceboot:
 	cd epxa10/booter; make config_files
