@@ -62,7 +62,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 
 
 all: pld-versions versions iceboot stfserv menu echomode stfsfe domapp \
-	domcal5 wiggle domapp-test
+	domcal5 wiggle
 
 booter_config:
 	cd epxa10/booter; make config_files
@@ -169,7 +169,6 @@ domcal5: domcalbase
 hack:
 	cd $(PLATFORM)/configboot; make hack.hex
 
-domapp-test: booter_config loader hal
-	cd $(PLATFORM)/domapp-test; make ../bin/domapp-test.bin.gz
-
+real: booter_config loader hal
+	cd $(PLATFORM)/domapp-test; make ../bin/real-app.bin.gz
 

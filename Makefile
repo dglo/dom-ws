@@ -28,8 +28,6 @@ doc:
 
 doc.install: doc
 	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
-	cd epxa10/stf-docs; make install
-	cd epxa10/iceboot-docs; make install
 
 domserv: domserv.c
 	gcc -o domserv -Wall domserv.c -lutil
