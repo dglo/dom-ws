@@ -95,15 +95,6 @@ if [[ -f ${dir}/jars/daq-db-common.jar ]]; then
 fi
 
 #
-# make sure all stf tests schemas are in the db...
-#
-echo "adding stf schema files to db..."
-
-if ! ./add-schema epxa10/stf-apps/*.xml; then
-    echo "mkprod.sh: unable to add stf test schema files..."
-    exit 1
-fi
-#
 # cp run script
 #
 cp ./stf-client ${dir}
@@ -122,8 +113,23 @@ if ! /bin/bash dorel.sh; then
 	exit 1
 fi
 
+#
+# cp release files...
+#
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
+
+#
+# cp add-schema files...
+#
+cp add-schema ${dir}
+chmod +x ${dir}/add-schema
+mkdir ${dir}/stf-schema
+if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
+   grep -v -- '-template\.xml$' | cpio -p -L -d ../../${dir}/stf-schema); then
+   echo "unable to cp schema files"
+   exit 1
+fi
 
 #
 # now tar it all up...

@@ -15,7 +15,10 @@ if [[ -d ${REL} ]]; then
     exit 1
 fi
 
-mkdir ${REL}
+if ! mkdir ${REL}; then
+    echo "unable to make directory ${REL}"
+    exit 1
+fi
 
 BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz echomode.bin.gz'
 BINS="${BINS} wiggle.bin.gz"
@@ -75,7 +78,7 @@ cp -l ${ncsbidir}/${SBI} ${REL}/stf-nocomm.sbi
 #
 # create release.hex files... 
 #
-if ! /bin/bash mkrelease.sh ${REL}/* ; then
+if ! /bin/bash mkrelease.sh ${REL}/*; then
     rm -rf devel-release
     echo "unable to create release.hex files..."
     exit 1
