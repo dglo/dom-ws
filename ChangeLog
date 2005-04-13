@@ -1,3 +1,22 @@
+Release 317:
+
+from john kelley:
+   005: Add "are you sure?" check to enableFBmin iceboot function
+   006: Graceful exit when running tests with no flasherboard or a
+        dead flasherboard
+   007: New version of test checks brightness minimum slope to
+        catch stuck-at-bright failures.
+        New schema needs to be added to database
+   008: stf-menu, fix minor bug reading newlines when getting test name
+        from user
+
+from george chao:
+   001: fix waveform position problem in atwd_pmt_spe
+   002: fix atwd_pmt_led minimum light test
+   003: fix ADC ch1 and 4
+   004: updates atwd_led_nopmt
+
+----------------------------------------------------------------------------
 Release 316:
 
 from arthur:
