@@ -1,3 +1,15 @@
+Release 318:
+
+from arthur:
+   001: we no longer need tarballs on my home directory on glacier
+ 
+from azriel:
+   002: use correct parameters for clock1x chipA
+
+from johnj:
+   003: bugs found by jim braun, fix the atwd bit in eng format and
+        timestamps dropped by 1/2 ms in flasher runs...
+----------------------------------------------------------------------------
 Release 317:
 
 from john kelley:
