@@ -1,0 +1,16 @@
+Index: private/dataAccess/dataAccessRoutines.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccessRoutines.c,v
+retrieving revision 1.25.4.1.2.5
+diff -u -r1.25.4.1.2.5 dataAccessRoutines.c
+--- private/dataAccess/dataAccessRoutines.c	15 Mar 2005 23:05:50 -0000	1.25.4.1.2.5
++++ private/dataAccess/dataAccessRoutines.c	22 Apr 2005 18:24:14 -0000
+@@ -213,7 +213,7 @@
+   }
+ 
+   hal_FB_select_mux_input(DOM_FB_MUX_LED_1 + firstled);  
+-  hal_FB_set_rate(rate);
++  hal_FPGA_TEST_FB_set_rate(rate);
+ 
+   /* Convert launch delay from ns to FPGA units */
+   int delay_i = (delay / 25) - 2;
