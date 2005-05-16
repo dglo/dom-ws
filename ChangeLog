@@ -1,3 +1,12 @@
+Release 319:
+
+from john kelley:
+   001: Fix flasherboard rate control and move to FPGA module
+   002: Add flasherboard rate control function and documentation
+   003: Change flasherboard rate function call
+   004: Fix unused variable compiler warning
+
+----------------------------------------------------------------------------
 Release 318:
 
 from arthur:
