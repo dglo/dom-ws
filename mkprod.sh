@@ -48,8 +48,8 @@ cp configboot.pof ${dir}
 #
 # cp std-tests (standard tests) -- read-only...
 #
-(cd ../stf/private; tar cf - std-tests/*.xml std-integration-tests/*.xml) | (cd ${dir}; tar xf -)
-chmod ugo-w ${dir}/std-tests ${dir}/std-integration-tests
+(cd ../stf/private; tar cf - std-tests/*.xml) | (cd ${dir}; tar xf -)
+chmod ugo-w ${dir}/std-tests
 
 #
 # cp templates
@@ -95,6 +95,15 @@ if [[ -f ${dir}/jars/daq-db-common.jar ]]; then
 fi
 
 #
+# make sure all stf tests schemas are in the db...
+#
+echo "adding stf schema files to db..."
+
+if ! ./add-schema epxa10/stf-apps/*.xml; then
+    echo "mkprod.sh: unable to add stf test schema files..."
+    exit 1
+fi
+#
 # cp run script
 #
 cp ./stf-client ${dir}
@@ -113,30 +122,8 @@ if ! /bin/bash dorel.sh; then
 	exit 1
 fi
 
-#
-# cp release files...
-#
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
-cp INSTALL ${dir}
-
-#
-# cp add-schema files...
-#
-cp add-schema ${dir}
-chmod +x ${dir}/add-schema
-mkdir ${dir}/stf-schema
-if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
-   grep -v -- '-template\.xml$' | cpio -p -L -d ../../${dir}/stf-schema); then
-   echo "unable to cp schema files"
-   exit 1
-fi
-
-#
-# cp tcal-stf.sh
-#
-cp tcal-stf.sh ${dir}
-chmod +x ${dir}/tcal-stf.sh
 
 #
 # now tar it all up...
@@ -148,7 +135,7 @@ tar cf - ${dir} | gzip -c > ${dir}.tar.gz
 # clean up...
 #
 echo "cleaning up..."
-chmod u+w ${dir}/std-tests ${dir}/std-integration-tests
+chmod u+w ${dir}/std-tests
 rm -rf ${dir}
 
 

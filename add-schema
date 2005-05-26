@@ -14,7 +14,8 @@ jbin=${JAVA_HOME}/bin
 # set the classpath from the jars in the jars
 # directory...
 #
-cp=`/usr/bin/lessecho jars/*.jar | tr ' ' ':' | sed 's/:$//1'`
+cp=`/usr/bin/lessecho ../lib/*.jar | tr ' ' ':' | sed 's/:$//1'`
+cp=${cp}:`/usr/bin/lessecho ../tools/lib/*.jar | tr ' ' ':' | sed 's/:$//1'`
 
 #
 # run add-schema...

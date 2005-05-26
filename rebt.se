@@ -1,0 +1,2 @@
+send "REBT\n"
+expect "^> "

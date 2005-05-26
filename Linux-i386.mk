@@ -33,6 +33,12 @@ iceboot: versions
 	cd Linux-i386/hal; make all
 	cd Linux-i386/iceboot; make all
 
+decode64:
+	cd Linux-i386/domapp-test; make ../bin/decode64
+
+encode64:
+	cd Linux-i386/domapp-test; make ../bin/encode64
+
 clean:
 	cd $(PLATFORM)/iceboot; make clean
 	cd $(PLATFORM)/hal; make clean

@@ -1,0 +1,50 @@
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+
+send "PULS now\n"
+expect "^PULS"
+send "DATA\n"
+expect "^DATA"
+

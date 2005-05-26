@@ -1,0 +1,24 @@
+send "CONF trigger=forced\n"
+expect "^CONF"
+
+send "CONF cal_enable=forced cal_mode=forced\n"
+expect "^CONF"
+
+send "CONF daq_mode=atwd_fadc\n"
+expect "^CONF"
+
+send "CONF atwd_mode=testing\n"
+expect "^CONF"
+
+send "CONF lc_mode=off\n"
+expect "^CONF"
+
+send "CONF lbm_mode=wrap\n"
+expect "^CONF"
+
+send "CONF compression_mode=off\n"
+expect "^CONF"
+
+send "CONF atwd_enable=A\n"
+expect "^CONF"
+
