@@ -1,3 +1,10 @@
+Release 320:
+
+from arthur:
+   001: ADC channel 4 (3.3V current) lower limit changed from 72->63
+   002: cp changelog to glacier again (accidently deleted this)
+
+----------------------------------------------------------------------------
 Release 319:
 
 from john kelley:
