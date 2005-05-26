@@ -1,0 +1,29 @@
+Index: stfapp/src/icecube/daq/stf/stfapp/RunSummary.java
+===================================================================
+RCS file: /home/icecube/cvsroot/stfapp/src/icecube/daq/stf/stfapp/RunSummary.java,v
+retrieving revision 1.1.2.1
+retrieving revision 1.1.2.3
+diff -u -r1.1.2.1 -r1.1.2.3
+--- stfapp/src/icecube/daq/stf/stfapp/RunSummary.java	10 Feb 2005 14:09:37 -0000	1.1.2.1
++++ stfapp/src/icecube/daq/stf/stfapp/RunSummary.java	11 Feb 2005 20:00:36 -0000	1.1.2.3
+@@ -28,13 +28,15 @@
+     }
+ 
+     public void appendResult(String domId, String name, boolean pass) {
+-        StringBuffer str1 = new StringBuffer(100);
+-        for (int i = 0; i < 80; i++) str1.insert(i, " ");
+-        String dstr = format.format((new GregorianCalendar(TimeZone.getTimeZone("GMT"))).getTime());
++        StringBuffer str1 = new StringBuffer(120);
++        for (int i = 0; i < 120; i++) str1.insert(i, " ");
++        String dstr = format.format((new GregorianCalendar(TimeZone.getTimeZone("UTC"))).getTime());
+         str1.replace(0, dstr.length(), dstr);
+         str1.replace(25, 25 + domId.length(), domId);
+-        str1.replace(40, 40 + name.length(), name);
+-        str1.replace(99, 100, pass ? "P" : "F");
++        /* Ensure name < 78 characters */
++        String fmtname = name.length() < 78 ? name : name.substring(0, 78);
++        str1.replace(40, 40 + fmtname.length(), fmtname);
++        str1.replace(119, 120, pass ? "P" : "F");
+         out.println(str1);
+         out.flush();
+     }

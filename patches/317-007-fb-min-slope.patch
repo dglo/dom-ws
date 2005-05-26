@@ -1,0 +1,128 @@
+stf_fb_brightness.patch
+    o New version of test checks brightness minimum slope to
+    catch stuck-at-bright failures
+    o New schema needs to be added to database
+
+Index: flasher_brightness.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_brightness.c,v
+retrieving revision 1.4.2.3
+diff -u -r1.4.2.3 flasher_brightness.c
+--- flasher_brightness.c	15 Mar 2005 23:00:05 -0000	1.4.2.3
++++ flasher_brightness.c	13 Apr 2005 14:47:41 -0000
+@@ -41,6 +41,11 @@
+ /* About 85% of nominal value of 440 */
+ #define MIN_PEAK_MAX_BRIGHT      375 
+ 
++/* Minimum slope of linear brightness relationship */
++/* Very loose condition -- nominal slope is 3.0 */
++/* Used to catch stuck-at failures */
++#define MIN_SLOPE                1.0
++
+ /* Rounding convert to int */
+ #define round(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
+ 
+@@ -99,6 +104,8 @@
+                                 unsigned int * worst_linearity_led,
+                                 unsigned int * min_peak_brightness_atwd,
+                                 unsigned int * worst_brightness_led,
++                                unsigned int * min_slope_x_100,
++                                unsigned int * min_slope_led,
+                                 unsigned int * led_avg_current
+                              ) {
+ 
+@@ -112,8 +119,9 @@
+     *worst_linearity_led = *worst_linearity_brightness = *max_current_err_pct = 0;
+     *min_peak_brightness_atwd = *worst_brightness_led = 0;
+     *config_time_us = *reset_time_us = *valid_time_us = 0;
++    *min_slope_x_100 = *min_slope_led = 0;
+ 
+-    char dummy_id[9] = "deadbeef";
++    static char dummy_id[9] = "deadbeef";
+     *flasher_id = dummy_id;
+ 
+     /* Pedestal buffers -- only use channel 3 in this test */
+@@ -373,21 +381,25 @@
+                        led+1,*max_current_err_pct,*worst_linearity_brightness);
+                 #endif
+             }
+-        }
++        }      
+ 
+         /* Record minimum brightness at peak setting */
+-        if (*min_peak_brightness_atwd == 0) {
++        if ((led == 0) || ((peaks[N_BRIGHTS-1] < *min_peak_brightness_atwd))) {
+             *min_peak_brightness_atwd = peaks[N_BRIGHTS-1];
++            *worst_brightness_led = led+1;
++            #ifdef VERBOSE
++            printf("New minimum peak brightness, LED %d: %d\n",
++                   led+1, *min_peak_brightness_atwd);
++            #endif
+         }
+-        else {
+-            if (peaks[N_BRIGHTS-1] < *min_peak_brightness_atwd) {
+-                *min_peak_brightness_atwd = peaks[N_BRIGHTS-1];
+-                *worst_brightness_led = led+1;
+-                #ifdef VERBOSE
+-                printf("New minimum peak brightness, LED %d: %d\n",
+-                       led+1, *min_peak_brightness_atwd);
+-                #endif
+-            }
++
++        /* Keep track of minimum slope */
++        if ((led == 0) || ((int)(slope*100) < *min_slope_x_100)) {
++            *min_slope_x_100 = (int)(slope*100);
++            *min_slope_led   = led+1;
++            #ifdef VERBOSE
++            printf("New minimum slope, LED %d: slope of %g\n", led+1, slope);
++            #endif
+         }
+ 
+     } /* End LED loop */        
+@@ -420,9 +432,8 @@
+ 
+     passed  = (*max_current_err_pct > MAX_ERR_PCT) ? FALSE : TRUE;
+     passed &= (*min_peak_brightness_atwd > MIN_PEAK_MAX_BRIGHT);
+-
+-    /* TO DO: Add minimum slope/intercept check? */
+-
++    passed &= (*min_slope_x_100 > (int)(MIN_SLOPE*100));
++    
+     /* Free allocated structures */
+     free(atwd_pedestal[3]);
+     free(channels[3]);
+Index: flasher_brightness.xml
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_brightness.xml,v
+retrieving revision 1.2.2.2
+diff -u -r1.2.2.2 flasher_brightness.xml
+--- flasher_brightness.xml	15 Mar 2005 23:00:05 -0000	1.2.2.2
++++ flasher_brightness.xml	13 Apr 2005 14:47:48 -0000
+@@ -4,7 +4,7 @@
+   <name>flasher_brightness</name>
+   <description>Flasher Board LED Brightness Test</description>
+ 
+-  <version major="1" minor="3"/>
++  <version major="1" minor="4"/>
+ 
+   <inputParameter>
+     <description>DAC setting for ATWD sampling speed</description>
+@@ -119,6 +119,18 @@
+     <name>worst_brightness_led</name>
+ 	<unsignedInt/>
+   </outputParameter>  
++
++  <outputParameter>
++    <description>Minimum Slope of Brightness Fit (times 100)</description>
++    <name>min_slope_x_100</name>
++	<unsignedInt/>
++  </outputParameter>  
++
++  <outputParameter>
++    <description>LED with Minimum Slope of Brightness Fit</description>
++    <name>min_slope_led</name>
++	<unsignedInt/>
++  </outputParameter>  
+     
+   <outputParameter>
+     <description>Averaged LED Current Waveform (+1024 offset)</description>

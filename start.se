@@ -1,2 +1,0 @@
-send "STRT\n"
-expect "^STRT"

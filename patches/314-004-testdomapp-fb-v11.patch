@@ -1,0 +1,584 @@
+Index: testdomapp/private/dataAccess/dataAccess.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccess.c,v
+retrieving revision 1.25
+diff -u -r1.25 dataAccess.c
+--- testdomapp/private/dataAccess/dataAccess.c	1 Dec 2004 23:11:40 -0000	1.25
++++ testdomapp/private/dataAccess/dataAccess.c	14 Mar 2005 18:22:13 -0000
+@@ -77,6 +77,7 @@
+ 
+ /* data access  Entry Point */
+ void dataAccess(MESSAGE_STRUCT *M) {
++    char * idptr;
+     UBYTE *data;
+     int tmpInt;
+     //UBYTE tmpByte;
+@@ -87,7 +88,8 @@
+     struct moniRec aMoniRec;
+     int total_moni_len, moniBytes, len;
+     int ichip, ich;
+-    
++    int config, valid, reset; /* For hal_FB_enable */
++    int wasEnabled;
+     /* get address of data portion. */
+     /* Receiver ALWAYS links a message */
+     /* to a valid data buffer-even */ 
+@@ -376,7 +378,35 @@
+       Message_setDataLen(M, 1);
+       Message_setStatus(M, SUCCESS);
+       break;
+-      
++
++    case DATA_ACC_GET_FB_SERIAL:
++      wasEnabled = hal_FB_isEnabled();
++      Message_setDataLen(M, 0);
++      if(!wasEnabled) {
++	if(hal_FB_enable(&config, &valid, &reset)) {
++	  datacs.lastErrorID = DAC_Cant_Enable_FB;
++	  strcpy(datacs.lastErrorStr, DAC_CANT_ENABLE_FB);
++	  datacs.lastErrorSeverity = WARNING_ERROR;
++	  Message_setStatus(M, WARNING_ERROR);
++	  hal_FB_disable();
++	  break;
++	}
++      }
++      if(hal_FB_get_serial(&idptr)) {
++	datacs.lastErrorID = DAC_Cant_Get_FB_Serial;
++	strcpy(datacs.lastErrorStr, DAC_CANT_GET_FB_SERIAL);
++	datacs.lastErrorSeverity = WARNING_ERROR;
++	Message_setStatus(M, WARNING_ERROR);
++	if(!wasEnabled) hal_FB_disable();
++	break;
++      } else {
++	memcpy(data, idptr, strlen(idptr));
++	Message_setDataLen(M, strlen(idptr));
++      }
++      if(!wasEnabled) hal_FB_disable();
++      Message_setStatus(M, SUCCESS);
++      break;
++
+     default:
+       datacs.msgRefused++;
+       strcpy(datacs.lastErrorStr, DAC_ERS_BAD_MSG_SUBTYPE);
+Index: testdomapp/private/dataAccess/dataAccess.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccess.h,v
+retrieving revision 1.5
+diff -u -r1.5 dataAccess.h
+--- testdomapp/private/dataAccess/dataAccess.h	13 Sep 2004 21:05:43 -0000	1.5
++++ testdomapp/private/dataAccess/dataAccess.h	14 Mar 2005 18:22:13 -0000
+@@ -24,15 +24,15 @@
+ /* for DAC_No_Errors */
+ #define DAC_ERS_NO_ERRORS "DAC: No errors."
+ /* for DAC_Bad_Msg_Subtype */
+-#define DAC_ERS_BAD_MSG_SUBTYPE "DAC: Bad msg subtype."
+-/* for DAC_Data_Overrun */
+-#define DAC_DATA_OVERRUN "DAC: Readout buffer data overrun."
+-/* JEJ for monitoring not initialized */
+-#define DAC_MONI_NOT_INIT "DAC: Monitoring not initialized"
+-#define DAC_MONI_OVERFLOW "DAC: Monitoring buffer overflowed"
+-#define DAC_MONI_BADSTAT  "DAC: Monitoring: bad status"
++#define DAC_ERS_BAD_MSG_SUBTYPE  "DAC: Bad msg subtype."
++#define DAC_DATA_OVERRUN         "DAC: Readout buffer data overrun."
++#define DAC_MONI_NOT_INIT        "DAC: Monitoring not initialized"
++#define DAC_MONI_OVERFLOW        "DAC: Monitoring buffer overflowed"
++#define DAC_MONI_BADSTAT         "DAC: Monitoring: bad status"
+ #define DAC_ERS_BAD_COMPR_FORMAT "DAC: Compression: bad format specifier"
+ #define DAC_ERS_BAD_ARGUMENT     "DAC: Bad message argument"
++#define DAC_CANT_ENABLE_FB       "DAC: Can't enable flasher board"
++#define DAC_CANT_GET_FB_SERIAL   "DAC: Can't get flasher board serial number"
+ /* define ALLOCATE_READOUT_BUFFER if you want dataAccess
+    to allocate memory to be used for FPGA simulation.
+    Otherwise define READOUT_BASE_ADDR to the real address
+Index: testdomapp/private/dataAccess/dataAccessRoutines.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccessRoutines.c,v
+retrieving revision 1.25.4.1.2.4
+diff -u -r1.25.4.1.2.4 dataAccessRoutines.c
+--- testdomapp/private/dataAccess/dataAccessRoutines.c	15 Jan 2005 03:59:57 -0000	1.25.4.1.2.4
++++ testdomapp/private/dataAccess/dataAccessRoutines.c	14 Mar 2005 18:22:13 -0000
+@@ -109,8 +109,6 @@
+ BOOLEAN getTestDiscEvent(USHORT *Ch0Data, USHORT *Ch1Data,
+ 	USHORT *Ch2Data, USHORT *Ch3Data, USHORT *FADC);
+ 
+-void calibrateTriggeringSpeeds(void);
+-
+ /** Set by initFormatEngineeringEvent: */
+ /* UBYTE ATWDCh0Mask; */
+ /* UBYTE ATWDCh1Mask; */
+@@ -166,13 +164,93 @@
+ #define DOCH0
+ #undef  DOCH0
+ 
++BOOLEAN beginFBRun(USHORT bright, USHORT window, USHORT delay, USHORT mask, USHORT rate) {
++#define MAXHVOFFADC 5
++  USHORT hvadc = halReadBaseADC();
++  if(hvadc > MAXHVOFFADC) {
++    mprintf("Can't start flasher board run: DOM HV ADC=%hu.", hvadc);
++    return FALSE;
++  }
++
++  if(DOM_state!=DOM_IDLE) {
++    mprintf("Can't start flasher board run: DOM_state=%d.", DOM_state);
++    return FALSE;
++  }
++
++  halPowerDownBase(); /* Just to be sure, turn off HV */
++
++  DOM_state = DOM_FB_RUN_IN_PROGRESS;
++  int err, config_t, valid_t, reset_t;
++  err = hal_FB_enable(&config_t, &valid_t, &reset_t);
++  if (err != 0) {
++    switch(err) {
++    case FB_HAL_ERR_CONFIG_TIME:
++      mprintf("Error: flasherboard configuration time too long");
++      return FALSE;
++    case FB_HAL_ERR_VALID_TIME:
++      mprintf("Error: flasherboard clock validation time too long");
++      return FALSE;
++    default:
++      mprintf("Error: unknown flasherboard enable failure");
++      return FALSE;
++    }
++  }
++
++  halSelectAnalogMuxInput(DOM_HAL_MUX_FLASHER_LED_CURRENT);  
++  hal_FB_set_brightness((UBYTE) bright);
++  hal_FB_set_pulse_width((UBYTE) window);
++  hal_FB_enable_LEDs(mask);
++
++  /* Find first LED for MUXer */
++  int iled;
++  UBYTE firstled=0;
++#define N_LEDS 12
++  for(iled = 0; iled < N_LEDS; iled++) {
++    if((mask >> iled) & 1) {
++      firstled = iled;
++      break;
++    }
++  }
++
++  hal_FB_select_mux_input(DOM_FB_MUX_LED_1 + firstled);  
++  hal_FB_set_rate(rate);
++
++  /* Convert launch delay from ns to FPGA units */
++  int delay_i = (delay / 25) - 2;
++  delay_i = (delay_i > 0) ? delay_i : 0;
++  hal_FPGA_TEST_set_atwd_LED_delay(delay_i); 
++
++  hal_FPGA_TEST_start_FB_flashing();
++
++  mprintf("Started flasher board run!!! bright=%hu window=%hu delay=%hu mask=%hu rate=%hu",
++	  bright, window, delay, mask, rate);
++  nDOMRunTriggers = 0;
++  startLBMTriggers(); /* Triggers can start happening NOW */
++
++  return TRUE;
++}
++
++BOOLEAN endFBRun() {
++  if(DOM_state!=DOM_FB_RUN_IN_PROGRESS) {
++    mprintf("Can't stop flasher board run: DOM_state=%d.", DOM_state);
++    return FALSE;
++  }
++  hal_FPGA_TEST_stop_FB_flashing();
++  hal_FB_set_brightness(0);
++  hal_FB_disable();
++  DOM_state = DOM_IDLE;
++  mprintf("Stopped flasher board run.");
++  return TRUE;
++}
++
++inline BOOLEAN FBRunIsInProgress(void) { return DOM_state==DOM_FB_RUN_IN_PROGRESS; }
++
+ BOOLEAN beginRun() {
+   nDOMRunTriggers = 0;
+   if(DOM_state!=DOM_IDLE) {
+     return FALSE;
+   }
+   else {
+-    //calibrateTriggeringSpeeds();
+     DOM_state=DOM_RUN_IN_PROGRESS;
+     mprintf("Started run!");
+     startLBMTriggers(); /* Triggers can start happening NOW */
+@@ -517,11 +595,15 @@
+     trigmask = 1; break;
+   case TEST_DISC_TRIG_MODE:
+     trigmask = 2; break;
++  case FB_TRIG_MODE: 
++    trigmask = 3; break;
+   default:
+     trigmask = 0; trigmask |= TRIG_UNKNOWN_MODE; break;
+   }
+   if(LCmode == 1 || LCmode == 2) trigmask |= TRIG_LC_UPPER_ENA;
+   if(LCmode == 1 || LCmode == 3) trigmask |= TRIG_LC_LOWER_ENA;
++  if(FBRunIsInProgress()) trigmask |= TRIG_FB_RUN;
++
+   *event++ = trigmask;
+ 
+   //  spare byte
+@@ -682,23 +764,31 @@
+ }
+ 
+ void startLBMTriggers(void) {
+-  UBYTE trigger_mask = HAL_FPGA_TEST_TRIGGER_FADC | 
+-    (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
+-
+-  switch (FPGA_trigger_mode) {
+-  case CPU_TRIG_MODE:
+-    hal_FPGA_TEST_trigger_forced(trigger_mask);
+-    break;
+-  case TEST_DISC_TRIG_MODE:
+-    if(LCmode > 0) {
+-      hal_FPGA_TEST_trigger_disc_lc(trigger_mask);
+-    } else {
+-      hal_FPGA_TEST_trigger_disc(trigger_mask);
++  if(FBRunIsInProgress()) {
++    UBYTE trigger_mask = 
++      (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
++    hal_FPGA_TEST_trigger_LED(trigger_mask);
++  } else if(runIsInProgress()) {
++    UBYTE trigger_mask = HAL_FPGA_TEST_TRIGGER_FADC | 
++      (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
++    
++    switch (FPGA_trigger_mode) {
++    case CPU_TRIG_MODE:
++      hal_FPGA_TEST_trigger_forced(trigger_mask);
++      break;
++    case TEST_DISC_TRIG_MODE:
++      if(LCmode > 0) {
++	hal_FPGA_TEST_trigger_disc_lc(trigger_mask);
++      } else {
++	hal_FPGA_TEST_trigger_disc(trigger_mask);
++      }
++      break;
++    case TEST_PATTERN_TRIG_MODE:
++    default: /* Do nothing */ 
++      break;
+     }
+-    break;
+-  case TEST_PATTERN_TRIG_MODE:
+-  default: /* Do nothing */ 
+-    break;
++  } else {
++    /* Invalid run type.  Do nothing */
+   }
+ }
+ 
+@@ -783,72 +873,28 @@
+ }
+ 
+ 
+-void calibrateTriggeringSpeeds(void) {
+-
+-  /* Take a bunch of discriminator triggers as fast as possible in 1 second */
+-  UBYTE trigger_mask = HAL_FPGA_TEST_TRIGGER_FADC |
+-    (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
+-  unsigned long t0 = FPGA(TEST_LOCAL_CLOCK_LOW);
+-  unsigned long t1;
+-
+-#define FPGA_CLOCK_SPEED 40000000
+-#define FPGA_CLOCKS_TO_NSEC 25 
+-  int n = 0;
+-
+-  hal_FPGA_TEST_trigger_disc(trigger_mask);
+-  bench_rec_t bcalib, breadout, bstarttrig, btestdone;
+-  bench_init(&bcalib);
+-  bench_init(&breadout);
+-  bench_init(&bstarttrig);
+-  bench_init(&btestdone);
+-
+-  while((t1=FPGA(TEST_LOCAL_CLOCK_LOW))-t0 < 1*FPGA_CLOCK_SPEED) {
+-    bench_start(bcalib);
+-    bench_end(&bcalib);
+-
+-    bench_start(btestdone);
+-    int d = hal_FPGA_TEST_readout_done(trigger_mask);
+-    bench_end(&btestdone);
+-    if(!d) continue;
+-
+-    n++;
+-    bench_start(breadout);
+-#ifdef DOCH0
+-    hal_FPGA_TEST_readout(Channel0Data, 0, 0, 0, 0, 0, 0, 0, ATWDCHSIZ, 0, (int) FlashADCLen,
+-			  trigger_mask);
+-#else
+-    hal_FPGA_TEST_readout(Channel0Data, Channel1Data, Channel2Data, Channel3Data,
+-			  0, 0, 0, 0, ATWDCHSIZ, FADCData, (int)FlashADCLen, trigger_mask);
+-#endif
+-    bench_end(&breadout);
+-
+-    bench_start(bstarttrig);
+-    hal_FPGA_TEST_trigger_disc(trigger_mask);
+-    bench_end(&bstarttrig);
+-  }
+-  mprintf("t0=%ld t1=%ld dt=%ld n=%d", t0, t1, t1-t0, n);
+-  bench_show(&bcalib,     "Calibration");
+-  bench_show(&bstarttrig, "Trigger start");
+-  bench_show(&btestdone,  "Test done");
+-#ifdef DOCH0
+-  bench_show(&breadout,   "Readout (ch0 only)");
+-#else
+-  bench_show(&breadout,   "Readout");
+-#endif
+-}
+-
+-
+ void bufferLBMTriggers(void) {
+   unsigned long long time;
+-  UBYTE trigger_mask = HAL_FPGA_TEST_TRIGGER_FADC | 
+-    (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
+   int gottrig = 0;
+   //unsigned long tsr0, tsr1;
+-  if(DOM_state != DOM_RUN_IN_PROGRESS) return; /* Do nothing unless run in progress */
++
++  /* Do nothing unless run in progress */
++  if((!runIsInProgress()) && (!FBRunIsInProgress())) return; 
++
++  UBYTE trigger_mask;
++  if (FBRunIsInProgress()) {
++      trigger_mask =
++          (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
++  } else {
++      trigger_mask = HAL_FPGA_TEST_TRIGGER_FADC | 
++          (FPGA_ATWD_select ? HAL_FPGA_TEST_TRIGGER_ATWD1 : HAL_FPGA_TEST_TRIGGER_ATWD0);
++  }
++
+   /* Read out data */
+   switch (FPGA_trigger_mode) {
+   case CPU_TRIG_MODE:
+   case TEST_DISC_TRIG_MODE:
++  case FB_TRIG_MODE:
+     /* Bail if nothing available */
+     //tsr0 = (FPGA(TEST_SIGNAL_RESPONSE));
+     if(!hal_FPGA_TEST_readout_done(trigger_mask)) break;
+Index: testdomapp/private/dataAccess/dataAccessRoutines.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccessRoutines.h,v
+retrieving revision 1.8
+diff -u -r1.8 dataAccessRoutines.h
+--- testdomapp/private/dataAccess/dataAccessRoutines.h	1 Dec 2004 23:10:02 -0000	1.8
++++ testdomapp/private/dataAccess/dataAccessRoutines.h	14 Mar 2005 18:22:13 -0000
+@@ -6,7 +6,7 @@
+ #define TRIG_UNKNOWN_MODE TBIT(7)
+ #define TRIG_LC_UPPER_ENA TBIT(6)
+ #define TRIG_LC_LOWER_ENA TBIT(5)
+-
++#define TRIG_FB_RUN       TBIT(4)
+ BOOLEAN beginRun(void); 
+ 
+ BOOLEAN endRun(void);
+Index: testdomapp/private/expControl/expControl.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/expControl/expControl.c,v
+retrieving revision 1.3.6.1
+diff -u -r1.3.6.1 expControl.c
+--- testdomapp/private/expControl/expControl.c	20 Nov 2004 01:19:33 -0000	1.3.6.1
++++ testdomapp/private/expControl/expControl.c	14 Mar 2005 18:22:13 -0000
+@@ -30,6 +30,8 @@
+ extern void formatLong(ULONG value, UBYTE *buf);
+ extern BOOLEAN beginRun(void);
+ extern BOOLEAN endRun(void);
++extern BOOLEAN beginFBRun(USHORT bright, USHORT window, USHORT delay, USHORT mask, USHORT rate);
++extern BOOLEAN endFBRun(void);
+ extern BOOLEAN forceRunReset(void);
+ 
+ /* local functions, data */
+@@ -173,7 +175,7 @@
+ }      
+ 
+ void expControl(MESSAGE_STRUCT *M) {
+-
++    USHORT bright=0, window=0, delay=0, mask=0, rate=0;
+     UBYTE *data;
+     UBYTE *tmpPtr;
+     
+@@ -320,13 +322,33 @@
+ 	expctl.lastErrorSeverity=SEVERE_ERROR;
+ 	Message_setStatus(M,SERVICE_SPECIFIC_ERROR|
+ 			  SEVERE_ERROR);
+-      }
+-      else {
++      } else {
+ 	Message_setStatus(M,SUCCESS);
+       }
+       Message_setDataLen(M,0);
+       break;
+       
++    case EXPCONTROL_BEGIN_FB_RUN:
++      tmpPtr = data;
++      bright = unformatShort(&data[0]);
++      window = unformatShort(&data[2]);
++      delay  = unformatShort(&data[4]);
++      mask   = unformatShort(&data[6]);
++      rate   = unformatShort(&data[8]);
++      if (!beginFBRun(bright, window, delay, mask, rate)) {
++        expctl.msgProcessingErr++;
++        strcpy(expctl.lastErrorStr,EXP_CANNOT_BEGIN_FB_RUN);
++        expctl.lastErrorID=EXP_Cannot_Begin_FB_Run;
++        expctl.lastErrorSeverity=SEVERE_ERROR;
++        Message_setStatus(M,SERVICE_SPECIFIC_ERROR|
++                          SEVERE_ERROR);
++      }
++      else {
++        Message_setStatus(M,SUCCESS);
++      }
++      Message_setDataLen(M,0);
++      break;
++
+       /* end run */ 
+     case EXPCONTROL_END_RUN:
+       if (!endRun()) {
+@@ -342,6 +364,21 @@
+       }
+       Message_setDataLen(M,0);
+       break;
++
++    case EXPCONTROL_END_FB_RUN:
++      if (!endFBRun()) {
++        expctl.msgProcessingErr++;
++        strcpy(expctl.lastErrorStr,EXP_CANNOT_END_FB_RUN);
++        expctl.lastErrorID=EXP_Cannot_End_FB_Run;
++        expctl.lastErrorSeverity=SEVERE_ERROR;
++        Message_setStatus(M,SERVICE_SPECIFIC_ERROR|
++                          SEVERE_ERROR);
++      }
++      else {
++        Message_setStatus(M,SUCCESS);
++      }
++      Message_setDataLen(M,0);
++      break;
+       
+       /* get run state */
+     case EXPCONTROL_GET_DOM_STATE:
+Index: testdomapp/private/expControl/expControl.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/expControl/expControl.h,v
+retrieving revision 1.2.10.1
+diff -u -r1.2.10.1 expControl.h
+--- testdomapp/private/expControl/expControl.h	20 Nov 2004 01:19:33 -0000	1.2.10.1
++++ testdomapp/private/expControl/expControl.h	14 Mar 2005 18:22:13 -0000
+@@ -32,6 +32,9 @@
+ #define EXP_CANNOT_BEGIN_RUN "Exp: Cannot begin run."
+ /* for EXP_Cannot_End_Run */
+ #define EXP_CANNOT_END_RUN "Exp: Cannot end run."
++#define EXP_CANNOT_BEGIN_FB_RUN "Exp: Cannot begin FB run."
++#define EXP_CANNOT_END_FB_RUN "Exp: Cannot end FB run."
++
+ /* for EXP_Cannot_Reset_Run_State */
+ #define EXP_CANNOT_RESET_RUN_STATE "Exp: Cannot reset run state."
+ 
+Index: testdomapp/private/slowControl/domSControl.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/slowControl/domSControl.c,v
+retrieving revision 1.16.6.2
+diff -u -r1.16.6.2 domSControl.c
+--- testdomapp/private/slowControl/domSControl.c	17 Dec 2004 22:13:05 -0000	1.16.6.2
++++ testdomapp/private/slowControl/domSControl.c	14 Mar 2005 18:22:13 -0000
+@@ -283,7 +283,8 @@
+ 		    Message_setStatus(M,SERVICE_SPECIFIC_ERROR|FATAL_ERROR);
+ 		    break;
+ 		}
+-		else if(!testDOMconstraints(DOM_CONSTRAINT_NO_HV_CHANGE)){
++		else if((!testDOMconstraints(DOM_CONSTRAINT_NO_HV_CHANGE))
++			|| DOM_state==DOM_FB_RUN_IN_PROGRESS){
+ 		    /* format up failure response */
+ 		    Message_setDataLen(M,0);
+ 		    domsc.msgProcessingErr++;
+Index: testdomapp/public/dataAccess/DACmessageAPIstatus.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/public/dataAccess/DACmessageAPIstatus.h,v
+retrieving revision 1.7.10.2
+diff -u -r1.7.10.2 DACmessageAPIstatus.h
+--- testdomapp/public/dataAccess/DACmessageAPIstatus.h	17 Dec 2004 22:13:05 -0000	1.7.10.2
++++ testdomapp/public/dataAccess/DACmessageAPIstatus.h	14 Mar 2005 18:22:13 -0000
+@@ -37,14 +37,17 @@
+ #define DATA_ACC_SET_SW_DATA_COMPRESSION_FORMAT 20
+ #define DATA_ACC_GET_SW_DATA_COMPRESSION_FORMAT 21
+ #define DATA_ACC_RESET_LBM 22
++#define DATA_ACC_GET_FB_SERIAL 23 /* out: UB*n serial ID */
+ 
+ // define service specific error values
+-#define DAC_Data_Overrun     4
+-#define DAC_Moni_Not_Init    5
+-#define DAC_Moni_Overrun     6
+-#define DAC_Moni_Badstat     7
+-#define DAC_Bad_Compr_Format 8
+-#define DAC_Bad_Argument     9
++#define DAC_Data_Overrun        4
++#define DAC_Moni_Not_Init       5
++#define DAC_Moni_Overrun        6
++#define DAC_Moni_Badstat        7
++#define DAC_Bad_Compr_Format    8
++#define DAC_Bad_Argument        9
++#define DAC_Cant_Get_FB_Serial 10
++#define DAC_Cant_Enable_FB     11
+ 
+ /* These are Data Access specific return message
+    formats and values.  In most cases, they are formatted
+Index: testdomapp/public/domapp_common/DOMstateInfo.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/public/domapp_common/DOMstateInfo.h,v
+retrieving revision 1.1.10.1
+diff -u -r1.1.10.1 DOMstateInfo.h
+--- testdomapp/public/domapp_common/DOMstateInfo.h	20 Nov 2004 01:19:34 -0000	1.1.10.1
++++ testdomapp/public/domapp_common/DOMstateInfo.h	14 Mar 2005 18:22:13 -0000
+@@ -12,7 +12,7 @@
+ #define DOM_TEST_ERROR 6
+ #define DOM_FPGA_LOAD_IN_PROGRESS 7
+ #define DOM_PEDESTAL_COLLECTION_IN_PROGRESS 8
+-
++#define DOM_FB_RUN_IN_PROGRESS 9
+ #define DOM_CONFIG_CHANGES_ALLOWED 0
+ #define DOM_CONFIG_CHANGES_DISALLOWED 1
+ 
+Index: testdomapp/public/domapp_common/version.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/public/domapp_common/version.h,v
+retrieving revision 1.6.2.1.2.2
+diff -u -r1.6.2.1.2.2 version.h
+--- testdomapp/public/domapp_common/version.h	17 Dec 2004 22:13:05 -0000	1.6.2.1.2.2
++++ testdomapp/public/domapp_common/version.h	14 Mar 2005 18:22:13 -0000
+@@ -1 +1 @@
+-#define DOMAPP_RELEASE "V02-01-00"
++#define DOMAPP_RELEASE "V02-02-00"
+Index: testdomapp/public/expControl/EXPmessageAPIstatus.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/public/expControl/EXPmessageAPIstatus.h,v
+retrieving revision 1.2.10.1
+diff -u -r1.2.10.1 EXPmessageAPIstatus.h
+--- testdomapp/public/expControl/EXPmessageAPIstatus.h	20 Nov 2004 01:19:34 -0000	1.2.10.1
++++ testdomapp/public/expControl/EXPmessageAPIstatus.h	14 Mar 2005 18:22:13 -0000
+@@ -26,6 +26,8 @@
+ #define EXPCONTROL_DO_PEDESTAL_COLLECTION 16 /* in: UL UL UL */
+ #define EXPCONTROL_GET_NUM_PEDESTALS 19 /* out: UL UL UL */
+ #define EXPCONTROL_GET_PEDESTAL_AVERAGES 20 /* out: UH:128*9 */
++#define EXPCONTROL_BEGIN_FB_RUN 27 /* Out: US US US US US */
++#define EXPCONTROL_END_FB_RUN   28 /* No args */
+ 
+ /* These are Experiment Control specific return message
+    formats and values.  In most cases, they are formatted
+@@ -101,6 +103,8 @@
+    Last Error ID for failed invocation: */
+ #define	EXP_Cannot_Reset_Run_State 7
+ 
++#define EXP_Cannot_Begin_FB_Run 8
++#define EXP_Cannot_End_FB_Run 9
+ 
+ /* Response to: 
+ 	subType: EXPCONTROL_GET_DOM_STATE
+Index: testdomapp/public/slowControl/DSCmessageAPIstatus.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/public/slowControl/DSCmessageAPIstatus.h,v
+retrieving revision 1.8.8.1
+diff -u -r1.8.8.1 DSCmessageAPIstatus.h
+--- testdomapp/public/slowControl/DSCmessageAPIstatus.h	20 Nov 2004 01:19:34 -0000	1.8.8.1
++++ testdomapp/public/slowControl/DSCmessageAPIstatus.h	14 Mar 2005 18:22:13 -0000
+@@ -260,6 +260,7 @@
+ #define TEST_PATTERN_TRIG_MODE 0
+ #define CPU_TRIG_MODE 1
+ #define TEST_DISC_TRIG_MODE 2
++#define FB_TRIG_MODE 3
+ /* Size of passed values: */
+ #define DSC_SET_TRIG_MODE_REQ_LEN 1
+ /* Returned values in data portion of message:

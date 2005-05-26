@@ -1,0 +1,34 @@
+Index: iceboot/private/iceboot/sfi.c
+===================================================================
+RCS file: /home/icecube/cvsroot/iceboot/private/iceboot/sfi.c,v
+retrieving revision 1.116.2.1
+diff -u -r1.116.2.1 sfi.c
+--- iceboot/private/iceboot/sfi.c	24 Nov 2004 19:48:19 -0000	1.116.2.1
++++ iceboot/private/iceboot/sfi.c	14 Mar 2005 18:21:20 -0000
+@@ -1018,8 +1018,8 @@
+ }
+ 
+ static const char *enableFB(const char *p) {
+-    int err, config_t, valid_t;    
+-    err = hal_FB_enable(&config_t, &valid_t);
++    int err, config_t, valid_t, reset_t;    
++    err = hal_FB_enable(&config_t, &valid_t, &reset_t);
+     if (err != 0) {
+         switch(err) {
+         case FB_HAL_ERR_CONFIG_TIME:
+@@ -1028,11 +1028,15 @@
+         case FB_HAL_ERR_VALID_TIME:
+             printf("Error: flasherboard clock validation time too long\r\n");
+             break;
++        case FB_HAL_ERR_RESET_TIME:
++            printf("Error: flasherboard power-on reset time too long\r\n");
++            break;
+         default:
+             printf("Error: unknown flasherboard enable failure\r\n");
+             break;
+         }
+     }
++    push(reset_t);
+     push(valid_t);
+     push(config_t);
+     push(err);

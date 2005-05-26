@@ -1,0 +1,154 @@
+? src/all.src
+? src/appendsrc.sh
+? src/icecube.daq.stf.autogen.cf
+? src/icecube.daq.stf.autogen.deps
+? src/nlines.sh
+Index: private/int-tests/flasher_clock-template.xml
+===================================================================
+RCS file: private/int-tests/flasher_clock-template.xml
+diff -N private/int-tests/flasher_clock-template.xml
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ private/int-tests/flasher_clock-template.xml	4 Feb 2005 00:10:15 -0000
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8" ?>
++<stf:setup xmlns:stf="http://glacier.lbl.gov/icecube/daq/stf"
++  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++  xsi:schemaLocation="http://glacier.lbl.gov/icecube/daq/stf file:/Volumes/IceCube/WorkSpaces/jas-1/xml/daq/stf.xsd">
++<flasher_clock>
++  <parameters>
++  </parameters>
++ </flasher_clock>
++</stf:setup>
+Index: private/stf-apps/Makefile
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/Makefile,v
+retrieving revision 1.70
+diff -u -r1.70 Makefile
+--- private/stf-apps/Makefile	2 Nov 2004 19:11:30 -0000	1.70
++++ private/stf-apps/Makefile	4 Feb 2005 00:10:16 -0000
+@@ -26,7 +26,7 @@
+ 	atwd_clock1x_forced.o flasher_brightness.o flasher_width.o \
+ 	fadc_fe_pulser.o fadc_baseline.o fadc_fe_forced.o disc_scan.o \
+ 	loopback_lc.o atwd_pedestal_noise.o temperature.o atwd_pmt_spe.o \
+-	fadc_fe_external.o atwd_pmt_led.o
++	fadc_fe_external.o atwd_pmt_led.o flasher_clock.o
+ 
+ XMLFILES  = $(TESTOBJS:.o=.xml)
+ CFILES    = $(TESTOBJS:.o=.c)
+Index: private/stf-apps/flasher_clock.c
+===================================================================
+RCS file: private/stf-apps/flasher_clock.c
+diff -N private/stf-apps/flasher_clock.c
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ private/stf-apps/flasher_clock.c	4 Feb 2005 00:10:16 -0000
+@@ -0,0 +1,68 @@
++/*
++ *
++ * STF Test -- Flasherboard clock stability test
++ *
++ * Enables the flasherboard and checks the clock stability
++ * time, as determined by the HAL and the flasherboard CPLD
++ * measurement.
++ * 
++ * Check is more stringent than the one in the flasherboard
++ * HAL and is meant to screen out bad LVDS drivers.
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <math.h>
++
++#include "stf/stf.h"
++#include "hal/DOM_MB_hal.h"
++
++/* Pass/fail defines */
++/* Maximum allowed clock validation time, in us */
++/* Should be around 2047-2048 us nominally*/
++/* Pass criterion is about 50us of instability */
++#define MAX_CLOCK_TIME_US  2100
++
++BOOLEAN flasher_clockInit(STF_DESCRIPTOR *desc) { return TRUE; }
++
++BOOLEAN flasher_clockEntry(STF_DESCRIPTOR *desc,
++                           char ** flasher_id,
++                           unsigned int * config_time_us,
++                           unsigned int * valid_time_us
++                           ) {
++    
++    /* Make sure PMT is off */
++    halPowerDownBase();
++
++    /* Initialize the flaherboard and power up */
++    /* Record configuration and clock validation times */
++    int err = hal_FB_enable(config_time_us, valid_time_us);
++    if (err != 0) {
++#ifdef VERBOSE
++        printf("Flasher board enable failure (%d)!  Aborting test!\r\n", err);
++#endif
++        return FALSE;
++    }
++
++    /* Read the flasher board firmware version */
++#ifdef VERBOSE
++    printf("Flasher board FW version = %d\r\n", hal_FB_get_fw_version());
++#endif
++    
++    /* Read the flasherboard ID */
++    hal_FB_get_serial(flasher_id);
++    
++#ifdef VERBOSE
++    printf("Flasher board ID = %s\n", *flasher_id);
++#endif
++    
++    /* Turn the flasherboard off */
++    hal_FB_disable();
++
++    /* Check pass/fail conditions */
++    BOOLEAN passed = (*valid_time_us <= MAX_CLOCK_TIME_US);
++
++    return passed;
++
++}
+Index: private/stf-apps/flasher_clock.xml
+===================================================================
+RCS file: private/stf-apps/flasher_clock.xml
+diff -N private/stf-apps/flasher_clock.xml
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ private/stf-apps/flasher_clock.xml	4 Feb 2005 00:10:16 -0000
+@@ -0,0 +1,35 @@
++<?xml version="1.0" encoding="UTF-8"?>
++
++<stf:test xmlns:stf="http://glacier.lbl.gov/icecube/daq/stf">
++  <name>flasher_clock</name>
++  <description>Flasher Board LED Clock Stability Test</description>
++
++  <version major="1" minor="0"/>
++
++  <outputParameter>
++    <description>Flasher Board ID</description>
++    <name>flasher_id</name>
++    <string/>
++  </outputParameter>
++
++  <outputParameter>
++    <description>Flasher Board CPLD Configuration Time (us)</description>
++    <name>config_time_us</name>
++    <unsignedInt/>
++  </outputParameter>
++
++  <outputParameter>
++    <description>Flasher Board Clock Validation Time (us)</description>
++    <name>valid_time_us</name>
++    <unsignedInt/>
++  </outputParameter>
++
++</stf:test>
++
++
++
++
++
++
++
++

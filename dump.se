@@ -1,3 +1,0 @@
-send "DUMP\n"
-expect "^DUMP"
-
