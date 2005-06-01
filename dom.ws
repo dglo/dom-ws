@@ -45,7 +45,6 @@ import domapp domapp
 link dom-loader booter public boot.S private booter
 link dom-loader booter public boot.x private booter
 
-link testdomapp testdomapp public * public testdomapp
 link testdomapp expControl public * public expControl
 link testdomapp msgHandler public * public msgHandler
 link testdomapp dataAccess public * public dataAccess
