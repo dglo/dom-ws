@@ -1,6 +1,15 @@
 Release 320:
 
 from arthur:
+   001: ATWD Pedestal noise test, add input parameter, integrated dom.
+   002: add fat-tests directory, set of tests to run for fat 
+
+from george:
+   003: add std-hass-tests std-tests-supershort directories
+----------------------------------------------------------------------------
+Release 320:
+
+from arthur:
    001: ADC channel 4 (3.3V current) lower limit changed from 72->63
    002: cp changelog to glacier again (accidently deleted this)
 
