@@ -1,0 +1,2 @@
+send "STOP\n"
+expect "^STOP"

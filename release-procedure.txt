@@ -1,0 +1,30 @@
+* a stable release branch is made.  only
+bugfixes go into this branch (az-prod-n).
+
+* all patches must exist, work and be      
+tested in the HEAD first _before_ going
+into a stable release.
+
+* all fw changes of any kind and all sw
+changes (however small) affecting comms
+require the full overnight moat test.  
+
+* all fw changes involving comm get the
+full overnight moat test at cold.
+
+* all sw changes are reviewed carefully
+by me before they go in.  i'm the only
+one to checkin on the az-prod-n branch.
+
+* all major sw changes require a test of
+the candidate .hex file.
+
+* all minor sw changes go in with no
+additional testing.
+
+* all releases are cleared by chuck before
+publishing.
+
+* release schedule is held to no more than
+one release per week.
+

@@ -18,6 +18,8 @@ CPLIB=`lessecho ../build/* | sed 's/^/..\//1' | sed 's/ /:..\//g'`
 CPTOOLS=`lessecho ../tools/lib/*.jar | sed 's/^/..\//1' | sed 's/ /:..\//g'`
 CP=.:${CPLIB}:${CPTOOLS}
 
+echo classpath=${CP}
+
 if (( $# != 1 )); then
     echo "usage: bldproject.sh project"
     exit 1

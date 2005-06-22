@@ -3,7 +3,7 @@
 #
 # add projects of interest here...
 #
-projects=(dom-ws hal configboot iceboot dom-loader stf dor-test dor-driver)
+projects=(dom-ws hal configboot iceboot dom-loader stf dor-test dor-driver tinydaq)
 #projects=(dom-ws)
 
 #
