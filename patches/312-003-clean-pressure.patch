@@ -1,0 +1,39 @@
+clear out first few samples in pressure test...
+
+Index: stf/private/stf-apps/pressure.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/pressure.c,v
+retrieving revision 1.7.2.1
+diff -u -r1.7.2.1 pressure.c
+--- stf/private/stf-apps/pressure.c	15 Jan 2005 03:24:24 -0000	1.7.2.1
++++ stf/private/stf-apps/pressure.c	4 Mar 2005 09:15:34 -0000
+@@ -26,7 +26,7 @@
+                     unsigned *adc_rms_kpascal,
+                     unsigned *adc_max_kpascal,
+                     unsigned *adc_min_kpascal) {
+-  unsigned loop_n;
++  unsigned loop_n, x;
+   double pressure_sum, voltage_sum;
+   unsigned voltage_value;
+   unsigned Adc_5v_mean_counts;
+@@ -42,6 +42,12 @@
+   /* add 2 sec wait */
+   pressure_sum = voltage_sum = 0;
+ 
++  /* throw first few data out because in cold, first few data are BAD */
++  for(x=0; x=10;x++){
++     halReadADC(DOM_HAL_ADC_PRESSURE);    
++     halReadADC(DOM_HAL_ADC_5V_POWER_SUPPLY);
++  }
++
+   for(loop_n=0;loop_n<loop_count;loop_n++) {
+      buff[loop_n] = halReadADC(DOM_HAL_ADC_PRESSURE);
+      pressure_sum += buff[loop_n];
+@@ -108,7 +114,3 @@
+  
+   return TRUE; 
+ }
+-
+-
+-
+-

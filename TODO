@@ -1,3 +1,15 @@
+timeout on temperature test...
+
+flasher_clock, bogus serial numbers causes crash --
+make serial # is ascii...
+
+flasher_clock, make sure template is correct, current
+one is not
+
+stf-client, put doms into stf-mode automatically,
+  enforce all doms must go into stf-mode or complain.
+  add a -x option for doms to safely ignore...
+
 make sure warn on testname != filename in stf xml description files
 DONE dorel.sh in mkprod.sh
 fix monitor on domhub-prod

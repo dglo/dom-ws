@@ -1,0 +1,18 @@
+Index: hal/private/epxa10/hal/fb-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fb-hal.c,v
+retrieving revision 1.8.2.2
+diff -u -r1.8.2.2 fb-hal.c
+--- hal/private/epxa10/hal/fb-hal.c	22 Dec 2004 22:03:26 -0000	1.8.2.2
++++ hal/private/epxa10/hal/fb-hal.c	1 Feb 2005 19:55:01 -0000
+@@ -200,10 +200,6 @@
+         memset(id_raw, 0, 8);
+         *id = t;
+ 
+-        /* Check for presence bit reset */
+-        if (RFBBIT(ONE_WIRE, PRESENT) != 0)
+-            return FB_HAL_ERR_ID_NOT_PRESENT;
+-
+         /* Reset one-wire */
+         FB(ONE_WIRE) = 0x0f;
+         halUSleep(1000);

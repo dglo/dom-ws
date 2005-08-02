@@ -1,2 +1,0 @@
-send "CONF atwd_enable=B\n"
-expect "^CONF"

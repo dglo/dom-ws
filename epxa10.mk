@@ -13,8 +13,7 @@ export MENUBINGZ=$(BINDIR)/menu.bin.gz
 export ECHOMODEBINGZ=$(BINDIR)/echomode.bin.gz
 export YMODEMBINGZ=$(BINDIR)/ymodem.bin.gz
 export LOOKBACKBINGZ=$(BINDIR)/lookback.bin.gz
-export TESTDOMAPPBINGZ=$(BINDIR)/testdomapp.bin.gz
-export DOMAPPBINGZ=$(BINDIR)/domapp.bin.gz
+export LOOKBACKBINGZ=$(BINDIR)/domapp.bin.gz
 export DOMCALBINGZ=$(BINDIR)/domcal.bin.gz
 
 export KERNELX=$(WD)/public/loader/kernel.x
@@ -62,8 +61,8 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(OBJCOPY) -O binary $*-raw.elf $*.bin
 
 
-all: pld-versions versions iceboot stfserv menu echomode stfsfe testdomapp \
-	domcal5 wiggle domapp-test domapp
+all: pld-versions versions iceboot stfserv menu echomode stfsfe domapp \
+	domcal5 wiggle
 
 booter_config:
 	cd epxa10/booter; make config_files
@@ -126,30 +125,21 @@ clean:
 	cd $(PLATFORM)/hal; make clean
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
-	cd $(PLATFORM)/testdomapp; make -f ../../../testdomapp/domapp.mk clean
-	cd $(PLATFORM)/domapp; make clean;
+	cd $(PLATFORM)/domapp; make -f ../../../testdomapp/domapp.mk clean
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
 	cd $(PLATFORM)/configboot; make clean
 	cd $(PLATFORM)/dom-cal; make clean		
-	cd $(PLATFORM)/domapp-test; make clean		
 	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
 
 stfsfe:
 	cd epxa10/stf-sfe; make
 
-testdomapp:
-	cd $(PLATFORM)/booter; make config_files
-	cd $(PLATFORM)/loader; make all
-	cd $(PLATFORM)/hal; make all
-	cd $(PLATFORM)/testdomapp; make -f ../../../testdomapp/domapp.mk
-
 domapp:
 	cd $(PLATFORM)/booter; make config_files
 	cd $(PLATFORM)/loader; make all
 	cd $(PLATFORM)/hal; make all
-	cd $(PLATFORM)/iceboot; make all
-	cd $(PLATFORM)/domapp; make "CFLAGS=$(CFLAGS)" $(DOMAPPBINGZ)
+	cd $(PLATFORM)/domapp; make -f ../../../testdomapp/domapp.mk
 
 domcalbase:
 	cd $(PLATFORM)/booter; make config_files
@@ -179,7 +169,6 @@ domcal5: domcalbase
 hack:
 	cd $(PLATFORM)/configboot; make hack.hex
 
-domapp-test: booter_config loader hal
-	cd $(PLATFORM)/domapp-test; make ../bin/domapp-test.bin.gz
-
+real: booter_config loader hal
+	cd $(PLATFORM)/domapp-test; make ../bin/real-app.bin.gz
 

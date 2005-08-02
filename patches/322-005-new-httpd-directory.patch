@@ -1,0 +1,16 @@
+Index: cpprod.sh
+===================================================================
+RCS file: /home/icecube/cvsroot/dom-ws/cpprod.sh,v
+retrieving revision 1.6.2.4
+diff -u -r1.6.2.4 cpprod.sh
+--- cpprod.sh	8 Jun 2005 07:52:31 -0000	1.6.2.4
++++ cpprod.sh	2 Aug 2005 16:21:30 -0000
+@@ -17,7 +17,7 @@
+   glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
+ 
+ ssh glacier.lbl.gov \
+- "cd /var/html/releases/DOM-MB/stable_hex; \
++ "cd /var/www/html/releases/DOM-MB/stable_hex; \
+   rm -f prod-latest.tar.gz; \
+   ln -s prod-${rev}-${num}.tar.gz prod-latest.tar.gz"
+ 

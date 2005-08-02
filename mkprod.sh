@@ -48,7 +48,7 @@ cp configboot.pof ${dir}
 #
 # cp std-tests (standard tests) -- read-only...
 #
-(cd ../stf/private; tar cf - std-tests/*.xml std-integration-tests/*.xml fat-tests/*.xml) | (cd ${dir}; tar xf -)
+(cd ../stf/private; tar cf - std-tests/*.xml std-integration-tests/*.xml fat-tests/*.xml std-hass-tests/*.xml std-tests-supershort/*.xml) | (cd ${dir}; tar xf -)
 chmod ugo-w ${dir}/std-tests ${dir}/std-integration-tests ${dir}/fat-tests
 
 #
@@ -148,7 +148,8 @@ tar cf - ${dir} | gzip -c > ${dir}.tar.gz
 # clean up...
 #
 echo "cleaning up..."
-chmod u+w ${dir}/std-tests ${dir}/std-integration-tests
+chmod u+w ${dir}/std-tests ${dir}/std-integration-tests ${dir}/std-hass-tests \
+	${dir}/std-tests-supershort ${dir}/fat-tests
 rm -rf ${dir}
 
 

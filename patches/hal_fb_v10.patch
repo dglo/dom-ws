@@ -1,0 +1,642 @@
+Index: public/hal/DOM_MB_fb.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_fb.h,v
+retrieving revision 1.4
+diff -u -r1.4 DOM_MB_fb.h
+--- public/hal/DOM_MB_fb.h	2 Jun 2004 19:39:58 -0000	1.4
++++ public/hal/DOM_MB_fb.h	24 Nov 2004 18:14:09 -0000
+@@ -4,9 +4,9 @@
+ /**
+  * \file DOM_MB_fb.h
+  *
+- * $Revision: 1.1.2.1 $
++ * $Revision: 1.1.2.1 $
+  * $Author: arthur $
+- * $Date: 2004-11-24 20:10:29 $
++ * $Date: 2004-11-24 20:10:29 $
+  *
+  * \b Usage:
+  * \code
+@@ -19,14 +19,33 @@
+ #include "hal/DOM_MB_types.h"
+ 
+ /**
++ * Flasherboard clock frequency
++ */
++#define FB_HAL_TICKS_PER_SEC       20000000
++
++/**
+  * Routine that powers the flasher board and initializes it for
+  * operation.
+  *
+  * \see hal_FB_disable
+  *
++ * \param config_t pointer to record CPLD configuration time in us
++ * \param valid_t pointer to record clock validation time in us
++ *
++ * \return 0 if success, nonzero on error
++ */
++int
++hal_FB_enable(int *config_t, int *valid_t);
++
++/**
++ * Routine that powers the flasher board, but doesn't perform
++ * any validation that it's operating.  
++ *
++ * \see hal_FB_disable
++ *
+  */
+ void
+-hal_FB_enable(void);
++hal_FB_enable_min(void);
+ 
+ /**
+  * Routine that disables and powers down the flasher board.
+@@ -38,13 +57,49 @@
+ hal_FB_disable(void);
+ 
+ /**
++ * Routine that indicates if the flasherboard is powered up
++ * and initialized.
++ *
++ * \return enabled (1=yes)
++ *
++ * \see hal_FB_enable
++ * \see hal_FB_disable
++ */
++int 
++hal_FB_isEnabled(void);
++
++/**
++ * Routine that enables or disables the DC/DC converter on
++ * the flasherboard.
++ *
++ * \param val 1=enable, 0=disable
++ *
++ * \see hal_FB_get_DCDCen
++ */
++void 
++hal_FB_set_DCDCen(int val);
++
++/**
++ * Routine that gets the status of the DC/DC converter on
++ * the flasherboard.
++ *
++ * \return enabled (1=yes)
++ *
++ * \see hal_FB_set_DCDCen
++ */
++int  
++hal_FB_get_DCDCen(void);
++
++/**
+  * Routine that reads the unique serial number of the flasher board.
+  *
+- * \return serial number (as hex string)
++ * \param id pointer to ID string pointer
++ *
++ * \return error (0=OK)
+  *
+  */
+-const char *
+-hal_FB_get_serial(void);
++int
++hal_FB_get_serial(char **id);
+ 
+ /**
+  * Routine that reads the firmware version of the flasher
+@@ -154,4 +209,12 @@
+ int 
+ hal_FB_xsvfExecute(int *p, int nbytes);
+ 
++/**
++ * Flasherboard HAL error codes
++ */
++#define FB_HAL_ERR_CONFIG_TIME     -1
++#define FB_HAL_ERR_VALID_TIME      -2
++#define FB_HAL_ERR_ID_NOT_PRESENT  -3
++#define FB_HAL_ERR_ID_BAD_CRC      -4
++
+ #endif
+Index: public/hal/DOM_MB_fpga.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_fpga.h,v
+retrieving revision 1.40.2.1
+diff -u -r1.40.2.1 DOM_MB_fpga.h
+--- public/hal/DOM_MB_fpga.h	20 Nov 2004 00:44:21 -0000	1.40.2.1
++++ public/hal/DOM_MB_fpga.h	24 Nov 2004 18:14:10 -0000
+@@ -4,9 +4,9 @@
+ /**
+  * \file DOM_MB_fpga.h
+  *
+- * $Revision: 1.1.2.1 $
+- * $Author: arthur $
+- * $Date: 2004-11-24 20:10:29 $
++ * $Revision: 1.1.2.1 $
++ * $Author: arthur $
++ * $Date: 2004-11-24 20:10:29 $
+  *
+  * \b Usage:
+  * \code
+@@ -502,6 +502,42 @@
+ hal_FPGA_TEST_stop_FB_flashing(void);
+ 
+ /**
++ * Auxiliary reset control for the flasher board.
++ * Sets the auxiliary reset bit -- used during the
++ * FB CPLD acknowledge sequence.
++ * 
++ * \see hal_FPGA_TEST_FB_clear_aux_reset
++ * \see hal_FPGA_TEST_FB_get_attn
++ *
++ */
++void 
++hal_FPGA_TEST_FB_set_aux_reset(void);
++
++/**
++ * Auxiliary reset control for the flasher board.
++ * Clears the auxiliary reset bit -- used during
++ * FB CPLD acknowledge power-up sequence.
++ * 
++ * \see hal_FPGA_TEST_FB_set_aux_reset
++ * \see hal_FPGA_TEST_FB_get_attn
++ *
++ */
++void 
++hal_FPGA_TEST_FB_clear_aux_reset(void);
++
++/**
++ * Reads the flasher board ATTN bit.  Used during
++ * FB CPLD acknowledge power-up sequence.
++ * 
++ * \see hal_FPGA_TEST_FB_set_aux_reset
++ * \see hal_FPGA_TEST_FB_clear_aux_reset
++ *
++ * \returns value of ATTN bit (0/1)
++ */
++int 
++hal_FPGA_TEST_FB_get_attn(void);
++
++/**
+  * Routine that enables FB JTAG port control.  Must
+  * also enable on flasherboard side via PLD.
+  *
+Index: public/hal/DOM_MB_pld.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_pld.h,v
+retrieving revision 1.32
+diff -u -r1.32 DOM_MB_pld.h
+--- public/hal/DOM_MB_pld.h	18 May 2004 21:36:29 -0000	1.32
++++ public/hal/DOM_MB_pld.h	24 Nov 2004 18:14:11 -0000
+@@ -4,9 +4,9 @@
+ /**
+  * \file DOM_MB_pld.h
+  *
+- * $Revision: 1.1.2.1 $
+- * $Author: arthur $
+- * $Date: 2004-11-24 20:10:29 $
++ * $Revision: 1.1.2.1 $
++ * $Author: arthur $
++ * $Date: 2004-11-24 20:10:29 $
+  *
+  * \b Usage:
+  * \code
+@@ -607,6 +607,18 @@
+ halHVSerialRaw(void);
+ 
+ /**
++ * Perform Dallas one-wire CRC check on an 
++ * HV or FB serial number.
++ *
++ * \param buf ID string
++ * \param len length of ID string
++ *
++ * \return 0 if OK, nonzero otherwise
++ */
++int 
++halCheckCRC(unsigned char buf[], int len);
++
++/**
+  * check to see if fpga is loaded
+  *
+  * \return non-zero if fpga is loaded
+Index: private/epxa10/hal/fb-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fb-hal.c,v
+retrieving revision 1.8
+diff -u -r1.8 fb-hal.c
+--- private/epxa10/hal/fb-hal.c	27 Sep 2004 16:17:39 -0000	1.8
++++ private/epxa10/hal/fb-hal.c	24 Nov 2004 18:14:13 -0000
+@@ -1,9 +1,9 @@
+ /**
+  * \file fb-hal.c
+  *
+- * $Revision: 1.1.2.1 $
++ * $Revision: 1.1.2.1 $
+  * $Author: arthur $
+- * $Date: 2004-11-24 20:10:29 $
++ * $Date: 2004-11-24 20:10:29 $
+  *
+  * The DOM flasher board HAL.
+  *
+@@ -19,39 +19,137 @@
+ #include "DOM_FB_regs.h"
+ #include "fb-hal.h"
+ 
+-void hal_FB_enable(void) {
++int getFBclock(void) {
++    return (((FB(CLK_HI) & 0xff) << 8) | (FB(CLK_LO) & 0xff));
++}
++
++static int fbIsPowered = 0;
++
++int hal_FB_enable(int *config_time, int *valid_time) {
++
++    /* Loop timeout limit for ATTN ack sequence, in us */
++    int ack_timeout = 50000;
++    /* Loop timeout limit for clock validation check, in us */
++    int vld_timeout = 500000;
++
++    /* Keep track of time required for reset sequence */
++    *config_time = 0;
++    *valid_time  = 0;
+ 
+     /* Enable the flasherboard interface in the mainboard CPLD */
++    /* Also wait a bit for power-up */
+     halEnableFlasher();
+-    halUSleep(100000);
++    
++    /* Start FPGA ack reset sequence -- aux reset functions independently */
++    /* of 20MHz clock to test for CPLD configuration */
++    int attn, last_attn;
++    int state_cnt = 0;
++    int done = 0;
++
++    unsigned long long start_time = hal_FPGA_TEST_get_local_clock();
++
++    last_attn = hal_FPGA_TEST_FB_get_attn();
++    while (!done) {
++        /* Aux_reset "clock" cycle */
++        hal_FPGA_TEST_FB_set_aux_reset();
++        hal_FPGA_TEST_FB_clear_aux_reset();
++
++        /* Monitor how long this is taking */
++        *config_time = (int)(hal_FPGA_TEST_get_local_clock() - start_time) / 
++            (FPGA_HAL_TICKS_PER_SEC / 1000000);
++
++        /* Check for state change on ATTN */
++        attn = hal_FPGA_TEST_FB_get_attn();
++        if (attn != last_attn) 
++            state_cnt++;
++
++        /* Watch for 4 state changes, ending in a zero state */
++        done = (*config_time > ack_timeout) || ((state_cnt >= 4) && (attn == 0));
++    }
++
++    if (*config_time > ack_timeout) {
++        hal_FPGA_TEST_FB_clear_aux_reset();
++        hal_FB_disable();
++        return FB_HAL_ERR_CONFIG_TIME;
++    }
++
++    halUSleep(1000);
++
++    /* Validate that clock is running correctly */
++    done = 0;
++    start_time = hal_FPGA_TEST_get_local_clock();
++    int fb_clk_us;
++    int vld_cnt = 0;
++    while (!done) {
++
++        /* Reset the flasherboard CPLD, and wait 250us */
++        FB(RESET) = 0x1;
++        halUSleep(250);
++
++        /* Check the FB counter */
++        fb_clk_us = getFBclock() / (FB_HAL_TICKS_PER_SEC / 1000000);
++        if (abs(fb_clk_us - 250) < 5)
++            vld_cnt++;
++        else
++            vld_cnt = 0;
+ 
+-    /* Reset the flasherboard CPLD */
+-    /* A reasonable wait here is important -- reset times at */
+-    /* low temperatures seem to get longer */
+-    FB(RESET) = 0x1;
+-    halUSleep(100000);
++        /* printf("DEBUG: fbclk time is %d\r\n", fb_clk_us); */
+ 
+-    /* Make sure all LEDs are off */
+-    hal_FB_enable_LEDs(0);
++        /* Monitor how long this is taking */
++        *valid_time = (int)(hal_FPGA_TEST_get_local_clock() - start_time) / 
++            (FPGA_HAL_TICKS_PER_SEC / 1000000);
++
++        /* Are we done? Check that clock is running and is stable */
++        done = (*valid_time > vld_timeout) || (vld_cnt == 8);
++    }
++
++    if (*valid_time > vld_timeout) {
++        hal_FPGA_TEST_FB_clear_aux_reset();
++        hal_FB_disable();
++        return FB_HAL_ERR_VALID_TIME;
++    }
++
++    /* Wait a bit longer just to be sure clock is stable */
++    halUSleep(*valid_time / 5);
++    
++    /* Enable delay chip */
++    FB(LE_DP) = 0x1;
++
++    /* Initialize pulse width to something short */
++    hal_FB_set_pulse_width(64);
++
++    /* Toggle ATTN again to clear out LED pulse flip-flops */
++    hal_FPGA_TEST_FB_set_aux_reset();
++    hal_FPGA_TEST_FB_clear_aux_reset();
+ 
+     /* Power on the DC-DC converter */
+-    FB(DCDC_CTRL) = 0x1;   
+-    halUSleep(10000);
++    hal_FB_set_DCDCen(1);
+ 
+     /* Initialize mux selects (turn off mux as default) */
+     hal_FB_select_mux_input(DOM_FB_MUX_DISABLE);
+ 
+-    /* Initialize pulse width to zero */
+-    hal_FB_set_pulse_width(0);
++    /* Initialize brightness to minimum */
++    hal_FB_set_brightness(0);
+ 
+-    /* Enable delay chip */
+-    FB(LE_DP) = 0x1;
++    /* Wait a little while */
++    halUSleep(100000);
+ 
+-    /* Paranoia -- make sure all LEDs are off, again */
+-    hal_FB_enable_LEDs(0);
++    fbIsPowered = 1;
+ 
+-    /* Wait a little while */
+-    halUSleep(10000);
++    return 0;
++}
++
++void hal_FB_enable_min(void) {
++
++    /* Enable the flasherboard interface in the mainboard CPLD */
++    halEnableFlasher();
++    halUSleep(100000);
++
++    /* Reset the flasherboard CPLD */
++    FB(RESET) = 0x1;
++    halUSleep(100000);
++
++    fbIsPowered = 1;
+ }
+ 
+ void hal_FB_disable(void) {
+@@ -60,13 +158,28 @@
+     hal_FB_enable_LEDs(0);
+ 
+     /* Power off the DC-DC converter */
+-    FB(DCDC_CTRL) = 0x1;   
++    hal_FB_set_DCDCen(0);
+     halUSleep(5000);
+ 
+     /* Disable the flasherboard interface in the mainboard CPLD */
+     halDisableFlasher();
+-    halUSleep(5000);
+ 
++    /* Wait a while */
++    halUSleep(200000);
++
++    fbIsPowered = 0;
++}
++
++void hal_FB_set_DCDCen(int val) {
++    FB(DCDC_CTRL) = 0x1 & val;
++}
++
++int hal_FB_get_DCDCen(void) {
++    return FB(DCDC_CTRL);
++}
++
++int hal_FB_isEnabled(void) {
++    return fbIsPowered;
+ }
+ 
+ static inline void waitOneWireBusy(void) { while (RFBBIT(ONE_WIRE, BUSY)) ; }
+@@ -74,26 +187,37 @@
+ /*
+  * Routine to read the unique serial number of the flasher board.
+  */
+-const char * hal_FB_get_serial(void) {
++int hal_FB_get_serial(char **id) {
+     int i;
+     const char *hexdigit = "0123456789abcdef";
+-    const int sz = 64/4+1;    
++    const int sz = 17;    
+     static BOOLEAN read = FALSE;
+-    static char t[17];
+-    
+-    /* Only read out ID on first call */
++    static unsigned char t[17];
++
++    /* Only read out ID on first call -- DISABLED FOR NOW */
+     if (read == FALSE) {
+         memset(t, 0, sz);
++        *id = t;
++
++        /* Check for presence bit reset */
++        if (RFBBIT(ONE_WIRE, PRESENT) != 0)
++            return FB_HAL_ERR_ID_NOT_PRESENT;
+ 
+         /* Reset one-wire */
+-        FB(ONE_WIRE) = 0xf;
++        FB(ONE_WIRE) = 0x0f;
++        halUSleep(1000);
+         waitOneWireBusy();
+-    
++
++        /* Check for presence */
++        if (RFBBIT(ONE_WIRE, PRESENT) == 0)
++            return FB_HAL_ERR_ID_NOT_PRESENT;
++        
+         for (i=0; i<8; i++) {
+             FB(ONE_WIRE) = ( (0x33>>i) & 1 ) ? 0x9 : 0xa;
++            halUSleep(1000);
+             waitOneWireBusy();
+         }
+-    
++        
+         /* LSB comes out first, unlike HV id */
+         for (i=63; i>=0; i--) {
+             FB(ONE_WIRE) = 0xb;
+@@ -103,12 +227,19 @@
+                 t[i/4] |= 0x8;
+             }
+         }
+-        
+-        for (i=0; i<64/4; i++) t[i] = hexdigit[(int)t[i]];
+-        
+-        read = TRUE;
++
++        /* Only copy over result if passes CRC check */
++        if (halCheckCRC(t, 16)) {
++            for (i=0; i<16; i++) t[i] = hexdigit[(int)t[i]];
++
++            /* DISABLE -- read out every time for now */
++            /* read = TRUE; */
++        }
++        else
++            return FB_HAL_ERR_ID_BAD_CRC;
+     }
+-    return t;
++    
++    return 0;
+ }
+ 
+ /*
+@@ -133,46 +264,6 @@
+     FB(DELAY_ADJUST) = value;
+ }
+ 
+-/* 
+- * SPI write: send a up to 32 bit value to the serial port.
+- * Flasherboard chip can handle up to 10MHz (~500kHz used).
+- */
+-static void write_FB_SPI(int val, int bits) {
+-    int mask;
+-
+-    /* Enable chip select (active low) */
+-    FB(SPI_CTRL) &= ~FBBIT(SPI_CTRL, CSN);
+-    halUSleep(1);
+-    
+-    for (mask=(1<<(bits-1)); mask>0; mask>>=1) {
+-        const int dr = (val&mask) ? FBBIT(SPI_CTRL, MOSI) : 0;
+-        
+-        /* set data bit, clock low...
+-         */
+-        FB(SPI_CTRL) = dr;
+-        halUSleep(1);
+-        
+-        /* clock it in...
+-         */
+-        FB(SPI_CTRL) = dr | FBBIT(SPI_CTRL, SCLK);
+-        halUSleep(1);
+-    }
+-    
+-    /* Disable chip select */
+-    FB(SPI_CTRL) = FBBIT(SPI_CTRL, CSN);
+-}
+-
+-/*
+- * Write to the MAXIM 5348
+- */
+-static void max5438Write(int val) {           
+-    /* send 7 bit serial value:
+-     *
+-     * data[6..0] (MSB first)
+-     */
+-    write_FB_SPI((val&0x7f), 7);
+-}
+-
+ /**
+  * Routine that sets the flash brightness for all LEDs
+  * on the flasher board.
+Index: private/epxa10/hal/DOM_FB_regs.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/DOM_FB_regs.h,v
+retrieving revision 1.2
+diff -u -r1.2 DOM_FB_regs.h
+--- private/epxa10/hal/DOM_FB_regs.h	4 Aug 2004 20:14:32 -0000	1.2
++++ private/epxa10/hal/DOM_FB_regs.h	24 Nov 2004 18:14:13 -0000
+@@ -38,8 +38,12 @@
+ 
+ /* One-wire control -- used to read ID */
+ #define DOM_FB_ONE_WIRE      (DOM_FB_BASE + 0x00000006)
+-#define DOM_FB_ONE_WIRE_BUSY 0x20
+-#define DOM_FB_ONE_WIRE_DATA 0x40
++#define DOM_FB_ONE_WIRE_PRESENT 0x10
++#define DOM_FB_ONE_WIRE_BUSY    0x20
++#define DOM_FB_ONE_WIRE_DATA    0x40
++
++/* Local clock counter, low byte */
++#define DOM_FB_CLK_LO        (DOM_FB_BASE + 0x00000007)
+ 
+ /* Pulse width adjustment, 8b */
+ #define DOM_FB_DELAY_ADJUST  (DOM_FB_BASE + 0x00000008)
+@@ -75,6 +79,9 @@
+ /* Delay chip enable, 1b WO */
+ #define DOM_FB_LE_DP         (DOM_FB_BASE + 0x0000000e)
+ 
++/* Local clock counter, high byte */
++#define DOM_FB_CLK_HI        (DOM_FB_BASE + 0x0000000f)
++
+ /* usage: FB(DELAY_ADJUST) */
+ #define FB(a) ( *(volatile UBYTE *) DOM_FB_##a )
+ #define FBBIT(a, b) (DOM_FB_##a##_##b)
+Index: private/epxa10/hal/fpga-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fpga-hal.c,v
+retrieving revision 1.83.2.1
+diff -u -r1.83.2.1 fpga-hal.c
+--- private/epxa10/hal/fpga-hal.c	20 Nov 2004 00:44:21 -0000	1.83.2.1
++++ private/epxa10/hal/fpga-hal.c	24 Nov 2004 18:14:14 -0000
+@@ -441,6 +441,21 @@
+     FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, FL_TRIGGER);
+ }
+ 
++void hal_FPGA_TEST_FB_set_aux_reset(void) {
++    FPGA(TEST_MISC) |=  FPGABIT(TEST_MISC, FL_PRE_TRIGGER);
++}
++
++void hal_FPGA_TEST_FB_clear_aux_reset(void) {
++    FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, FL_PRE_TRIGGER);
++}
++
++int hal_FPGA_TEST_FB_get_attn(void) {
++    if (FPGA(TEST_MISC_RESPONSE) & FPGABIT(TEST_MISC_RESPONSE, FL_ATTN))
++        return 1;
++    else
++        return 0;
++}
++
+ void hal_FPGA_TEST_FB_JTAG_enable(void) {
+     FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, FL_EN_JTAG);
+ }
+Index: private/epxa10/hal/hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/hal.c,v
+retrieving revision 1.61
+diff -u -r1.61 hal.c
+--- private/epxa10/hal/hal.c	21 Jul 2004 17:13:58 -0000	1.61
++++ private/epxa10/hal/hal.c	24 Nov 2004 18:14:15 -0000
+@@ -12,8 +12,6 @@
+ 
+ #include "dom-cpld/pld-version.h"
+ 
+-static int  dowCRC(unsigned char buf[], int len);
+-
+ static void max5250Write(int chan, int val);
+ static void max525Write(int chan, int val);
+ static void max534Write(int chan, int val);
+@@ -987,7 +985,7 @@
+ 	       id[i/8] |= 0x80;
+ 	    }
+ 	 }
+-      } while (dowCRC(id, 8) && retry++ < 5);
++      } while (halCheckCRC(id, 8) && retry++ < 5);
+       if (retry < 5) {
+ 	 memcpy(&hvid, id+1, 6);
+ 	 isInit = 1;
+@@ -1166,7 +1164,7 @@
+  * Compute the Dallas 1-Wire CRC of a stream of bytes.
+  * Returns 0 on success, 1 on error.
+  */
+-static int dowCRC(unsigned char s[], int length) {
++int halCheckCRC(unsigned char s[], int length) {
+     /*
+      * This table taken from page 131 of
+      * The DS19XX Book of iButton Standards

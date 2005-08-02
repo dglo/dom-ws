@@ -1,0 +1,52 @@
+Index: STFParameterLookup.java
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/src/icecube/daq/stf/autogen/STFParameterLookup.java,v
+retrieving revision 1.7.4.1
+retrieving revision 1.7.4.2
+diff -u -u -r1.7.4.1 -r1.7.4.2
+--- STFParameterLookup.java	3 Nov 2004 16:25:08 -0000	1.7.4.1
++++ STFParameterLookup.java	4 Feb 2005 00:13:50 -0000	1.7.4.2
+@@ -739,6 +739,12 @@
+     hm.put("flasher_id", p);
+     p = new STFParameter( false );
+     p.setType(STFParameterType.getType("unsignedInt"));
++    hm.put("config_time_us", p);
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("unsignedInt"));
++    hm.put("valid_time_us", p);
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("unsignedInt"));
+     hm.put("max_current_err_pct", p);
+     p = new STFParameter( false );
+     p.setType(STFParameterType.getType("unsignedInt"));
+@@ -822,6 +828,12 @@
+     hm.put("flasher_id", p);
+     p = new STFParameter( false );
+     p.setType(STFParameterType.getType("unsignedInt"));
++    hm.put("config_time_us", p);
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("unsignedInt"));
++    hm.put("valid_time_us", p);
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("unsignedInt"));
+     hm.put("missing_width", p);
+     p = new STFParameter( false );
+     p.setType(STFParameterType.getType("unsignedInt"));
+@@ -1382,6 +1394,17 @@
+     p.setType(STFParameterType.getType("unsignedInt"));
+     hm.put("light_pulse_count", p);
+ 
++    ret.put("flasher_clock", hm=new HashMap());
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("string"));
++    hm.put("flasher_id", p);
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("unsignedInt"));
++    hm.put("config_time_us", p);
++    p = new STFParameter( false );
++    p.setType(STFParameterType.getType("unsignedInt"));
++    hm.put("valid_time_us", p);
++
+     ret.put("tcal", hm=new HashMap());
+     p = new STFParameter( false );
+     p.setType(STFParameterType.getType("unsignedInt"));

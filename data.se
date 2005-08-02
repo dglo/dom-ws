@@ -1,3 +1,0 @@
-send "DATA\n"
-expect "^DATA"
-

@@ -1,0 +1,34 @@
+Index: private/dataAccess/dataAccessRoutines.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccessRoutines.c,v
+retrieving revision 1.44
+diff -u -r1.44 dataAccessRoutines.c
+--- private/dataAccess/dataAccessRoutines.c	2 Dec 2004 21:44:04 -0000	1.44
++++ private/dataAccess/dataAccessRoutines.c	15 Jan 2005 03:52:55 -0000
+@@ -651,7 +648,12 @@
+ 	trigger_mask = HAL_FPGA_TEST_TRIGGER_ATWD1|
+ 	    HAL_FPGA_TEST_TRIGGER_FADC;
+     }
+-    hal_FPGA_TEST_trigger_disc(trigger_mask);
++    
++    if(LCmode > 0) {
++      hal_FPGA_TEST_trigger_disc_lc(trigger_mask);
++    } else {
++      hal_FPGA_TEST_trigger_disc(trigger_mask);
++    }
+ 
+     for(i = 0; i < ATWD_TIMEOUT_COUNT; i++) {
+ 	if(hal_FPGA_TEST_readout_done(trigger_mask)) {
+@@ -685,7 +687,11 @@
+     hal_FPGA_TEST_trigger_forced(trigger_mask);
+     break;
+   case TEST_DISC_TRIG_MODE:
+-    hal_FPGA_TEST_trigger_disc(trigger_mask);
++    if(LCmode > 0) {
++      hal_FPGA_TEST_trigger_disc_lc(trigger_mask);
++    } else {
++      hal_FPGA_TEST_trigger_disc(trigger_mask);
++    }
+     break;
+   case TEST_PATTERN_TRIG_MODE:
+   default: /* Do nothing */ 

@@ -1,3 +1,0 @@
-send "CONF rate_enable=spe\n"
-expect "^CONF"
-

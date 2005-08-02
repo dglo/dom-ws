@@ -1,0 +1,117 @@
+Index: private/epxa10/hal/fb-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fb-hal.c,v
+retrieving revision 1.8.2.4
+diff -u -r1.8.2.4 fb-hal.c
+--- private/epxa10/hal/fb-hal.c	15 Mar 2005 22:55:18 -0000	1.8.2.4
++++ private/epxa10/hal/fb-hal.c	22 Apr 2005 18:19:00 -0000
+@@ -395,21 +395,6 @@
+     FB(LED_MUX)    = select;
+ }
+ 
+-void hal_FB_set_rate(USHORT rate) {
+-/* Sets flasher board rate -- minimum 1 Hz, max. 610 Hz */
+-#define NRATES 10
+-  USHORT table[NRATES] = { 610, 305, 153, 76, 38, 19, 10, 5, 2, 1 };
+-  UBYTE ratebits = 0;
+-  int it;
+-  for(it=NRATES-1;it>0;it--) {
+-    if(rate <= table[it]) {
+-      ratebits = it; break;
+-    }
+-  }
+-  FPGA(TEST_COMM) = FPGA(TEST_COMM) & ~(0xF<<16);
+-  FPGA(TEST_COMM) = FPGA(TEST_COMM) | ((ratebits<<16)&0xF);
+-}
+-
+ /*************************************************************************/
+ /* XSVF reprogamming code                                                */
+ /*                                                                       */
+Index: private/epxa10/hal/fpga-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fpga-hal.c,v
+retrieving revision 1.83.2.2
+diff -u -r1.83.2.2 fpga-hal.c
+--- private/epxa10/hal/fpga-hal.c	24 Nov 2004 19:47:10 -0000	1.83.2.2
++++ private/epxa10/hal/fpga-hal.c	22 Apr 2005 18:19:07 -0000
+@@ -456,6 +456,21 @@
+         return 0;
+ }
+ 
++void hal_FPGA_TEST_FB_set_rate(USHORT rate) {
++    /* Sets flasher board rate -- minimum 1 Hz, max. 610 Hz */
++#define NRATES 10
++    USHORT table[NRATES] = { 610, 305, 153, 76, 38, 19, 10, 5, 2, 1 };
++    UBYTE ratebits = 0;
++    int it;
++    for(it=NRATES-1;it>0;it--) {
++        if(rate <= table[it]) {
++            ratebits = it; break;
++        }
++    }
++    FPGA(TEST_COMM) = FPGA(TEST_COMM) & ~(0xF<<16);
++    FPGA(TEST_COMM) = FPGA(TEST_COMM) | ((ratebits&0xF)<<16);
++}
++
+ void hal_FPGA_TEST_FB_JTAG_enable(void) {
+     FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, FL_EN_JTAG);
+ }
+Index: private/hal/hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/hal/hal.c,v
+retrieving revision 1.43.2.1
+diff -u -r1.43.2.1 hal.c
+--- private/hal/hal.c	24 Nov 2004 20:36:54 -0000	1.43.2.1
++++ private/hal/hal.c	22 Apr 2005 18:19:17 -0000
+@@ -533,6 +533,7 @@
+ void hal_FPGA_TEST_FB_set_aux_reset(void) {}
+ void hal_FPGA_TEST_FB_clear_aux_reset(void) {}
+ int hal_FPGA_TEST_FB_get_attn(void) {return 0;}
++void hal_FPGA_TEST_FB_set_rate(USHORT rate) { }
+ 
+ int hal_FB_enable(int *config_time, int *valid_time) {return 0;}
+ void hal_FB_enable_min(void) {}
+Index: public/hal/DOM_MB_fb.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_fb.h,v
+retrieving revision 1.4.6.2
+diff -u -r1.4.6.2 DOM_MB_fb.h
+--- public/hal/DOM_MB_fb.h	15 Mar 2005 22:55:18 -0000	1.4.6.2
++++ public/hal/DOM_MB_fb.h	22 Apr 2005 18:19:32 -0000
+@@ -163,14 +163,6 @@
+ hal_FB_enable_LEDs(USHORT enables);
+ 
+ /**
+- * Routine that sets the flasher board rate.
+- * 
+- * \param Rate in Hz
+- */
+-void
+-hal_FB_set_rate(USHORT rate);
+-
+-/**
+  * Routine that enables the video mux and selects which 
+  * LED's current is sent back to the mainboard (and the ATWDs).
+  * Can also select the 3.3v driver pulse.  Also allows for
+Index: public/hal/DOM_MB_fpga.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_fpga.h,v
+retrieving revision 1.40.2.3
+diff -u -r1.40.2.3 DOM_MB_fpga.h
+--- public/hal/DOM_MB_fpga.h	17 Jan 2005 00:02:19 -0000	1.40.2.3
++++ public/hal/DOM_MB_fpga.h	22 Apr 2005 18:19:38 -0000
+@@ -514,6 +514,14 @@
+ hal_FPGA_TEST_stop_FB_flashing(void);
+ 
+ /**
++ * Routine that sets the flasher board rate.
++ * 
++ * \param Rate in Hz
++ */
++void
++hal_FPGA_TEST_FB_set_rate(USHORT rate);
++
++/**
+  * Auxiliary reset control for the flasher board.
+  * Sets the auxiliary reset bit -- used during the
+  * FB CPLD acknowledge sequence.

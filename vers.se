@@ -1,2 +1,0 @@
-send "VERS\n"
-expect "^VERS"

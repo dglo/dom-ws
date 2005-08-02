@@ -1,0 +1,18 @@
+fix atwd_pmt_led minimum light test -- always pass if
+led dac is max (no light)...
+
+Index: stf/private/stf-apps/atwd_pmt_led.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/atwd_pmt_led.c,v
+retrieving revision 1.4.2.2
+retrieving revision 1.7
+diff -u -r1.4.2.2 -r1.7
+--- stf/private/stf-apps/atwd_pmt_led.c	5 Feb 2005 00:49:55 -0000	1.4.2.2
++++ stf/private/stf-apps/atwd_pmt_led.c	6 Apr 2005 23:46:19 -0000	1.7
+@@ -274,5 +274,5 @@
+      ((LED_dac==0 && *light_pulse_count>=(loop_count*0.95)) || (LED_dac==1023 && *light_pulse_count<=(loop_count*0.05))) &&
+      ((LED_dac==0 && *atwd_waveform_amplitude>880) || (LED_dac==1023 && *atwd_waveform_amplitude<2)) &&
+      ((LED_dac==0 && *LED_waveform_amplitude>60) || (LED_dac==1023 && *LED_waveform_amplitude<16)) &&
+-     (LED_dac==0 && *LED_waveform_position>=38 && *LED_waveform_position<=44);
++     ((LED_dac==1023) || (LED_dac==0 && *LED_waveform_position>=38 && *LED_waveform_position<=44));
+ }
