@@ -1,0 +1,55 @@
+? lc-hal-fixedup.patch
+Index: private/epxa10/hal/hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/hal.c,v
+retrieving revision 1.61.2.4
+diff -u -r1.61.2.4 hal.c
+--- private/epxa10/hal/hal.c	5 Apr 2005 18:35:50 -0000	1.61.2.4
++++ private/epxa10/hal/hal.c	2 Aug 2005 16:51:45 -0000
+@@ -271,6 +271,10 @@
+    PLD(MUX_CONTROL) = cs | (addr<<2);
+ }
+ 
++void halDisableAnalogMux(void) {
++    PLD(MUX_CONTROL) = 0x00;
++}
++
+ void halSetSwapFlashChips(void) {
+    PLD(BOOT_CONTROL) = 
+       PLDBIT(BOOT_CONTROL, ALTERNATE_FLASH) |
+Index: private/hal/hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/hal/hal.c,v
+retrieving revision 1.43.2.2
+diff -u -r1.43.2.2 hal.c
+--- private/hal/hal.c	16 May 2005 21:41:59 -0000	1.43.2.2
++++ private/hal/hal.c	2 Aug 2005 16:51:45 -0000
+@@ -80,6 +80,7 @@
+ static UBYTE muxlookup;
+ 
+ void halSelectAnalogMuxInput(UBYTE channel) { muxlookup = channel; }
++void halDisableAnalogMux(void) { }
+ 
+ static BOOLEAN swapflash = 0;
+ 
+Index: public/hal/DOM_MB_pld.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_pld.h,v
+retrieving revision 1.32.6.1
+diff -u -r1.32.6.1 DOM_MB_pld.h
+--- public/hal/DOM_MB_pld.h	24 Nov 2004 19:47:10 -0000	1.32.6.1
++++ public/hal/DOM_MB_pld.h	2 Aug 2005 16:51:45 -0000
+@@ -542,6 +542,13 @@
+ halSelectAnalogMuxInput(UBYTE channel);
+ 
+ /**
++ * disables analog mux
++ */
++void
++halDisableAnalogMux(void);
++
++
++/**
+  * set swap flash memory chips...
+  *
+  * \see halClrSwapFlashChips
