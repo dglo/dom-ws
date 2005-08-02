@@ -1,11 +1,37 @@
+Proposed Release 323:
+
+from arthur:
+   001: include the latest flasherboard fw in the release.hex
+        (use ldfb from domhub-tools-200 when it becomes avail
+         in the next week or so...).  req by john kelley
+
+----------------------------------------------------------------------------
+Release 322:
+
+from jim braun:
+   001: use domcal from tag V05-09-01 (15k lines...)
+
+from john kelley:
+   002: relax flasher_brightness and flasher_width for new LED, add output
+        parameter for number of failed leds in stf.
+   003: decrease number of ADC reads in pressure readout 
+   004: pmt_hv_ramp, relax pass critereon, add parameter
+
+from arthur:
+   005: update httpd directory for cpprod.sh too...
+   006: add halDisableAnalogMux for domcal
+  
+----------------------------------------------------------------------------
 Release 321:
 
 from arthur:
    001: ATWD Pedestal noise test, add input parameter, integrated dom.
    002: add fat-tests directory, set of tests to run for fat 
+   004: httpd directory has changed
 
 from george:
    003: add std-hass-tests std-tests-supershort directories
+
 ----------------------------------------------------------------------------
 Release 320:
 
