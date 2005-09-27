@@ -18,18 +18,8 @@ from jimb:
 ----------------------------------------------------------------------------
 Proposed Release 323:
 
-from kalle/thorsten:
-   001: use new dcom interface in stf fpga (29)
-
-from jim braun:
-   002: workaround new dor-driver power semantics
-
-from jim braun:
-   003: upgrade to domcal V05-13-01
-
-from arthur:
-   004: forgot to update the java code with new parameters from 322
-   005: upgrade to new build system for java code
+from kalle:
+   002: use new dcom interface (29)
 
 ----------------------------------------------------------------------------
 Release 322:

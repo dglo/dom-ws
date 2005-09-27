@@ -1,0 +1,24 @@
+send "CONF dac=ATWD0_TRIGGER_BIAS,850 dac=ATWD0_RAMP_TOP,2097\n"
+expect "^CONF"
+
+send "CONF dac=ATWD0_RAMP_RATE,600 dac=ATWD_ANALOG_REF,2048\n"
+expect "^CONF"
+
+send "CONF dac=ATWD1_TRIGGER_BIAS,850 dac=ATWD1_RAMP_TOP,2097\n"
+expect "^CONF"
+
+send "CONF dac=ATWD1_RAMP_RATE,600 dac=PMT_FE_PEDESTAL,1925\n"
+expect "^CONF"
+
+send "CONF dac=MULTIPLE_SPE_THRESH,0 dac=SINGLE_SPE_THRESH,500\n"
+expect "^CONF"
+
+send "CONF dac=FAST_ADC_REF,0 dac=INTERNAL_PULSER,0\n"
+expect "^CONF"
+
+send "CONF dac=LED_BRIGHTNESS,0 dac=FE_AMP_LOWER_CLAMP,0\n"
+expect "^CONF"
+
+send "CONF dac=FL_REF,0 dac=MUX_BIAS,0\n"
+expect "^CONF"
+
