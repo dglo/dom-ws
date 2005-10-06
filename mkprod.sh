@@ -59,39 +59,33 @@ mkdir ${dir}/templates
 gzip -dc epxa10/stf-apps/templates.tar.gz | (cd ${dir}/templates; tar xf -)
 
 #
-# make clean for packages...
+# make sure java code is up-to-date
 #
-if ! target=clean ./bldpkg.sh `./deppkgs.sh icecube.daq.stf`; then
-    echo "mkprod.sh: unable to make dep in java directories"
-    exit 1
-fi
+(cd epxa10/stf-apps; make java)
 
 #
-# make deps for packages...
+# make clean...
 #
-if ! target=dep ./bldpkg.sh `./deppkgs.sh icecube.daq.stf`; then
-    echo "mkprod.sh: unable to make dep in java directories"
-    exit 1
-fi
+rm -rf ../build/*
 
 #
 # build then cp jar files 
 #
-if ! ./bldpkgs.sh icecube.daq.stf; then
-    echo "mkprod.sh: unable to build jar files, exiting..."
+if ! ./prjbld.sh stfapp; then
+    echo "mkprod.sh: unable to build stfapp, exiting..."
     exit 1
 fi
 
 echo "copying..."
 
 mkdir ${dir}/jars
-cp `./getjars.sh ${pkgs} | sort | uniq` ${dir}/jars
+cp `./prjjars.sh stfapp | sort | uniq` ${dir}/jars
 
 #
 # daq-db has a mysql connector to cp
 #
 if [[ -f ${dir}/jars/daq-db-common.jar ]]; then
-    cp ../daq-db-common/resources/mysql-connector-java.jar ${dir}/jars
+    cp ~/bfd-tools/tools/lib/mysql-connector-java.jar ${dir}/jars
 fi
 
 #
