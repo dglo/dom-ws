@@ -1,9 +1,31 @@
-Proposed Release 323:
+Proposed Release 400:
+
+from john kelly:
+   001: use tag V05-11-01 for dom-cal...
+  
+from johnj:
+   002: use domapp V00-00-09 and domapp.sbi build number 264,
+        cvs revision r1.37 (tag: build264)
 
 from arthur:
-   001: include the latest flasherboard fw in the release.hex
+   003: include the latest flasherboard fw in the release.hex
         (use ldfb from domhub-tools-200 when it becomes avail
-         in the next week or so...).  req by john kelley
+        in the next week or so...).  req by john kelley
+		    
+from jimb:
+   004: use domcal V05-11-01
+
+----------------------------------------------------------------------------
+Proposed Release 323:
+
+from kalle/thorsten:
+   001: use new dcom interface in stf fpga (29)
+
+from jim braun:
+   002: workaround new dor-driver power semantics
+
+from jim braun:
+   003: upgrade to domcal V05-13-01
 
 ----------------------------------------------------------------------------
 Release 322:
