@@ -4,8 +4,8 @@
 PLATFORM=epxa10
 #PLATFORM=Linux-i386
 
-export PROJECT_TAG=devel
-export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
+export PROJECT_TAG=domapp-devel
+export ICESOFT_BUILD:=$(shell cat prod.num)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
