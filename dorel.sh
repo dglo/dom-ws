@@ -21,8 +21,8 @@ if ! mkdir ${REL}; then
 fi
 
 BINS="iceboot.bin.gz stfserv.bin.gz echomode.bin.gz"
-BINS="${BINS} domapp-test.bin.gz wiggle.bin.gz testdomapp.bin.gz"
-BINS="${BINS} domapp.bin.gz"
+BINS="${BINS} domapp-test.bin.gz wiggle.bin.gz domcal5.bin.gz"
+BINGZ="domapp.bin.gz testdomapp.bin.gz"
 SBI='simpletest.sbi'
 CBSBI='configboot.sbi'
 SBIL='iceboot.sbi'
@@ -40,13 +40,14 @@ for f in ${BINS}; do
     gunzip ${REL}/${f}
 done
 
-#
-# cp domcal...
-#
-if ! cp ${bindir}/domcal5.bin.gz ${REL}/domcal.bin.gz; then
-    echo "unable to cp ${bindir}/domcal5.bin.gz..."
-    exit 1
-fi
+for f in ${BINGZ}; do
+    if [[ ! -f ${bindir}/${f} ]]; then
+	echo "can not find: ${f}"
+	exit 1
+    fi
+    
+    cp ${bindir}/${f} ${REL}/`echo $f | sed 's/\.bin//1'`
+done
 
 #
 # cp and link sbi files...
