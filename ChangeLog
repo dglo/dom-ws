@@ -6,4 +6,5 @@ Release domapp-101
 from arthur:
 	remove stf.sbi, menu from flash add domapp
 	remove old entries from ChangeLog
-	
+	gzip two biggest executables (domapp, testdomapp)	
+	remove old releases.md5
