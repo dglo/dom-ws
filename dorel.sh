@@ -20,11 +20,12 @@ if ! mkdir ${REL}; then
     exit 1
 fi
 
-BINS="iceboot.bin.gz stfserv.bin.gz menu.bin.gz echomode.bin.gz"
+BINS="iceboot.bin.gz stfserv.bin.gz echomode.bin.gz"
 BINS="${BINS} domapp-test.bin.gz wiggle.bin.gz testdomapp.bin.gz"
+BINS="${BINS} domapp.bin.gz"
 SBI='simpletest.sbi'
 CBSBI='configboot.sbi'
-SBIL='stf.sbi iceboot.sbi'
+SBIL='iceboot.sbi'
 FS='startup.fs az-setup.fs az-tests.fs'
 
 #
