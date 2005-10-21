@@ -1,0 +1,52 @@
+::::::::::::::
+jj-2.patch
+::::::::::::::
+take care of mods needed for the engineering data format.
+
+Index: testdomapp/private/dataAccess/dataAccessRoutines.c
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccessRoutines.c,v
+retrieving revision 1.25.4.1.2.7
+diff -u -r1.25.4.1.2.7 dataAccessRoutines.c
+--- testdomapp/private/dataAccess/dataAccessRoutines.c  16 May 2005 21:41:59 -0000      1.25.4.1.2.7
++++ testdomapp/private/dataAccess/dataAccessRoutines.c  19 Oct 2005 21:21:15 -0000
+@@ -600,8 +600,9 @@
+   default:
+     trigmask = 0; trigmask |= TRIG_UNKNOWN_MODE; break;
+   }
+-  if(LCmode == 1 || LCmode == 2) trigmask |= TRIG_LC_UPPER_ENA;
+-  if(LCmode == 1 || LCmode == 3) trigmask |= TRIG_LC_LOWER_ENA;
++  if(LCmode == 1 || LCmode == 2 || LCmode == 4) trigmask |= TRIG_LC_UPPER_ENA;
++  if(LCmode == 1 || LCmode == 3 || LCmode == 4) trigmask |= TRIG_LC_LOWER_ENA;
++  if(LCmode == 4) trigmask |= TRIG_LC_REQUIRE_BOTH;
+   if(FBRunIsInProgress()) trigmask |= TRIG_FB_RUN;
+
+   *event++ = trigmask;
+::::::::::::::
+jj-2-fix.patch
+::::::::::::::
+Index: testdomapp/private/dataAccess/dataAccessRoutines.h
+===================================================================
+RCS file: /home/icecube/cvsroot/testdomapp/private/dataAccess/dataAccessRoutines.h,v
+retrieving revision 1.4.10.3
+retrieving revision 1.10
+diff -u -r1.4.10.3 -r1.10
+--- testdomapp/private/dataAccess/dataAccessRoutines.h	15 Mar 2005 23:05:50 -0000	1.4.10.3
++++ testdomapp/private/dataAccess/dataAccessRoutines.h	19 Oct 2005 21:25:30 -0000	1.10
+@@ -3,10 +3,12 @@
+ #define _DATA_ACCESS_ROUTINES_
+ 
+ #define TBIT(a) (1<<(a))
+-#define TRIG_UNKNOWN_MODE TBIT(7)
+-#define TRIG_LC_UPPER_ENA TBIT(6)
+-#define TRIG_LC_LOWER_ENA TBIT(5)
+-#define TRIG_FB_RUN       TBIT(4)
++#define TRIG_UNKNOWN_MODE    TBIT(7)
++#define TRIG_LC_UPPER_ENA    TBIT(6)
++#define TRIG_LC_LOWER_ENA    TBIT(5)
++#define TRIG_FB_RUN          TBIT(4)
++#define TRIG_LC_REQUIRE_BOTH TBIT(3)
++
+ BOOLEAN beginRun(void); 
+ 
+ BOOLEAN endRun(void);
