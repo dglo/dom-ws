@@ -16,10 +16,25 @@ from jimb:
    004: use domcal V05-11-01
 
 ----------------------------------------------------------------------------
-Proposed Release 323:
+Release 324:
+
+from johnj:
+   001: use the new up and down lc bits for hal
+   002: use the new up and down lc mode for testdomap
+   003: update raw data file to handle new lc bits
+
+from arthur:
+   004: add require up and down lc mode reg bits
+   005: compile fix for patch 001
+
+from thorsten:
+   006: add up and down lc mode
+
+----------------------------------------------------------------------------
+Release 323:
 
 from kalle/thorsten:
-   001: use new dcom interface in stf fpga (29)
+   001: use new dcom interface in stf fpga (27)
 
 from jim braun:
    002: workaround new dor-driver power semantics
