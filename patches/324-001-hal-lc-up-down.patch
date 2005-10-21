@@ -1,0 +1,92 @@
+1) Fix a bug in LC mode setting in HAL for testdomapp
+2) Addition of "up AND down" local coincidence mode to HAL
+
+Index: public/hal/DOM_MB_fpga.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_fpga.h,v
+retrieving revision 1.40.2.4
+retrieving revision 1.48
+diff -u -r1.40.2.4 -r1.48
+--- public/hal/DOM_MB_fpga.h    16 May 2005 21:41:59 -0000      1.40.2.4
++++ public/hal/DOM_MB_fpga.h    19 Oct 2005 20:46:13 -0000      1.48
+
+@@ -764,12 +784,16 @@
+                                       int down_pre_ns,
+                                       int down_post_ns);
+
+-#endif
++typedef enum {
++  DOM_HAL_LC_LOGIC_OR,
++  DOM_HAL_LC_LOGIC_AND
++} DOM_HAL_LC_LOGIC_T;
+
+ /**
+  * Enable transmission of LC pulses when SPE disc. fires
+  */
+-void hal_FPGA_TEST_enable_spe_lc(int ena_lo, int ena_hi);
++void hal_FPGA_TEST_enable_spe_lc(int ena_lo, int ena_hi,
++                                DOM_HAL_LC_LOGIC_T logic_mode);
+
+ /**
+  * Disable transmission of LC pulses when SPE disc. fires
+@@ -780,4 +804,6 @@
+  * Query whether SPE->LC enable is set
+  */
+ int hal_FPGA_TEST_spe_lc_enabled(int * ena_lo, int * ena_hi);
++
++#endif
+
+Index: private/epxa10/hal/fpga-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fpga-hal.c,v
+retrieving revision 1.83.2.3
+retrieving revision 1.92
+diff -u -r1.83.2.3 -r1.92
+--- private/epxa10/hal/fpga-hal.c       16 May 2005 21:41:59 -0000      1.83.2.3
++++ private/epxa10/hal/fpga-hal.c       19 Oct 2005 20:34:26 -0000      1.92
+@@ -614,12 +676,33 @@
+   return 1;
+ }
+
+-void hal_FPGA_TEST_enable_spe_lc(int ena_lo, int ena_hi) {
+-  /** Must set ena_lo and/or ena_hi for this to do anything */
++void hal_FPGA_TEST_enable_spe_lc(int ena_lo, int ena_hi, DOM_HAL_LOGIC_T logic_mode) {
++  /* LC will be disabled if ena_lo and ena_hi are both false.
++     up AND down is enabled if and only if
++     ena_lo, ena_hi are TRUE and logic_mode is AND.
++  */
+   if(ena_lo || ena_hi) {
+     FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, LOCAL_SPE);
+-    if(ena_lo) FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, LOCAL_RX_LO);
+-    if(ena_hi) FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, LOCAL_RX_HI);
++  } else {
++    FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_SPE);
++  }
++
++  if(ena_lo) {
++    FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, LOCAL_RX_LO);
++  } else {
++    FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_RX_LO);
++  }
++
++  if(ena_hi) {
++    FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, LOCAL_RX_HI);
++  } else {
++    FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_RX_HI);
++  }
++
++  if(ena_lo && ena_hi && logic_mode == DOM_HAL_LC_LOGIC_AND) {
++    FPGA(TEST_MISC) |= FPGABIT(TEST_MISC, LOCAL_REQUIRE_UP_DOWN);
++  } else {
++    FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_REQUIRE_UP_DOWN);
+   }
+ }
+
+@@ -627,4 +710,5 @@
+   FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_SPE);
+   FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_RX_LO);
+   FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_RX_HI);
++  FPGA(TEST_MISC) &= ~FPGABIT(TEST_MISC, LOCAL_REQUIRE_UP_DOWN);
+ }
+
+

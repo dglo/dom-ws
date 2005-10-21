@@ -1,10 +1,1405 @@
-domapp-100
-	not released.
-------------------------------------------------------------
-Release domapp-101
+Proposed Release 400:
+
+from john kelly:
+   001: use tag V05-11-01 for dom-cal...
+  
+from johnj:
+   002: use domapp V00-00-09 and domapp.sbi build number 264,
+        cvs revision r1.37 (tag: build264)
 
 from arthur:
-	remove stf.sbi, menu from flash add domapp
-	remove old entries from ChangeLog
-	gzip two biggest executables (domapp, testdomapp)	
-	remove old releases.md5
+   003: include the latest flasherboard fw in the release.hex
+        (use ldfb from domhub-tools-200 when it becomes avail
+        in the next week or so...).  req by john kelley
+		    
+from jimb:
+   004: use domcal V05-11-01
+
+----------------------------------------------------------------------------
+Proposed Release 323:
+
+from kalle/thorsten:
+   001: use new dcom interface in stf fpga (29)
+
+from jim braun:
+   002: workaround new dor-driver power semantics
+
+from jim braun:
+   003: upgrade to domcal V05-13-01
+
+from arthur:
+   004: forgot to update the java code with new parameters from 322
+   005: upgrade to new build system for java code
+
+----------------------------------------------------------------------------
+Release 322:
+
+from jim braun:
+   001: use domcal from tag V05-09-01 (15k lines...)
+
+from john kelley:
+   002: relax flasher_brightness and flasher_width for new LED, add output
+        parameter for number of failed leds in stf.
+   003: decrease number of ADC reads in pressure readout 
+   004: pmt_hv_ramp, relax pass critereon, add parameter
+
+from arthur:
+   005: update httpd directory for cpprod.sh too...
+   006: add halDisableAnalogMux for domcal
+  
+----------------------------------------------------------------------------
+Release 321:
+
+from arthur:
+   001: ATWD Pedestal noise test, add input parameter, integrated dom.
+   002: add fat-tests directory, set of tests to run for fat 
+   004: httpd directory has changed
+
+from george:
+   003: add std-hass-tests std-tests-supershort directories
+
+----------------------------------------------------------------------------
+Release 320:
+
+from arthur:
+   001: ADC channel 4 (3.3V current) lower limit changed from 72->63
+   002: cp changelog to glacier again (accidently deleted this)
+
+----------------------------------------------------------------------------
+Release 319:
+
+from john kelley:
+   001: Fix flasherboard rate control and move to FPGA module
+   002: Add flasherboard rate control function and documentation
+   003: Change flasherboard rate function call
+   004: Fix unused variable compiler warning
+
+----------------------------------------------------------------------------
+Release 318:
+
+from arthur:
+   001: we no longer need tarballs on my home directory on glacier
+ 
+from azriel:
+   002: use correct parameters for clock1x chipA
+
+from johnj:
+   003: bugs found by jim braun, fix the atwd bit in eng format and
+        timestamps dropped by 1/2 ms in flasher runs...
+----------------------------------------------------------------------------
+Release 317:
+
+from john kelley:
+   005: Add "are you sure?" check to enableFBmin iceboot function
+   006: Graceful exit when running tests with no flasherboard or a
+        dead flasherboard
+   007: New version of test checks brightness minimum slope to
+        catch stuck-at-bright failures.
+        New schema needs to be added to database
+   008: stf-menu, fix minor bug reading newlines when getting test name
+        from user
+
+from george chao:
+   001: fix waveform position problem in atwd_pmt_spe
+   002: fix atwd_pmt_led minimum light test
+   003: fix ADC ch1 and 4
+   004: updates atwd_led_nopmt
+
+----------------------------------------------------------------------------
+Release 316:
+
+from arthur:
+   001: 3.3V scaler was inverted, this is now fixed
+   002: tcal-stf.sh all condition is now serialized
+
+----------------------------------------------------------------------------
+Release 315:
+
+from arthur:
+   001: use 3.3V reference to workaround internal reference
+        bug in the max1139 chip
+
+   002: slow down the max1139 serial clock so that is it in
+        spec
+ 
+----------------------------------------------------------------------------
+Release 314:
+
+from john kelly:
+   001: hal flasherboard v11
+        - Variable flasher rate control
+        - Correct measured clock stability time, removing offset
+        - Support for CPLD V11, including...
+        - Check reset time of CPLD in enableFB
+   002: iceboot flasherboard v11
+        - Support for new HAL enableFB API
+   003: stf flasherboard v11
+        - Support for new HAL enableFB API
+        - Record reset time as output parameter
+        - Change flasher_clock pass level to adjust for removal of offset
+        - Requires update of schemas in database
+
+from john jacobsen:
+    004: testdomapp support for new flasherboard api
+ 
+----------------------------------------------------------------------------
+Release 313:
+
+from arthur:
+    001: fix pressure.c loop count conditional
+    003: tcal-stf.sh added back to release
+
+from azriel:
+    002: new standard tests
+    
+----------------------------------------------------------------------------
+Release 312:
+
+from george:
+    002: add atwd_led_nopmt test
+    003: clean out first few samples in pressure test
+
+from arthur:
+    001: do not multiply power up/down the hv
+
+----------------------------------------------------------------------------
+Release 311:
+
+from arthur:
+    001: echo-mode is echo-mode again, not domcal!
+----------------------------------------------------------------------------
+Release 310:
+
+from jim braun:
+    001: fix buffer overflow in run summary -- allows stf-client
+         to run again...
+----------------------------------------------------------------------------
+Release 309:
+
+from jim braun:
+    006: add logging and sorting to stfapp
+
+from george chao:
+    005: 1 liner patch for stf
+
+from john kelley:
+    001: flasher brightness delay -- use correct parameter
+    002: check for presence bit reset for flasher board
+    003: add flasher clock test
+
+from arthur:
+    004: stf parameters for new flasher clock test
+    008: add domcal program to release
+    009: add-schema is now part of release
+----------------------------------------------------------------------------
+Release 308:
+
+from arthur:
+    copy ChangeLog to the web page
+    minor build cleanup 
+
+from johnj:
+    add trigger_disc_lc to hal public header
+
+from thorsten:
+    really swap lc up/down
+
+----------------------------------------------------------------------------
+Release 307:
+
+from arthur:
+    use double prec in pressure test accumulators
+    fix potential excessive retx on bad packets
+
+from johnj:
+    fix lc triggering fadc incorrectly bug
+
+----------------------------------------------------------------------------
+Release 306:
+
+from george chao:
+    fix atwd pmt led pass/no pass conditions
+    fix atwd pmt spe pass/no pass conditions
+    
+from john kelley:
+    Fix CRC check on flasherboard ID readout
+
+----------------------------------------------------------------------------
+Release 305:
+
+from john jacobsen:
+    New features:
+       - selective enable of LC (upper only, lower only, or either)
+       - indication of LC enable in trigger bits of engineering format
+       - indication of LC state change in monitoring records
+       - message to reset contents of lookback memory
+
+----------------------------------------------------------------------------
+Release 304:
+
+from thorsten stezelberger:
+    swap UP/DOWN sense for local coincidence
+ 
+----------------------------------------------------------------------------
+Release 303:
+
+from thorsten stezelberger:
+    fix ATWD auto restart I did not do the AnalogReset
+
+----------------------------------------------------------------------------
+Release 302:
+
+from john kelley:
+    Numerous changes for FB CPLD v10 which include:
+    New enable sequence with CPLD configuration and clock validation
+    Enable sequence also deals with LED power-on state
+    CRC and presence checks for flasher ID
+    Improved error handling
+
+    New version (1.2) of flasherboard STF tests
+    Support new enable and ID HAL interfaces
+    Record times returned by enable sequence as output parameters
+
+    Support new enable and ID HAL interfaces
+    Native iceboot commands for all FB functions
+    Documentation for new iceboot commands
+
+----------------------------------------------------------------------------
+Release 301:
+
+from john jacobsen:
+    move testdomapp up to the HEAD to support new
+    LC in firmware
+
+    update hal to support new LC in firmware
+
+----------------------------------------------------------------------------
+Release 300:
+
+from thorsten:
+    latest and greatest comm and stf fpga with all local coincidence
+    features
+
+from arthur:
+    upgrade dom fpga to fix dom tx - rx timestamps off by about x2 bug
+    initialize rate in atwd_pulser_spe.c
+
+from arthur [dom-ws/stf-client]:
+    remove erroneous exit 1 in stf startup script
+
+from dglo [daq-db-common/daq-db-common/project.xml]:
+    Add icecube.daq.db.app to package list
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestDB.java]:
+    Break code for findPropertiesFile() out of findProperties().
+    Expose findProperties() to the world.
+    Make getConnection() and getStatement() 'static'
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestDB.java]:
+    'enum' is a keyword in Java 1.5
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestDB.java]:
+    getConnection() and getStatement() need to be overridden for tests
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestDB.java]:
+    findProperties() and findPropertiesFile() methods moved from DOMProdTestDB
+    to DOMProdTestUtil (with deprecated stubs left in DOMProdTestDB)
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestUtil.java]:
+    Deal with querying 'double' values
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestUtil.java]:
+    Add isMainBoardSerial()
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestUtil.java]:
+    Deal with DOM tags like 'DFLRef01'
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestUtil.java]:
+    findProperties() and findPropertiesFile() methods moved from DOMProdTestDB
+    to DOMProdTestUtil (with deprecated stubs left in DOMProdTestDB)
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestUtil.java]:
+    Recognize Swedish reference DOMs
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProdTestUtil.java]:
+    Accept any DOM tag serial number like '???Ref??'
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/DOMProduct.java]:
+    Add missing javadoc
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/Laboratory.java]:
+    Pull getMachineId() method out of loadByMachine()
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/MainBoardProduct.java]:
+    Validate main board serial number before adding to DB
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/MainBoardProduct.java]:
+    Add getDOMTagSerial() utility method
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/DOMProdTestDBTest.java]:
+    Don't hang if there's a problem testing the fake driver
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/DOMProdTestUtilTest.java]:
+    Deal with DOM tags like 'DFLRef01'
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/DOMProdTestUtilTest.java]:
+    Test TSLRefxx code
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/DOMProdTestUtilTest.java]:
+    Accept any DOM tag serial number like '???Ref??'
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/FakeUtil.java]:
+    Add a couple more generic methods
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/MainBoardProductTest.java]:
+    Validate main board serial number before adding to DB
+
+from dglo [daq-db-common/daq-db-common/src/icecube/daq/db/domprodtest/test/MockStatement.java]:
+    Implement getConnection()
+
+from dglo [daq-db-stftest/daq-db-stftest/src/icecube/daq/db/app/STFTorture.java]:
+    Fix fake main board ID now that it's being validated
+
+from dglo [daq-db-stftest/daq-db-stftest/src/icecube/daq/db/stftest/STFParameter.java]:
+    Allow parameter description to be initialized to null,
+    but convert to empty string when saving to database
+
+from dglo [daq-db-stftest/daq-db-stftest/src/icecube/daq/db/stftest/STFSchemaParser.java]:
+    Ignore comments
+
+from dglo [daq-db-stftest/daq-db-stftest/src/icecube/daq/db/stftest/test/ProductUtilTest.java]:
+    MainBoardProduct now rejects invalid main board serial numbers
+
+from dglo [daq-db-stftest/daq-db-stftest/src/icecube/daq/db/stftest/test/STFParameterTest.java]:
+    Allow parameter description to be initialized to null,
+    but convert to empty string when saving to database
+
+from jbraun [dom-cal/dom-cal/project.xml]:
+    Added domhub-common dependency
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/Makefile]:
+    changed #bins spe_fit parameter from float to int, enabled gain cal, corrected
+    spe_fit bin count
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/Makefile]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Moved amp_cal to ATWD1
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Changed 'ATWD A' to 'ATWD B' in comment
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Fixed bug: data from ATWD1 but still using ATWD0 calibration constants
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Increased amplitude and sampling speeds for amp calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Increased range of atwd_freq_cal, Consolidated wait after DAC set into DAC_SET_WAIT in domcal.h
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Changed HV and amp cal to use ATWD1 *only* in Rev4, fixed bug using wrong freq cal in HV gain
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.c]:
+    Fixed negative charge problem by re-priming ATWDs in gain and amp cal
+    loops.  Increased DAC set time to 1s.  Changed internal linear fit
+    variables to double.  Start pulser peak search at bin 80 instead of bin 0.
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.h]:
+    Increased amplitude and sampling speeds for amp calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/amp_cal.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.h]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.h]:
+    Changed HV and amp cal to use ATWD1 *only* in Rev4, fixed bug using wrong freq cal in HV gain
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/amp_cal.h]:
+    Fixed negative charge problem by re-priming ATWDs in gain and amp cal
+    loops.  Increased DAC set time to 1s.  Changed internal linear fit
+    variables to double.  Start pulser peak search at bin 80 instead of bin 0.
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/atwd_cal.c]:
+    Fixed horrible bug in ATWD1 calibration -- was a copy of ATWD0 data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_cal.c]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_cal.c]:
+    Increased range of atwd_freq_cal, Consolidated wait after DAC set into DAC_SET_WAIT in domcal.h
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_cal.c]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_cal.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/atwd_cal.h]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.c]:
+    Disabled hv calib, added short sleep after atwd forced trigger
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.c]:
+    removed trigger wait
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.c]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.c]:
+    Increased range of atwd_freq_cal, Consolidated wait after DAC set into DAC_SET_WAIT in domcal.h
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.c]:
+    Revert to 250ms wait on DAC set
+    Revert to 750-2500 trigger bias range on atwd_freq_cal
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.c]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.h]:
+    Increased range of atwd_freq_cal, Consolidated wait after DAC set into DAC_SET_WAIT in domcal.h
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/atwd_freq_cal.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/calUtils.c]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/calUtils.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/calUtils.c]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/calUtils.c]:
+    Fixed negative charge problem by re-priming ATWDs in gain and amp cal
+    loops.  Increased DAC set time to 1s.  Changed internal linear fit
+    variables to double.  Start pulser peak search at bin 80 instead of bin 0.
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/calUtils.h]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/calUtils.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/calUtils.h]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    changed #bins spe_fit parameter from float to int, enabled gain cal, corrected
+    spe_fit bin count
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Disabled hv calib, added short sleep after atwd forced trigger
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Back to atwdb for amp_cal, 250ms DAC set wait time
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Fixed up new define
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Zero out placeholder FADC calibration values
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Added histo readback -- major change!
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Improved histogram data handling
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Added SPE rate check before attempting calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.c]:
+    Not setting gain cal valid bit true until after linear fit
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Changes to SPE fit bin start, bumped version
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Increased amplitude and sampling speeds for amp calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Increased range of atwd_freq_cal, Consolidated wait after DAC set into DAC_SET_WAIT in domcal.h
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Revert to 250ms wait on DAC set
+    Revert to 750-2500 trigger bias range on atwd_freq_cal
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Bumped version number for HV bug fix
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Changed HV and amp cal to use ATWD1 *only* in Rev4, fixed bug using wrong freq cal in HV gain
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Removed ifdefs regarding a 40MHz oscillator on Rev2 and
+    Rev3 -- don't think this is right.  Everything is now 20MHz.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Increased statistics
+    Now ignoring negative charge points
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Fixed negative charge problem by re-priming ATWDs in gain and amp cal
+    loops.  Increased DAC set time to 1s.  Changed internal linear fit
+    variables to double.  Start pulser peak search at bin 80 instead of bin 0.
+
+from kael [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Updated the minor # - now 2.6 to reflect refactor.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Added histo readback -- major change!
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Check for HV base by looking at HV ID
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Improved histogram data handling
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Added SPE rate check before attempting calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Increased histogram size, reduced number of bad waveforms needed to skip voltage
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Added trial PMT baseline calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/domcal.h]:
+    Several changes to increase probability of fit convergence......
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    changed #bins spe_fit parameter from float to int, enabled gain cal, corrected
+    spe_fit bin count
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Added change to find first maximal bin with > 1.5% of total samples to use as exp. peak in fit
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Changes to SPE fit bin start, bumped version
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Fixed bug in charge integration window
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Changed HV and amp cal to use ATWD1 *only* in Rev4, fixed bug using wrong freq cal in HV gain
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Increased statistics
+    Now ignoring negative charge points
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Fixed negative charge problem by re-priming ATWDs in gain and amp cal
+    loops.  Increased DAC set time to 1s.  Changed internal linear fit
+    variables to double.  Start pulser peak search at bin 80 instead of bin 0.
+
+from kael [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Changed peak search strategy & scale histo limits by 0.5.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Added histo readback -- major change!
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Check for HV base by looking at HV ID
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Improved histogram data handling
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Added SPE rate check before attempting calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    set num_histos=0 if hv base not found
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Increased histogram size, reduced number of bad waveforms needed to skip voltage
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Not setting gain cal valid bit true until after linear fit
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Added trial PMT baseline calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Bug fix for PMT baseline calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Several changes to increase probability of fit convergence......
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.c]:
+    Bug fix to NR algorithm
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Changes to SPE fit bin start, bumped version
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Fixed bug in charge integration window
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Changed HV and amp cal to use ATWD1 *only* in Rev4, fixed bug using wrong freq cal in HV gain
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Increased statistics
+    Now ignoring negative charge points
+
+from kael [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Increase histogram bin count
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Modified graphs, increased sane pv to 6.0
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Added SPE rate check before attempting calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Increased histogram size, reduced number of bad waveforms needed to skip voltage
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Added trial PMT baseline calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Bug fix for PMT baseline calibration
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Raised max sane PV to 8.0
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/hv_gain_cal.h]:
+    Added fine tuning to region of histogram applied to fitter
+    1) Moved start_bin to first nonzero bin+2 if no suitable exponential max can be found
+    2) Chopping nonlinear component off the end of histogram
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/lmfit.c]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/lmfit.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/lmfit.h]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/lmfit.h]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/pulser_cal.c]:
+    Many changes...
+    
+    Move to 500000us DAC set delay
+    Changes to calib_data file and hv_calib to record fit & pv data
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/pulser_cal.c]:
+    Increased range of atwd_freq_cal, Consolidated wait after DAC set into DAC_SET_WAIT in domcal.h
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/pulser_cal.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/pulser_cal.c]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/pulser_cal.c]:
+    Removed low disc. point from pulser cal
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/pulser_cal.h]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/pulser_cal.h]:
+    Added defines to support builds of all revisions, including rev5 (untested)
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/pulser_cal.h]:
+    Removed low disc. point from pulser cal
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    changed #bins spe_fit parameter from float to int, enabled gain cal, corrected
+    spe_fit bin count
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Added change to find first maximal bin with > 1.5% of total samples to use as exp. peak in fit
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    fixed while loop
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    *** empty log message ***
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Changes to SPE fit bin start, bumped version
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    *** empty log message ***
+
+from kael [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Changed guess for gaussian mean at peak of histogram
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Improved histogram data handling
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Another start_bin mod which eliminates divergent fits
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Increased histogram size, reduced number of bad waveforms needed to skip voltage
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Added fine tuning to region of histogram applied to fitter
+    1) Moved start_bin to first nonzero bin+2 if no suitable exponential max can be found
+    2) Chopping nonlinear component off the end of histogram
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Bug fix to NR algorithm
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.c]:
+    Tuning some fit parameters
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    changed #bins spe_fit parameter from float to int, enabled gain cal, corrected
+    spe_fit bin count
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Major fit and HV gain changes & improvements.  Also fixed speed
+    of HV data acquisition.  Changed to use ATWD B.  Changed fit
+    convergence.  Added lots of error checking and fit sanity checking.
+    Added valley finder and log-log regression.
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Added change to find first maximal bin with > 1.5% of total samples to use as exp. peak in fit
+
+from jkelley [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Changes to SPE fit bin start, bumped version
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Lowered #counts needed to accept starting bin -- this was giving us lots of grief!
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Several changes to increase probability of fit convergence......
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Added fine tuning to region of histogram applied to fitter
+    1) Moved start_bin to first nonzero bin+2 if no suitable exponential max can be found
+    2) Chopping nonlinear component off the end of histogram
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Bug fix to NR algorithm
+
+from jbraun [dom-cal/dom-cal/private/dom-cal/spefit.h]:
+    Tuning some fit parameters
+
+from jkelley [dom-cal/dom-cal/resources/domcal_user_guide.tex]:
+    Major additions; describe more modules, as well as HV gain, but still more to do
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Added support for hv gain calibration
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Moved java timeout to 300s
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    added "domcal_" string to xml filename
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Configboot interaction verified solid
+
+from kael [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Added some delays in calibration exec'ing.  Moving props to be inline with Sun official RFC.
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Added fix to report domcal version string
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Added com fix that may be breaking DHApp later....
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Explicit socket close added at end of test thread to make DHApp happy
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Database results
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Fixed comm bug
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Don't close socket before calling 'closeServerChannel'
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    increased client timeout to 40 minutes
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Added histogram support in client
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Increased timeout to 90 minutes
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Supporting new disc check before hv cal
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCal.java]:
+    Checked for sane 10^7 before inserting into database
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalCom.java]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalCom.java]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalCom.java]:
+    Added configboot connectivity -- needs testing!
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalCom.java]:
+    Fixed comm bug
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecord.java]:
+    Added support for hv gain calibration
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecord.java]:
+    Added histogram support in client
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    Fixed domId bug
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    *** empty log message ***
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    Added support for hv gain calibration
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    Added histogram support in client
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalRecordFactory.java]:
+    Improved histogram data handling
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalXML.java]:
+    Added support for hv gain calibration
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalXML.java]:
+    Added fix to report domcal version string
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalXML.java]:
+    Added histogram support in client
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalXML.java]:
+    Improved histogram data handling
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalXML.java]:
+    Not allowing calibration of ch3 || ch7 in Calibrator + darknoise reported in histograms
+
+from jbraun [dom-cal/dom-cal/src/icecube/daq/domcal/DOMCalXML.java]:
+    Adding histos to XML file even if hvGainCal is not valid
+
+from arthur [dom-loader/dom-loader/private/epxa10/loader/exceptions.c]:
+    FPGA_TEST -> FPGA for comm routines
+
+from arthur [dom-ws/dom-ws/Makefile]:
+    se support
+
+from arthur [dom-ws/dom-ws/Makefile]:
+    build domterm
+
+from arthur [dom-ws/dom-ws/Makefile]:
+    add domterm install target
+
+from arthur [dom-ws/dom-ws/Makefile]:
+    domterm has moved...
+
+from arthur [dom-ws/dom-ws/Makefile]:
+    minor updates
+
+from arthur [dom-ws/dom-ws/TODO]:
+    minor updates
+
+from arthur [dom-ws/dom-ws/cprel.sh]:
+    put HEAD releases on glacier now
+
+from arthur [dom-ws/dom-ws/cprel.sh]:
+    cleaner cp
+
+from arthur [dom-ws/dom-ws/dom.ws]:
+    add int-tests
+
+from arthur [dom-ws/dom-ws/dom.ws]:
+    add compressEvent
+
+from arthur [dom-ws/dom-ws/dorel.sh]:
+    add configboot.sbi to standard flash image for testing...
+
+from arthur [dom-ws/dom-ws/dorel.sh]:
+    support wiggle test
+
+from arthur [dom-ws/dom-ws/epxa10.mk]:
+    configboot needs hal now
+
+from jkelley [dom-ws/dom-ws/epxa10.mk]:
+    New domcal build flow to support mainboard-version specific binaries
+
+from arthur [dom-ws/dom-ws/epxa10.mk]:
+    patch from john to get domapp.mk into the domapp project
+
+from jkelley [dom-ws/dom-ws/epxa10.mk]:
+    Quick workaround for problem building different versions of domcal in the same work area
+
+from jkelley [dom-ws/dom-ws/epxa10.mk]:
+    Changed domcal target in make all to domcal5
+
+from arthur [dom-ws/dom-ws/epxa10.mk]:
+    small cleanups
+
+from arthur [dom-ws/dom-ws/exlog.sh]:
+    minor updates
+
+from arthur [dom-ws/dom-ws/init.exp]:
+    use domterm now...
+
+from arthur [dom-ws/dom-ws/init.exp]:
+    se now uses regex
+
+from arthur [dom-ws/dom-ws/mkprod.sh]:
+    cp iceboot.sh configboot.pof
+
+from arthur [dom-ws/dom-ws/mkprod.sh]:
+    more thorough builds
+
+from arthur [dom-ws/dom-ws/mkprod.sh]:
+    copy tcal tools from domhub-tools now
+
+from arthur [dom-ws/dom-ws/mkrelease.sh]:
+    use domterm now...
+
+from arthur [dom-ws/dom-ws/mkrelease.sh]:
+    get new mkrelease.sh to work
+
+from arthur [dom-ws/dom-ws/mkrelease.sh]:
+    remove debugging
+
+from arthur [dom-ws/dom-ws/mkrelease.sh]:
+    se now uses regex
+
+from arthur [dom-ws/dom-ws/mkrelease.sh]:
+    make sure objcopy succeeds...
+
+from arthur [dom-ws/dom-ws/mkrelease.sh]:
+    se is installed now
+
+from arthur [dom-ws/dom-ws/prod.num]:
+    minor updates
+
+from arthur [dom-ws/dom-ws/releases.md5]:
+    copied from az branch...
+
+from da5id [domhub-common/domhub-common/src/icecube/daq/domhub/common/DOMConfig.java]:
+    param checking on DOMConfig object
+
+from da5id [domhub-common/domhub-common/src/icecube/daq/domhub/common/DOMConfig.java]:
+    tweaks to DOMConfig for param checking
+
+from da5id [domhub-common/domhub-common/src/icecube/daq/domhub/common/DOMHubCom.java]:
+    update to DOMHubCom interface
+
+from jacobsen [hal/hal/private/epxa10/hal/DOM_FPGA_regs.h]:
+    Changes for first implementation of local coincidence
+
+from jacobsen [hal/hal/private/epxa10/hal/DOM_FPGA_regs.h]:
+    Added functions to enable transmission of local coincidence pulses when SPE trigger occurs
+
+from arthur [hal/hal/private/epxa10/hal/DOM_FPGA_regs.h]:
+    support bit bang comm dac
+
+from arthur [hal/hal/private/epxa10/hal/Makefile]:
+    get started with domapp-test
+
+from arthur [hal/hal/private/epxa10/hal/comm-hal.c]:
+    communications is common to test and real fpgas -- rename hal routines to reflect this, but lv in a define for the old names
+
+from arthur [hal/hal/private/epxa10/hal/comm-hal.c]:
+    nuke stale packets in send when IC/CI negotiation has taken place
+
+from jkelley [hal/hal/private/epxa10/hal/fb-hal.c]:
+    Updated for flasherboard firmware v6 (no more mode selects!)
+
+from jkelley [hal/hal/private/epxa10/hal/fb-hal.c]:
+    Increased wait time after CPLD reset, fixes zero-ID failures
+
+from jkelley [hal/hal/private/epxa10/hal/fb-hal.c]:
+    Increased wait time after power-on to 0.1s out of paranoia
+
+from jkelley [hal/hal/private/epxa10/hal/fb-hal.c]:
+    Once again only read back FB id the first time
+
+from arthur [hal/hal/private/epxa10/hal/fpga-hal.c]:
+    query versions and query type were broken
+
+from jacobsen [hal/hal/private/epxa10/hal/fpga-hal.c]:
+    Changes for first implementation of local coincidence
+
+from arthur [hal/hal/private/epxa10/hal/fpga-hal.c]:
+    add bit bang implementation
+
+from jacobsen [hal/hal/private/epxa10/hal/fpga-hal.c]:
+    Added functions to enable transmission of local coincidence pulses when SPE trigger occurs
+
+from arthur [hal/hal/private/hal/hal.c]:
+    add dummy routine for query build
+
+from arthur [hal/hal/private/hal/hal.c]:
+    more placeholders
+
+from arthur [hal/hal/public/hal/DOM_MB_fpga.h]:
+    communications is common to test and real fpgas -- rename hal routines to reflect this, but lv in a define for the old names
+
+from jacobsen [hal/hal/public/hal/DOM_MB_fpga.h]:
+    Changes for first implementation of local coincidence
+
+from jacobsen [hal/hal/public/hal/DOM_MB_fpga.h]:
+    Added functions to enable transmission of local coincidence pulses when SPE trigger occurs
+
+from arthur [hal/hal/public/hal/DOM_MB_fpga.h]:
+    support bit bang comm dac
+
+from arthur [iceboot/iceboot/private/epxa10/iceboot/osdep.c]:
+    flash dump is now synchronous
+
+from arthur [iceboot/iceboot/private/epxa10/iceboot/osdep.c]:
+    FPGA_TEST -> FPGA for comm routines
+
+from arthur [iceboot/iceboot/private/epxa10/iceboot/osdep.c]:
+    use proper dom id register for domapp fpga
+
+from arthur [iceboot/iceboot/private/iceboot/osdep.c]:
+    flash dump is now synchronous
+
+from arthur [iceboot/iceboot/private/iceboot/osdep.h]:
+    flash dump is now synchronous
+
+from arthur [iceboot/iceboot/private/iceboot/sfi.c]:
+    use hal routines to query fpga
+
+from arthur [iceboot/iceboot/private/iceboot/sfi.c]:
+    flash dump is now synchronous
+
+from arthur [iceboot/iceboot/private/iceboot/sfi.c]:
+    FPGA_TEST -> FPGA for comm routines
+
+from jkelley [iceboot/iceboot/private/iceboot/sfi.c]:
+    Added flasherboard enable/disable commands, FB id readout
+
+from jkelley [iceboot/iceboot/private/iceboot-docs/iceboot-ug.tex]:
+    Added flasherboard enable/disable commands, FB id readout
+
+from jkelley [iceboot/iceboot/private/iceboot-docs/iceboot-ug.tex]:
+    Noticed hvid was missing, added it
+
+from arthur [iceboot/iceboot/resources/startup.fs]:
+    add echo-mode-cb
+
+from arthur [iceboot/iceboot/resources/startup.fs]:
+    support wiggle test
+
+from jkelley [stf/stf/private/stf-apps/Makefile]:
+    Removed pmt_pv_ratio from standard build
+
+from arthur [stf/stf/private/stf-apps/Makefile]:
+    add wiggle test
+
+from gechao [stf/stf/private/stf-apps/disc_scan.c]:
+    add halWriteDAC for pedestal_dac
+
+from arthur [stf/stf/private/stf-apps/disc_scan.c]:
+    loop count != 1 bug fix -- sum waveform, do not just set it
+
+from gechao [stf/stf/private/stf-apps/fadc_baseline.c]:
+    fix max-min problem
+
+from arthur [stf/stf/private/stf-apps/fadc_baseline.c]:
+    fix off by one bug in sample_sum (should be very minor effect)
+
+from jkelley [stf/stf/private/stf-apps/pmt_pv_ratio.c]:
+    Added missing wait for done bit
+
+from arthur [stf/stf/private/stf-apps/stfserv.c]:
+    add domid command
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/domio/DorDOM.java]:
+    *** empty log message ***
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/domio/DorDOM.java]:
+    Fix for NullPointerException caused by non-responsive dom during open call
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/domio/DorDOM.java]:
+    Applied arthur's patch
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/domio/DorDOM.java]:
+    Using non-blocking mode
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/domio/DorDOM.java]:
+    Merging head w/az-prod-0
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/dorutil/DOR.java]:
+    Using non-blocking mode
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/dorutil/DORSerialCom.java]:
+    *** empty log message ***
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/dorutil/DORSerialCom.java]:
+    Applied arthur's patch
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/dorutil/DORSerialCom.java]:
+    Using non-blocking mode
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/dorutil/DORSerialCom.java]:
+    Merging head w/az-prod-0
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/ResultsPanel.java]:
+    Allowing resizing of output window
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/RootPanel.java]:
+    *** empty log message ***
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/STFApp.java]:
+    *** empty log message ***
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/STFApp.java]:
+    *** empty log message ***
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/STFApp.java]:
+    Reenabled domhub-app stf service
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/STFApp.java]:
+    Fix for NullPointerException caused by non-responsive dom during open call
+
+from jbraun [stfapp/stfapp/src/icecube/daq/stf/stfapp/STFApp.java]:
+    Using non-blocking mode
+----------------------------------------------------------------------------
+Release 243:
+
+from john kelley:
+	loosen up stf hv test pass/fail parameters
+----------------------------------------------------------------------------
+Release 242:
+
+from john kelley:
+    tune pass conditions for flasherboard STF tests
+    increase delays in flasherboard power-up sequence to 100ms
+
+from john jacobsen:
+    Sum 9 readouts of SPE and MPE scalars every second -> hardware state
+      monitoring record.
+
+----------------------------------------------------------------------------
+Release 241:
+
+from thorsten stezelberger:
+    Cold boot fix -- hold nConfig low while nPOR is low
+
+----------------------------------------------------------------------------
+Release 240:
+
+from john jacobsen:
+    Fixed MiscBits (ATWD in engineering event)
+
+----------------------------------------------------------------------------
+
+Release 239:
+
+from john kelley:
+    hal_flasher_fw6.patch:
+        - for hal/private/expa10/hal
+        - updates flasherboard HAL routines for flasherboard CPLD firmware v6
+
+    stf_flasher_rev5atwd.patch:
+        - for stf/private/stf-apps
+        - updates STF flasherboard tests and XML params for Rev5.0 ATWDs
+        - bumps xml version number
+
+    stf_hv_passtune.patch
+        - for stf/private/stf-apps
+        - tunes HV test passing conditions for latest HV base
+        - bumps xml version number
+from arthur: rollback latest kalle firmware, there is some indication
+    that it is not better -- back to build 97
+
+----------------------------------------------------------------------------
+Release 238:
+
+from johnj: add echo-mode-cb to release.hex
+from arthur: do not exit after setting non-blocking!
+from kalle: fix tcal dom clock bug (move trigger up to edge decoder).
+from arthur: do not use newlines in array fields in tcal-stf.sh.
+----------------------------------------------------------------------------
+Release 237:
+
+from azriel: use 2pe instead of 1pe in fadc pulser test.
+
+----------------------------------------------------------------------------
+Release 236:
+
+from thorsten (tstezelberger@lbl.gov) and kalle:
+
+- new dom fpga comm (build 97)
+
+from arthur:
+
+- put driver in non-blocking mode for stf-client
+- more thorough re-build of java code to catch all changes
+- missed dglo's fix for daq-db-stftest -- it's in there now
+
+----------------------------------------------------------------------------
+Release 235:
+
+from kael (kaeld@amanda.wisc.edu):
+
+- fix hvid, add crc (modified by alj)
+
+from john j (john@johnj.com):
+
+- fix DOM MB and FPGA build numbers in monitoring records
+- Enable barometer to fix pressure readouts in monitoring records
+- update domapp release version number
+
+from george (lchao@lbl.gov) (approved by az):
+
+- fix 2 channels of ADC
+- fix baseline max-min value
+- increased the delay time, so we can read correct value
+- write atwd_pedestal_dac
+- fix one more ADC channel
+- turn off pmt at the end
+- fix pulser_exp_amp for adjustment in hot temperature
+- fix pressure problem
+- fix another ADC channel
+- longer delay in pmt led
+
+from arthur (aljones@lbl.gov):
+
+- query-build-type.patch: fix build and type query hal routines
+- hal-query-build.patch: use hal to query build and type in iceboot
+
+from dave glowacki (dglo@ssec.wisc.edu)
+	
+- close run threads so AddResult finishes
+
+from jim braun (jbraun@amanda.wisc.edu)
+
+- deal with configboot
+- do not softboot doms anymore
+- minor gui tweaks
+

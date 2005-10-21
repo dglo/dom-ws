@@ -7,5 +7,5 @@ release=`cat prod.num`
 
 modules="daq-db-common daq-db-stftest dom-cal dom-cpld dom-fpga dom-loader dom-ws domhub-common hal iceboot stf stfapp testdomapp"
 
-(cd ..; cvs tag domapp-${release} ${modules} )
+(cd ..; cvs tag az-prod-rel-${release} ${modules} )
 

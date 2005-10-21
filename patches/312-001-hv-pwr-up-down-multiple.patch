@@ -1,0 +1,30 @@
+do not allow multiple power ups or power downs of the base
+
+Index: private/epxa10/hal/hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/hal.c,v
+retrieving revision 1.63
+retrieving revision 1.64
+diff -u -r1.63 -r1.64
+--- private/epxa10/hal/hal.c	22 Nov 2004 21:26:18 -0000	1.63
++++ private/epxa10/hal/hal.c	4 Mar 2005 08:28:07 -0000	1.64
+@@ -273,6 +273,9 @@
+ static int hvIsPowered = 0;
+ 
+ void halPowerUpBase(void) {
++   /* don't power up if we're already powered... */
++   if (hvIsPowered) return;
++   
+    /* ltc1257 requires cs0 to be low on power up...
+     */
+    PLD(SPI_CHIP_SELECT1) = 0; 
+@@ -299,6 +302,9 @@
+ }
+ 
+ void halPowerDownBase(void) {
++   /* don't power down if we're already unpowered... */
++   if (hvIsPowered==0) return;
++   
+    /* drop disable */
+    halEnableBaseHV();
+    

@@ -27,10 +27,9 @@ platforms epxa10 Linux-i386
 import hal
 import dom-loader
 import iceboot iceboot iceboot-docs
-import stf stf stf-apps stf-docs stf-sfe std-tests int-tests fat-tests
+import stf stf stf-apps stf-docs stf-sfe std-tests int-tests
 import configboot configboot
 import dom-cal dom-cal
-import domapp domapp
 
 #
 # one-off links...
@@ -45,6 +44,7 @@ import domapp domapp
 link dom-loader booter public boot.S private booter
 link dom-loader booter public boot.x private booter
 
+link testdomapp domapp public * public domapp
 link testdomapp expControl public * public expControl
 link testdomapp msgHandler public * public msgHandler
 link testdomapp dataAccess public * public dataAccess
@@ -52,13 +52,13 @@ link testdomapp domapp_common public * public domapp_common
 link testdomapp message public * public message
 link testdomapp slowControl public * public slowControl
 
-link testdomapp domapp private * private testdomapp
-link testdomapp expControl private * private testdomapp
-link testdomapp msgHandler private * private testdomapp
-link testdomapp dataAccess private * private testdomapp
-link testdomapp domapp_common private * private testdomapp
-link testdomapp message private * private testdomapp
-link testdomapp slowControl private * private testdomapp
+link testdomapp domapp private * private domapp
+link testdomapp expControl private * private domapp
+link testdomapp msgHandler private * private domapp
+link testdomapp dataAccess private * private domapp
+link testdomapp domapp_common private * private domapp
+link testdomapp message private * private domapp
+link testdomapp slowControl private * private domapp
 
 link testdomapp expControl private expControl.h public expControl
 link testdomapp dataAccess private dataAccess.h public dataAccess

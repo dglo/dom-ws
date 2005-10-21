@@ -1,0 +1,16 @@
+Index: stf/private/stf-apps/flasher_brightness.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_brightness.c,v
+retrieving revision 1.4.2.1
+diff -u -r1.4.2.1 flasher_brightness.c
+--- stf/private/stf-apps/flasher_brightness.c	24 Nov 2004 19:47:40 -0000	1.4.2.1
++++ stf/private/stf-apps/flasher_brightness.c	1 Feb 2005 19:54:22 -0000
+@@ -177,7 +177,7 @@
+     halWriteDAC(DOM_HAL_DAC_FL_REF, atwd_flasher_ref);
+ 
+     /* Set the trigger offset delay */
+-    hal_FPGA_TEST_set_atwd_LED_delay(atwd_flasher_ref);
++    hal_FPGA_TEST_set_atwd_LED_delay(atwd_led_delay);
+ 
+     /* Select the LED current as the ATWD analog mux input */
+     halSelectAnalogMuxInput(DOM_HAL_MUX_FLASHER_LED_CURRENT);

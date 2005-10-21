@@ -1,0 +1,39 @@
+? lc-hal-fixedup.patch
+Index: public/hal/DOM_MB_fpga.h
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/public/hal/DOM_MB_fpga.h,v
+retrieving revision 1.40.2.2
+diff -u -r1.40.2.2 DOM_MB_fpga.h
+--- public/hal/DOM_MB_fpga.h	24 Nov 2004 19:47:10 -0000	1.40.2.2
++++ public/hal/DOM_MB_fpga.h	25 Jan 2005 09:52:40 -0000
+@@ -4,9 +4,9 @@
+ /**
+  * \file DOM_MB_fpga.h
+  *
+- * $Revision: 1.1.2.1 $
++ * $Revision: 1.1.2.1 $
+  * $Author: arthur $
+- * $Date: 2005-01-25 09:56:06 $
++ * $Date: 2005-01-25 09:56:06 $
+  *
+  * \b Usage:
+  * \code
+@@ -416,6 +416,18 @@
+ void
+ hal_FPGA_TEST_readout_ping_pong_done(void);
+ 
++/**
++ * discriminator launch of the atwd/fadc...
++ * when LC is enabled
++ * \param trigger_mask bitmask of devices to trigger
++ *
++ * \see HAL_FPGA_TEST_TRIGGER_ATWD0
++ * \see HAL_FPGA_TEST_TRIGGER_ATWD1
++ * \see HAL_FPGA_TEST_TRIGGER_FADC
++ */
++void
++hal_FPGA_TEST_trigger_disc_lc(int trigger_mask);
++
+ 
+ /**
+  * Disables ping-pong mode.

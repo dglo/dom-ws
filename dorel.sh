@@ -20,12 +20,11 @@ if ! mkdir ${REL}; then
     exit 1
 fi
 
-BINS="iceboot.bin.gz stfserv.bin.gz echomode.bin.gz"
-BINS="${BINS} domapp-test.bin.gz wiggle.bin.gz domcal5.bin.gz"
-BINGZ="domapp.bin.gz testdomapp.bin.gz"
+BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz echomode.bin.gz'
+BINS="${BINS} wiggle.bin.gz"
 SBI='simpletest.sbi'
 CBSBI='configboot.sbi'
-SBIL='iceboot.sbi'
+SBIL='stf.sbi domapp.sbi iceboot.sbi'
 FS='startup.fs az-setup.fs az-tests.fs'
 
 #
@@ -40,14 +39,13 @@ for f in ${BINS}; do
     gunzip ${REL}/${f}
 done
 
-for f in ${BINGZ}; do
-    if [[ ! -f ${bindir}/${f} ]]; then
-	echo "can not find: ${f}"
-	exit 1
-    fi
-    
-    cp ${bindir}/${f} ${REL}/`echo $f | sed 's/\.bin//1'`
-done
+#
+# cp domcal...
+#
+if ! cp ${bindir}/domcal5.bin.gz ${REL}/domcal.bin.gz; then
+    echo "unable to cp ${bindir}/domcal5.bin.gz..."
+    exit 1
+fi
 
 #
 # cp and link sbi files...
@@ -72,12 +70,6 @@ if [[ ! -f ${ncsbidir}/${SBI} ]]; then
 fi
 cp -l ${ncsbidir}/${SBI} ${REL}/stf-nocomm.sbi
 
-if [[ ! -f ../dom-fpga/domapp/domapp.sbi ]]; then
-    echo "can not find sbi file: ../dom-fpga/domapp/domapp.sbi"
-    exit 1
-fi
-cp -l ../dom-fpga/domapp/domapp.sbi ${REL}/domapp.sbi
-
 #
 # cp .fs files
 #
@@ -86,7 +78,7 @@ cp -l ../dom-fpga/domapp/domapp.sbi ${REL}/domapp.sbi
 #
 # create release.hex files... 
 #
-if ! /bin/bash mkrelease.sh ${REL}/* ; then
+if ! /bin/bash mkrelease.sh ${REL}/*; then
     rm -rf devel-release
     echo "unable to create release.hex files..."
     exit 1

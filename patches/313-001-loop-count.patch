@@ -1,0 +1,21 @@
+? stf/src/all.src
+? stf/src/appendsrc.sh
+? stf/src/icecube.daq.stf.autogen.cf
+? stf/src/icecube.daq.stf.autogen.deps
+? stf/src/nlines.sh
+Index: stf/private/stf-apps/pressure.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/pressure.c,v
+retrieving revision 1.7.2.2
+diff -u -r1.7.2.2 pressure.c
+--- stf/private/stf-apps/pressure.c	4 Mar 2005 09:25:46 -0000	1.7.2.2
++++ stf/private/stf-apps/pressure.c	10 Mar 2005 17:07:43 -0000
+@@ -43,7 +43,7 @@
+   pressure_sum = voltage_sum = 0;
+ 
+   /* throw first few data out because in cold, first few data are BAD */
+-  for(x=0; x=10;x++){
++  for(x=0; x<10;x++){
+      halReadADC(DOM_HAL_ADC_PRESSURE);    
+      halReadADC(DOM_HAL_ADC_5V_POWER_SUPPLY);
+   }

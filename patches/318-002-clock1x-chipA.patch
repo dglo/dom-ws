@@ -1,0 +1,23 @@
+Index: clock1x_chipA.xml
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/std-tests/clock1x_chipA.xml,v
+retrieving revision 1.1.2.1
+retrieving revision 1.3
+diff -u -r1.1.2.1 -r1.3
+--- clock1x_chipA.xml	10 Mar 2005 17:19:37 -0000	1.1.2.1
++++ clock1x_chipA.xml	16 May 2005 17:43:42 -0000	1.3
+@@ -2,11 +2,11 @@
+ <stf:setup xmlns:stf="http://glacier.lbl.gov/icecube/daq/stf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://glacier.lbl.gov/icecube/daq/stf file:/Volumes/IceCube/WorkSpaces/jas-1/xml/daq/stf.xsd">
+ <atwd_clock1x_forced>
+ <parameters>
+-<atwd_analog_ref_dac>2252</atwd_analog_ref_dac>
++<atwd_analog_ref_dac>2250</atwd_analog_ref_dac>
+ <atwd_chip_a_or_b>1</atwd_chip_a_or_b>
+-<atwd_pedestal_dac>2129</atwd_pedestal_dac>
++<atwd_pedestal_dac>2130</atwd_pedestal_dac>
+ <atwd_ramp_bias_dac>350</atwd_ramp_bias_dac>
+-<atwd_ramp_top_dac>2580</atwd_ramp_top_dac>
++<atwd_ramp_top_dac>2300</atwd_ramp_top_dac>
+ <atwd_sampling_speed_dac>850</atwd_sampling_speed_dac>
+ <loop_count>1000</loop_count>
+ </parameters>

@@ -17,10 +17,10 @@ jbin=${JAVA_HOME}/bin
 cp=`/usr/bin/lessecho ./jars/*.jar | tr ' ' ':' | sed 's/:$//1'`
 
 #
-# driver needs to be in blocking mode for stf...
+# driver needs to be in non-blocking mode for stf...
 #
 if [[ -f /proc/driver/domhub/blocking ]]; then
-	echo 1 > /proc/driver/domhub/blocking
+	echo 0 > /proc/driver/domhub/blocking
 fi
 
 #

@@ -4,8 +4,8 @@
 PLATFORM=epxa10
 #PLATFORM=Linux-i386
 
-export PROJECT_TAG=domapp-devel
-export ICESOFT_BUILD:=$(shell cat prod.num)
+export PROJECT_TAG=devel
+export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
@@ -28,11 +28,6 @@ doc:
 
 doc.install: doc
 	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
-	cd epxa10/stf-docs; make install
-	cd epxa10/iceboot-docs; make install
-
-w942: w942.c
-	gcc -o w942 -Wall w942.c
 
 domserv: domserv.c
 	gcc -o domserv -Wall domserv.c -lutil
@@ -51,9 +46,6 @@ sendfile: sendfile.c
 
 tcalcycle: tcalcycle.c
 	gcc -o tcalcycle -Wall tcalcycle.c
-
-decoderaw: decoderaw.c
-	gcc -o decoderaw -Wall decoderaw.c
 
 HWPROJECTS=dom-cpld dom-fpga
 SWPROJECTS=hal dom-loader configboot iceboot stf dom-ws dor-test

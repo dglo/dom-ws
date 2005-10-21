@@ -1,0 +1,246 @@
+Index: stfapp/src/icecube/daq/stf/dorutil/DOR.java
+===================================================================
+RCS file: /home/icecube/cvsroot/stfapp/src/icecube/daq/stf/dorutil/DOR.java,v
+retrieving revision 1.4
+diff -u -u -r1.4 DOR.java
+--- stfapp/src/icecube/daq/stf/dorutil/DOR.java	16 Sep 2004 22:56:15 -0000	1.4
++++ stfapp/src/icecube/daq/stf/dorutil/DOR.java	8 Feb 2005 00:59:36 -0000
+@@ -145,12 +145,15 @@
+         File procFile = new File( DRIVER_PATH );
+         LinkedList cards = new LinkedList();
+         File[] driverFiles = procFile.listFiles();
+-        for ( int i = 0 ; i < driverFiles.length ; i++ ) {
+-            if ( driverFiles[i].isDirectory() ) {
+-                DORCard dor = new DefaultDORCard( driverFiles[i]);
++        TreeSet t = new TreeSet();
++        for (int i = 0; i < driverFiles.length; i++) t.add(driverFiles[i]);
++        for ( Iterator it = t.iterator() ; it.hasNext(); ) {
++            File f = (File)it.next();
++            if ( f.isDirectory() ) {
++                DORCard dor = new DefaultDORCard(f);
+                 cards.add( dor );
+                 if ( log ) {
+-                    logger.info( "Found DOR card at " + driverFiles[i].getAbsolutePath() +
++                    logger.info( "Found DOR card at " + f.getAbsolutePath() +
+                                             " with FPGA revision " + dor.getFpgaVersion() );
+                 }
+             }
+@@ -171,9 +174,14 @@
+             number = Integer.parseInt( cardDir.getAbsolutePath().substring( cardDir.getAbsolutePath().length() - 1 ) );
+             pairs = new LinkedList();
+             File[] cardFiles = cardDir.listFiles();
+-            for ( int i = 0 ; i < cardFiles.length ; i++ ) {
+-                if ( cardFiles[i].isDirectory() ) {
+-                    pairs.add( new DefaultDORPair( cardFiles[i] , number ) );
++            TreeSet t = new TreeSet();
++            for (int i = 0; i < cardFiles.length; i++ ) {
++                t.add(cardFiles[i]);
++            }
++            for ( Iterator it = t.iterator(); it.hasNext(); ) {
++                File f = (File)it.next();
++                if ( f.isDirectory() ) {
++                    pairs.add( new DefaultDORPair( f , number ) );
+                 }
+             }
+ 
+Index: stfapp/src/icecube/daq/stf/stfapp/STFApp.java
+===================================================================
+RCS file: /home/icecube/cvsroot/stfapp/src/icecube/daq/stf/stfapp/STFApp.java,v
+retrieving revision 1.23
+diff -u -u -r1.23 STFApp.java
+--- stfapp/src/icecube/daq/stf/stfapp/STFApp.java	16 Sep 2004 22:56:15 -0000	1.23
++++ stfapp/src/icecube/daq/stf/stfapp/STFApp.java	8 Feb 2005 00:59:36 -0000
+@@ -24,9 +24,7 @@
+ 
+ import icecube.daq.db.stftest.ProductUtil;
+ 
+-import java.io.IOException;
+-import java.io.File;
+-import java.io.FileNotFoundException;
++import java.io.*;
+ 
+ import java.rmi.RemoteException;
+ import java.rmi.Naming;
+@@ -55,9 +53,12 @@
+ 
+ public class STFApp implements DatabaseManager {
+ 
++    public static final String RESULT_LOG_NAME = "stf_results.txt";
++    public static final String FAIL_LOG_NAME = "stf_fail.txt";
++
+     private Logger logger;
+     private LinkedList doms;
+-    private LinkedList tests;
++    private TreeSet tests;
+     private LinkedList resultListeners;
+     private LinkedList dataListeners;
+     private LinkedList domHubComs;
+@@ -66,11 +67,14 @@
+     private ProductUtil prodUtil;
+     private STFRun stfRun;
+ 
++    private LogListener rListener;
++    private LogListener fListener;
++
+     public STFApp() {
+         logger = Logger.getLogger( "icecube.daq.stf.stfapp" );
+         stfRun = null;
+         doms = new LinkedList();
+-        tests = new LinkedList();
++        tests = new TreeSet();
+         resultListeners = new LinkedList();
+         dataListeners = new LinkedList();
+         domHubComs = new LinkedList();
+@@ -84,6 +88,17 @@
+             System.exit( -1 );
+         }
+         prodUtil = new ProductUtil( stfRun );
++        String dir = System.getProperty("user.dir");
++        dir = dir.endsWith("/") ? dir : dir + "/";
++        try {
++            rListener = new LogListener(new FileOutputStream(dir + RESULT_LOG_NAME, true), true);
++            fListener = new LogListener(new FileOutputStream(dir + FAIL_LOG_NAME, true), false);
++        } catch (FileNotFoundException e) {
++            logger.fatal("Cannot write log to working directory -- quitting " + e);
++            System.exit(-1);
++        }
++        addDataListener(rListener);
++        addDataListener(fListener);
+     }
+ 
+     public void connect( String dhServerName ) throws RemoteException , NotBoundException,
+@@ -217,7 +232,7 @@
+ 
+     public Iterator getTests() {
+ 	    LinkedList out = new LinkedList();
+-	    for ( Iterator it = tests.listIterator() ; it.hasNext() ; ) {
++	    for ( Iterator it = tests.iterator() ; it.hasNext() ; ) {
+ 	        String name = (( STFTest )( it.next() )).getModifiedName();
+ 	        out.add( name );
+ 	    }
+@@ -265,7 +280,7 @@
+ 	    String separator = System.getProperty( "file.separator" );
+         if ( !testDir.endsWith( separator ) )
+ 	        testDir += separator;
+-	    tests = new LinkedList();
++	    tests = new TreeSet();
+ 	    loadTests( testDir );
+ 	}
+ 
+@@ -334,6 +349,8 @@
+     public void removeAll() {
+         dataListeners = new LinkedList();
+         resultListeners = new LinkedList();
++        addDataListener(rListener);
++        addDataListener(fListener);
+     }
+ 
+     public void clear() {
+@@ -343,7 +360,7 @@
+             logger.error( "Caught DHDriverException " + e.getMessage() );
+         }
+         doms = new LinkedList();
+-        tests = new LinkedList();
++        tests = new TreeSet();
+         domHubComs = new LinkedList();
+     }
+ 
+@@ -620,4 +637,23 @@
+ 	    }
+ 	    return xmlFiles;
+ 	}
++
++    private static class LogListener implements STFDataListener {
++
++        private RunSummary runSummary;
++        private boolean logPass;
++
++        public LogListener(OutputStream out, boolean logPass) {
++            runSummary = new RunSummary(out);
++            this.logPass = logPass;
++        }
++
++        public void testPerformed(TestEvent e) {
++            if (logPass || !e.getResult()) runSummary.appendResult(e.getDOM(), e.getTest(), e.getResult());
++        }
++
++        protected void finalize() throws Throwable {
++            runSummary.close();
++        }
++    }
+ }
+Index: stfapp/src/icecube/daq/stf/stfapp/STFTest.java
+===================================================================
+RCS file: /home/icecube/cvsroot/stfapp/src/icecube/daq/stf/stfapp/STFTest.java,v
+retrieving revision 1.2
+diff -u -u -r1.2 STFTest.java
+--- stfapp/src/icecube/daq/stf/stfapp/STFTest.java	19 Apr 2004 18:11:47 -0000	1.2
++++ stfapp/src/icecube/daq/stf/stfapp/STFTest.java	8 Feb 2005 00:59:36 -0000
+@@ -12,7 +12,7 @@
+ 
+ package icecube.daq.stf.stfapp;
+ 
+-public class STFTest {
++public class STFTest implements Comparable {
+ 
+     private String name;
+     private String modifiedName;
+@@ -35,4 +35,8 @@
+     public String getPath() {
+         return path;
+     }
++
++    public int compareTo(Object o) {
++        return modifiedName.compareTo(((STFTest)(o)).modifiedName);
++    }
+ }
+diff -rNu stfapp/src/icecube/daq/stf/stfapp/RunSummary.java ../icecube/stfapp/src/icecube/daq/stf/stfapp/RunSummary.java
+--- stfapp/src/icecube/daq/stf/stfapp/RunSummary.java	Thu Jan  1 01:00:00 1970
++++ stfapp/src/icecube/daq/stf/stfapp/RunSummary.java	Tue Feb  8 00:35:16 2005
+@@ -0,0 +1,46 @@
++/*************************************************  120 columns wide   ************************************************
++
++ Class:  	RunSummary
++
++ @author 	Jim Braun
++ @author     jbraun@amanda.wisc.edu
++
++ ICECUBE Project
++ University of Wisconsin - Madison
++
++ **********************************************************************************************************************/
++
++package icecube.daq.stf.stfapp;
++
++import java.io.OutputStream;
++import java.io.PrintWriter;
++import java.util.GregorianCalendar;
++import java.util.TimeZone;
++import java.text.DateFormat;
++
++public class RunSummary {
++
++    private PrintWriter out;
++    private static DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
++
++    public RunSummary(OutputStream outstr) {
++        out = new PrintWriter(outstr, true);
++    }
++
++    public void appendResult(String domId, String name, boolean pass) {
++        StringBuffer str1 = new StringBuffer(100);
++        for (int i = 0; i < 80; i++) str1.insert(i, " ");
++        String dstr = format.format((new GregorianCalendar(TimeZone.getTimeZone("GMT"))).getTime());
++        str1.replace(0, dstr.length(), dstr);
++        str1.replace(25, 25 + domId.length(), domId);
++        str1.replace(40, 40 + name.length(), name);
++        str1.replace(99, 100, pass ? "P" : "F");
++        out.println(str1);
++        out.flush();
++    }
++
++    public void close() {
++        out.flush();
++        out.close();
++    }
++}

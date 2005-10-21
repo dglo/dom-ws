@@ -181,13 +181,14 @@ function isDir(dir) { return system("/bin/sh -c '[[ -d " dir " ]]'")==0; }
 #
 # find all files and return colon separated list...
 #
+# we now grab all the files that are in CVS rather
+# than in the directory...
+#
 function findFiles(directory, adj,
-                   cmd, files, name, filename) {
-   cmd = "find " directory " -type f -maxdepth 1 -print";
-
-   while ( (cmd | getline filename)>0 ) {
-      files=files " " adj filename
-   }
+		   cmd, files) {
+   cmd = "tr '/' '\t' < " directory "/CVS/Entries | grep -v '^D' | \
+awk '{ print \"" adj directory "/\"$1; }' | tr '\n' ' '; # | sed 's/:$//1' ";
+   cmd | getline files;
    close(cmd);
    return files;
 }

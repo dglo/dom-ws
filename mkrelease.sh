@@ -25,9 +25,22 @@ for f in $*; do
     echo 'send "\r"' >> /tmp/$$.se
     echo 'expect "^> "' >> /tmp/$$.se
 
-    nm=`echo ${f} | sed 's/\.bin$//1'`
-    nm=`basename ${nm}`
-    echo "send \"s\\\" $nm\\\" create\r" >> /tmp/$$.se
+    #
+    # is it a gzip file?
+    #
+    if echo $f | grep -q '\.gz$'; then
+	nm=`basename $f | sed 's/\.gz$//1'`
+	
+	#
+	# strip .bin if it exists...
+	#
+	nm=`echo ${nm} | sed 's/\.bin$//1'`
+	echo "send \"gunzip s\\\" $nm\\\" create\r" >> /tmp/$$.se
+    else
+	nm=`echo ${f} | sed 's/\.bin$//1'`
+	nm=`basename ${nm}`
+	echo "send \"s\\\" $nm\\\" create\r" >> /tmp/$$.se
+    fi
 
     echo 'expect "^> "' >> /tmp/$$.se
 done

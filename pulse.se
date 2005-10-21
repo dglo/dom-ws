@@ -1,3 +1,0 @@
-send "PULS now\n"
-expect "^PULS"
-

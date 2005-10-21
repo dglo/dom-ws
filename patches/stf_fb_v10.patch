@@ -1,0 +1,158 @@
+Index: flasher_brightness.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_brightness.c,v
+retrieving revision 1.4
+diff -u -r1.4 flasher_brightness.c
+--- flasher_brightness.c	25 Sep 2004 15:22:02 -0000	1.4
++++ flasher_brightness.c	24 Nov 2004 17:19:17 -0000
+@@ -91,6 +91,8 @@
+                                 unsigned int flasher_pulse_width,
+                                 unsigned int led_trig_cnt,
+                                 char ** flasher_id,
++                                unsigned int * config_time_us,
++                                unsigned int * valid_time_us,
+                                 unsigned int * max_current_err_pct,
+                                 unsigned int * worst_linearity_brightness,
+                                 unsigned int * worst_linearity_led,
+@@ -142,7 +144,14 @@
+     halPowerDownBase();
+ 
+     /* Initialize the flaherboard and power up */
+-    hal_FB_enable();
++    /* Record configuration and clock validation times */
++    int err = hal_FB_enable(config_time_us, valid_time_us);
++    if (err != 0) {
++#ifdef VERBOSE
++        printf("Flasher board enable failure (%d)!  Aborting test!\r\n", err);
++#endif
++        return FALSE;
++    }
+ 
+     /* Read the flasher board firmware version */
+     #ifdef VERBOSE
+@@ -150,10 +159,7 @@
+     #endif
+ 
+     /* Read the flasherboard ID */
+-    /* Not malloc'ed by STF */
+-    static char id[20];    
+-    strcpy(id, hal_FB_get_serial());
+-    *flasher_id = id;
++    hal_FB_get_serial(flasher_id);
+ 
+     #ifdef VERBOSE
+     printf("Flasher board ID = %s\n", *flasher_id);
+Index: flasher_brightness.xml
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_brightness.xml,v
+retrieving revision 1.2
+diff -u -r1.2 flasher_brightness.xml
+--- flasher_brightness.xml	5 Aug 2004 21:33:09 -0000	1.2
++++ flasher_brightness.xml	24 Nov 2004 17:19:17 -0000
+@@ -4,7 +4,7 @@
+   <name>flasher_brightness</name>
+   <description>Flasher Board LED Brightness Test</description>
+ 
+-  <version major="1" minor="1"/>
++  <version major="1" minor="2"/>
+ 
+   <inputParameter>
+     <description>DAC setting for ATWD sampling speed</description>
+@@ -73,6 +73,18 @@
+   </outputParameter>
+ 
+   <outputParameter>
++    <description>Flasher Board CPLD Configuration Time (us)</description>
++    <name>config_time_us</name>
++    <unsignedInt/>
++  </outputParameter>
++
++  <outputParameter>
++    <description>Flasher Board Clock Validation Time (us)</description>
++    <name>valid_time_us</name>
++    <unsignedInt/>
++  </outputParameter>
++
++  <outputParameter>
+     <description>Max Percent Deviation of Amplitude from Linearity</description>
+     <name>max_current_err_pct</name>
+ 	<unsignedInt/>
+Index: flasher_width.c
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_width.c,v
+retrieving revision 1.4
+diff -u -r1.4 flasher_width.c
+--- flasher_width.c	25 Sep 2004 15:22:02 -0000	1.4
++++ flasher_width.c	24 Nov 2004 17:19:17 -0000
+@@ -53,6 +53,8 @@
+                            unsigned int flasher_brightness,
+                            unsigned int led_trig_cnt,
+                            char ** flasher_id,
++                           unsigned int * config_time_us,
++                           unsigned int * valid_time_us,
+                            unsigned int * missing_width,
+                            unsigned int * failing_led,
+                            unsigned int * led_avg_current
+@@ -96,7 +98,14 @@
+     halPowerDownBase();
+ 
+     /* Initialize the flasherboard and power up */
+-    hal_FB_enable();
++    /* Record configuration and clock validation times */
++    int err = hal_FB_enable(config_time_us, valid_time_us);
++    if (err != 0) {
++#ifdef VERBOSE
++        printf("Flasher board enable failure (%d)!  Aborting test!\r\n", err);
++#endif
++        return FALSE;
++    }
+ 
+     /* Read the flasher board firmware version */
+     #ifdef VERBOSE
+@@ -104,10 +113,7 @@
+     #endif
+ 
+     /* Read the flasherboard ID */
+-    /* Not malloc'ed by STF */
+-    static char id[20];
+-    strcpy(id, hal_FB_get_serial());
+-    *flasher_id = id;
++    hal_FB_get_serial(flasher_id);
+ 
+     #ifdef VERBOSE
+     printf("Flasher board ID = %s\n", *flasher_id);
+Index: flasher_width.xml
+===================================================================
+RCS file: /home/icecube/cvsroot/stf/private/stf-apps/flasher_width.xml,v
+retrieving revision 1.2
+diff -u -r1.2 flasher_width.xml
+--- flasher_width.xml	5 Aug 2004 21:33:09 -0000	1.2
++++ flasher_width.xml	24 Nov 2004 17:19:17 -0000
+@@ -4,7 +4,7 @@
+   <name>flasher_width</name>
+   <description>Flasher Board LED Pulse Width Test</description>
+ 
+-  <version major="1" minor="1"/>
++  <version major="1" minor="2"/>
+ 
+   <inputParameter>
+     <description>DAC setting for ATWD sampling speed</description>
+@@ -73,6 +73,18 @@
+   </outputParameter>
+ 
+   <outputParameter>
++    <description>Flasher Board CPLD Configuration Time (us)</description>
++    <name>config_time_us</name>
++    <unsignedInt/>
++  </outputParameter>
++
++  <outputParameter>
++    <description>Flasher Board Clock Validation Time (us)</description>
++    <name>valid_time_us</name>
++    <unsignedInt/>
++  </outputParameter>
++
++  <outputParameter>
+     <description>Missing Pulse Width Coverage (ATWD units, ~ns)</description>
+     <name>missing_width</name>
+ 	<unsignedInt/>

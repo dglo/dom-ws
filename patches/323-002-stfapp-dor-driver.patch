@@ -1,0 +1,35 @@
+Index: src/icecube/daq/stf/dorutil/DOR.java
+===================================================================
+RCS file: /home/icecube/cvsroot/stfapp/src/icecube/daq/stf/dorutil/DOR.java,v
+retrieving revision 1.4.2.1
+diff -u -u -r1.4.2.1 DOR.java
+--- src/icecube/daq/stf/dorutil/DOR.java	10 Feb 2005 13:50:54 -0000	1.4.2.1
++++ src/icecube/daq/stf/dorutil/DOR.java	5 Oct 2005 20:54:13 -0000
+@@ -114,27 +114,6 @@
+         out.print( ( enable ) ? "on" : "off" );
+         out.flush();
+         out.close();
+-        if ( enable != isFullyPowered() )
+-            throw new DHDriverException();
+-    }
+-
+-    public static boolean isFullyPowered() throws DHDriverException {
+-        if ( !isDriverAvailable() ) {
+-            logger.error( "DHDriver not detected" );
+-            throw new DHDriverException();
+-        }
+-        boolean powered = true;
+-        for ( Iterator it = getCards( false ).iterator() ; it.hasNext() ; ) {
+-            for ( Iterator iu = (( DORCard )( it.next() )).getPairs().iterator() ; iu.hasNext() ; ) {
+-                DORPair currentPair = ( DORPair )iu.next();
+-                if ( currentPair.isPluggedIn() ) {
+-                    if ( !currentPair.isPowered() ) {
+-                        powered = false;
+-                    }
+-                }
+-            }
+-        }
+-        return powered;
+     }
+ 
+     private static LinkedList getCards( boolean log ) throws DHDriverException {

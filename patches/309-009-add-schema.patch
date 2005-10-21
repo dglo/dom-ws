@@ -1,0 +1,107 @@
+Index: add-schema
+===================================================================
+RCS file: /home/icecube/cvsroot/dom-ws/add-schema,v
+retrieving revision 1.2
+diff -u -r1.2 add-schema
+--- add-schema	12 Apr 2004 10:58:09 -0000	1.2
++++ add-schema	10 Feb 2005 17:45:46 -0000
+@@ -14,8 +14,7 @@
+ # set the classpath from the jars in the jars
+ # directory...
+ #
+-cp=`/usr/bin/lessecho ../lib/*.jar | tr ' ' ':' | sed 's/:$//1'`
+-cp=${cp}:`/usr/bin/lessecho ../tools/lib/*.jar | tr ' ' ':' | sed 's/:$//1'`
++cp=`/usr/bin/lessecho jars/*.jar | tr ' ' ':' | sed 's/:$//1'`
+ 
+ #
+ # run add-schema...
+Index: dorel.sh
+===================================================================
+RCS file: /home/icecube/cvsroot/dom-ws/dorel.sh,v
+retrieving revision 1.14.2.1
+diff -u -r1.14.2.1 dorel.sh
+--- dorel.sh	10 Feb 2005 14:22:42 -0000	1.14.2.1
++++ dorel.sh	10 Feb 2005 17:45:52 -0000
+@@ -15,7 +15,10 @@
+     exit 1
+ fi
+ 
+-mkdir ${REL}
++if ! mkdir ${REL}; then
++    echo "unable to make directory ${REL}"
++    exit 1
++fi
+ 
+ BINS='iceboot.bin.gz stfserv.bin.gz menu.bin.gz domapp.bin.gz echomode.bin.gz'
+ BINS="${BINS} wiggle.bin.gz"
+@@ -75,7 +78,7 @@
+ #
+ # create release.hex files... 
+ #
+-if ! /bin/bash mkrelease.sh ${REL}/* ; then
++if ! /bin/bash mkrelease.sh ${REL}/*; then
+     rm -rf devel-release
+     echo "unable to create release.hex files..."
+     exit 1
+Index: mkprod.sh
+===================================================================
+RCS file: /home/icecube/cvsroot/dom-ws/mkprod.sh,v
+retrieving revision 1.13.2.1
+diff -u -r1.13.2.1 mkprod.sh
+--- mkprod.sh	2 Nov 2004 23:36:37 -0000	1.13.2.1
++++ mkprod.sh	10 Feb 2005 17:45:52 -0000
+@@ -95,15 +95,6 @@
+ fi
+ 
+ #
+-# make sure all stf tests schemas are in the db...
+-#
+-echo "adding stf schema files to db..."
+-
+-if ! ./add-schema epxa10/stf-apps/*.xml; then
+-    echo "mkprod.sh: unable to add stf test schema files..."
+-    exit 1
+-fi
+-#
+ # cp run script
+ #
+ cp ./stf-client ${dir}
+@@ -122,10 +113,25 @@
+ 	exit 1
+ fi
+ 
++#
++# cp release files...
++#
+ cp release.hex release.hex.0 release.hex.1 ${dir}
+ cp ../dom-cpld/eb_interface_rev2.jed ${dir}
+ 
+ #
++# cp add-schema files...
++#
++cp add-schema ${dir}
++chmod +x ${dir}/add-schema
++mkdir ${dir}/stf-schema
++if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
++   grep -v -- '-template\.xml$' | cpio -p -L -d ../../${dir}/stf-schema); then
++   echo "unable to cp schema files"
++   exit 1
++fi
++
++#
+ # now tar it all up...
+ #
+ echo "tarring..."
+--- dom-ws/INSTALL	Thu Feb 10 18:34:32 2005
++++ dom-ws/INSTALL	Thu Feb 10 18:29:37 2005
+@@ -0,0 +1,10 @@
++to install a release:
++
++gzip -dc prod-REVx-NNN.tar.gz | tar xf -
++
++cd prod-REVx-NNN
++./add-schema stf-schema/*.xml
++
++and you should be all set...
++
++

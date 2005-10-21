@@ -1,14 +1,11 @@
 #!/bin/bash
 
-if (( $1 <= 0 || $1 >= 10000000 )); then
-	echo "usage: coprod.sh prod_release_number"
-	exit 1
-fi
-
 #
-# coprod.sh, checkout a prod release by number
+# checkout the given release...
 #
-modules="configboot daq-db-common daq-db-stftest dom-cal dom-cpld dom-fpga dom-loader dom-ws domhub-common dor-test hal iceboot stf stfapp testdomapp"
+release=`cat prod.num`
 
-cvs checkout -r az-prod-rel-$1 ${modules}
+modules="daq-db-common daq-db-stftest dom-cal dom-cpld dom-fpga dom-loader dom-ws domhub-common hal iceboot stf stfapp testdomapp"
+
+(cd ..; cvs -z9 checkout -raz-prod-rel-${release} ${modules} )
 
