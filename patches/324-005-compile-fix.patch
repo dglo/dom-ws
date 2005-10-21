@@ -1,0 +1,16 @@
+Index: hal/private/epxa10/hal/fpga-hal.c
+===================================================================
+RCS file: /home/icecube/cvsroot/hal/private/epxa10/hal/fpga-hal.c,v
+retrieving revision 1.83.2.4
+diff -u -r1.83.2.4 fpga-hal.c
+--- hal/private/epxa10/hal/fpga-hal.c	21 Oct 2005 22:01:08 -0000	1.83.2.4
++++ hal/private/epxa10/hal/fpga-hal.c	21 Oct 2005 22:43:51 -0000
+@@ -614,7 +614,7 @@
+   return 1;
+ }
+ 
+-void hal_FPGA_TEST_enable_spe_lc(int ena_lo, int ena_hi, DOM_HAL_LOGIC_T logic_mode) {
++void hal_FPGA_TEST_enable_spe_lc(int ena_lo, int ena_hi, DOM_HAL_LC_LOGIC_T logic_mode) {
+   /* LC will be disabled if ena_lo and ena_hi are both false.
+      up AND down is enabled if and only if
+      ena_lo, ena_hi are TRUE and logic_mode is AND.
