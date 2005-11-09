@@ -1,11 +1,12 @@
+#
+# main makefile for the dom-ws project
+#
 PLATFORM=epxa10
 #PLATFORM=Linux-i386
 
 export PROJECT_TAG=devel
-export ICESOFT_BUILD=$(shell cat build_num)
+export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
-
-export LIBEXPAT=../../../tools/$(PLATFORM)/lib/libexpat.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
 
@@ -14,40 +15,57 @@ include $(PLATFORM).mk
 links:
 	gawk -f mkws.awk dom.ws
 
-remove:
-	rm -rf $(PLATFORM)
-
-tags:
-	cd $(PLATFORM); find . -name '*.[ch]' | ctags - 
-
-update:
-	cd ../dom-loader; cvs update -d .
-	cd ../hal; cvs update -d .
-	cd ../iceboot; cvs update -d .
-	cd ../stf; cvs update -d .
-
-diff:
-	cd ../dom-loader; cvs diff -d .
-	cd ../hal; cvs diff -d .
-	cd ../iceboot; cvs diff -d .
-	cd ../stf; cvs diff -d .
-
 doc:
 	cd ../hal; doxygen doxygen.conf
+	cd epxa10/stf-docs; make stf-tests.pdf
+	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
 doc.install: doc
-	cd ../hal/html; tar cf - . | (cd ~/public_html/dom-mb; tar xf -)
+	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
+	cd epxa10/stf-docs; make install
+	cd epxa10/iceboot-docs; make install
 
+VERDIR = $(PLATFORM)/public/dom-fpga
+PVERDIR = $(PLATFORM)/public/dom-cpld
+FPGA_VERSIONS = ../../dom-ws/$(VERDIR)/fpga-versions.h
 
+versions:
+	if [[ ! -d $(VERDIR) ]]; then mkdir -p $(VERDIR); fi
+	cd ../dom-fpga/scripts; ./mkhdr.sh > $(FPGA_VERSIONS)
 
+pld-versions:
+	if [[ ! -d $(PVERDIR) ]]; then mkdir -p $(PVERDIR); fi
+	cd ../dom-cpld; make
+	cp ../dom-cpld/pld-version.h $(PVERDIR)
 
+#
+# release stuff...
+#
+REL=$(shell cat prod.num)
+RTB=prod-REV5-$(REL).tar.gz
+IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
+	iceboot stf testdomapp
 
+release: $(RTB)
+	@scp ChangeLog $(RTB) \
+		arthur@glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
+	@cg tag rel-$(REL)
+	@cp ../.git/refs/tags/rel-$(REL) tags
+	@cg add tags/rel-$(REL)
+	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
+	@for i in $(IMPORTS); do \
+		( cd ../$$i && \
+		  cvs import -m "dom-mb `cat ../dom-ws/prod.num`" \
+		     $$i rel-4xx rel-$(REL) ) \
+	 done
+	@echo "`cat prod.num` 1 + p" | dc > prod.num.2
+	@mv prod.num.2 prod.num
 
+$(RTB):
+	@./mkprod.sh
+	@echo created: $(RTB)
 
-
-
-
-
-
-
-
+#
+# for convenience...
+#
+rtb: $(RTB)

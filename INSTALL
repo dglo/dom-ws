@@ -1,10 +1,13 @@
+rpms you will need:
+	dor-driver
+	domhub-tools 201+
+	stf-prod 100+
+
 to install a release:
 
-gzip -dc prod-REVx-NNN.tar.gz | tar xf -
-
-cd prod-REVx-NNN
-./add-schema
+1) gzip -dc prod-REVx-NNN.tar.gz | tar xf -
+2) cd prod-REVx-NNN
+3) add-schema stf-schema/*.xml
 
 and you should be all set...
-
 

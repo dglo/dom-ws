@@ -6,14 +6,9 @@
 #
 
 #
-# required packages...
-#
-pkgs="icecube.daq.stf icecube.daq.domhub"
-
-#
 # production build number
 #
-rev=REV4
+rev=REV5
 
 #
 # get and increment build number
@@ -21,10 +16,7 @@ rev=REV4
 if [[ ! -f prod.num ]]; then
     echo "1" > prod.num
 fi
-
 bldn=`cat prod.num`
-bldn=`expr ${bldn} + 1`
-echo ${bldn} > prod.num
 
 #
 # get dir
@@ -36,51 +28,51 @@ if [[ -d ${dir} ]]; then
 fi
 
 #
-# cp std-tests (standard tests) -- read-only...
+# make dir
 #
 mkdir ${dir}
-(cd ../stf/private; tar cf - std-tests/*.xml) | (cd ${dir}; tar xf -)
-chmod ugo-w ${dir}/std-tests
 
 #
-# cp templates
+# cp configboot image...
 #
-mkdir ${dir}/templates
-gzip -dc epxa10/stf-apps/templates.tar.gz | (cd ${dir}/templates; tar xf -)
+cp configboot.pof ${dir}
 
 #
-# cp jar files 
+# always build and cp software/firmware files
 #
-mkdir ${dir}/jars
-cp `./getjars.sh ${pkgs} | sort | uniq` ${dir}/jars
+if ! ( make clean && make PROJECT_TAG=az-prod ICESOFT_BUILD=${bldn} ) > \
+		/dev/null; then
+	echo "mkprod.sh: can't build..."
+	exit 1
+fi
 
-#
-# daq-db has a mysql connector to cp
-#
-if [[ -f ${dir}/jars/daq-db.jar ]]; then
-    cp ../daq-db/resources/mysql-connector-java.jar ${dir}/jars
+if ! /bin/bash dorel.sh; then
+	echo "can't create release.hex"
+	exit 1
 fi
 
 #
-# cp run script
-#
-cp ./stf-client ${dir}
-chmod +x ${dir}/stf-client
-
-#
-# cp firmware files
+# cp release files...
 #
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
+cp INSTALL ${dir}
+
+mkdir ${dir}/stf-schema
+if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
+   grep -v -- '-template\.xml$' | cpio -p -L -d ../../${dir}/stf-schema); then
+   echo "unable to cp schema files"
+   exit 1
+fi
 
 #
 # now tar it all up...
 #
+echo "tarring..."
 tar cf - ${dir} | gzip -c > ${dir}.tar.gz
 
 #
 # clean up...
 #
+echo "cleaning up..."
 rm -rf ${dir}
-
-
