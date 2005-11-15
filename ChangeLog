@@ -1,4 +1,10 @@
-Proposed Release 400:
+Release 401:
+
+from johnj:
+   o support halDisableAnalogMux
+
+----------------------------------------------------------------------------
+Release 400:
 
 from john kelly, jim braun:
    o use tag V05-11-01 for dom-cal...
