@@ -1,16 +1,6 @@
 #!/bin/bash
 
 #
-# mkprod.sh, make up a copy of the production
-# environment...
-#
-
-#
-# production build number
-#
-rev=REV5
-
-#
 # get and increment build number
 #
 if [[ ! -f prod.num ]]; then
@@ -21,7 +11,8 @@ bldn=`cat prod.num`
 #
 # get dir
 #
-dir=prod-${rev}-${bldn}
+rc=
+dir=dom-mb-${bldn}${rc}
 if [[ -d ${dir} ]]; then
     echo "mkprod.sh: ${dir} already exists"
     exit 1
@@ -57,13 +48,6 @@ fi
 cp release.hex release.hex.0 release.hex.1 ${dir}
 cp ../dom-cpld/eb_interface_rev2.jed ${dir}
 cp INSTALL ${dir}
-
-mkdir ${dir}/stf-schema
-if ! (cd epxa10/stf-apps; find . -name '*.xml' -print | \
-   grep -v -- '-template\.xml$' | cpio -p -L -d ../../${dir}/stf-schema); then
-   echo "unable to cp schema files"
-   exit 1
-fi
 
 #
 # now tar it all up...

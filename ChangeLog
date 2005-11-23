@@ -1,3 +1,15 @@
+Release 402 [2005-11-24]:
+
+from arthur:
+    o automatically print log messages
+    o we now wait 2s after turning off hv for it to stabilize...
+    o prod-REV5 -> dom-mb and rm schema files
+    o get dom-mb to build with stf test descriptions elsewhere
+    o moved descriptions to stf-std-tests
+    o add disable analog mux command to iceboot and disable the mux on startup
+    o comm threshold to 55
+
+-----------------------------------------------------------------------------
 Release 401:
 
 from johnj:

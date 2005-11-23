@@ -9,6 +9,7 @@ export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
+export XMLDESCPATH=$(HOME)/build-git/stf-prod/stf-std-tests/descriptions
 
 include $(PLATFORM).mk
 
@@ -42,7 +43,7 @@ pld-versions:
 # release stuff...
 #
 REL=$(shell cat prod.num)
-RTB=prod-REV5-$(REL).tar.gz
+RTB=dom-mb-$(REL).tar.gz
 IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
 	iceboot stf testdomapp
 
@@ -56,7 +57,7 @@ release: $(RTB)
 	@for i in $(IMPORTS); do \
 		( cd ../$$i && \
 		  cvs import -m "dom-mb `cat ../dom-ws/prod.num`" \
-		     $$i rel-4xx rel-$(REL) ) \
+		     $$i rel-4xx rel-$(REL) ) | tee import.log \
 	 done
 	@echo "`cat prod.num` 1 + p" | dc > prod.num.2
 	@mv prod.num.2 prod.num
@@ -69,3 +70,10 @@ $(RTB):
 # for convenience...
 #
 rtb: $(RTB)
+
+ChangeLog: prod.num
+	@./mklog.sh > ChangeLog.$(REL)
+	@cat ChangeLog.$(REL) ChangeLog > t
+	@rm -f ChangeLog.$(REL)
+	@mv t ChangeLog
+	@echo "updated ChangeLog, do not forget to edit..."
