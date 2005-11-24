@@ -1,3 +1,9 @@
+Release 403 [2005-11-25]:
+
+from arthur:
+    o threshold back to 64 on dom -- hoses release.hex uploads with 55...
+
+-----------------------------------------------------------------------------
 Release 402 [2005-11-24]:
 
 from arthur:
