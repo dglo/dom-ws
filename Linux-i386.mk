@@ -42,4 +42,10 @@ encode64:
 clean:
 	cd $(PLATFORM)/iceboot; make clean
 	cd $(PLATFORM)/hal; make clean
-	rm -rf $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
+	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
+
+
+
+
+
+

@@ -37,11 +37,6 @@ if ! ( make clean && make PROJECT_TAG=az-prod ICESOFT_BUILD=${bldn} ) > \
 	exit 1
 fi
 
-#
-# make sure iceboot linux is up-to-date
-#
-make PLATFORM=Linux-i386 iceboot
-
 if ! /bin/bash dorel.sh; then
 	echo "can't create release.hex"
 	exit 1

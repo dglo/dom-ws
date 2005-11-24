@@ -28,7 +28,7 @@ import dom-loader
 import iceboot iceboot iceboot-docs
 import stf stf stf-apps stf-docs stf-sfe std-tests int-tests fat-tests
 import dom-cal dom-cal
-import domapp domapp
+#import domapp domapp
 
 #
 # one-off links...

@@ -170,7 +170,7 @@ function isDir(dir) { return system("/bin/sh -c '[[ -d " dir " ]]'")==0; }
 #
 function findFiles(directory, adj,
                    cmd, files, name, filename) {
-   cmd = "find " directory " -maxdepth 1 -type f -print";
+   cmd = "find " directory " -type f -maxdepth 1 -print";
 
    while ( (cmd | getline filename)>0 ) {
       files=files " " adj filename
