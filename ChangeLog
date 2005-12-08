@@ -1,3 +1,13 @@
+Release 404 [2005-12-08]:
+
+from thorsten:
+    o move to the head of dom-fpga -- symmetric pulses now
+
+from arthur:
+    o add hal routine to set comm parameters
+    o iceboot set comm params routine, better flash support
+
+-----------------------------------------------------------------------------
 Release 403 [2005-11-25]:
 
 from arthur:
