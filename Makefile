@@ -9,7 +9,7 @@ export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
-export XMLDESCPATH=$(HOME)/build-git/stf-prod/stf-std-tests/descriptions
+export XMLDESCPATH=$(HOME)/build-git/stf-prod-100/stf-std-tests/descriptions
 
 include $(PLATFORM).mk
 
@@ -54,11 +54,11 @@ release: $(RTB)
 	@cp ../.git/refs/tags/rel-$(REL) tags
 	@cg add tags/rel-$(REL)
 	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
-	@for i in $(IMPORTS); do \
-		( cd ../$$i && \
-		  cvs import -m "dom-mb `cat ../dom-ws/prod.num`" \
-		     $$i rel-4xx rel-$(REL) ) | tee import.log \
-	 done
+#	@for i in $(IMPORTS); do \
+#		( cd ../$$i && \
+#		  cvs -z9 import -m "dom-mb `cat ../dom-ws/prod.num`" \
+#		     $$i rel-4xx rel-$(REL) ) | tee import.log \
+#	 done
 	@echo "`cat prod.num` 1 + p" | dc > prod.num.2
 	@mv prod.num.2 prod.num
 

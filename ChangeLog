@@ -1,3 +1,30 @@
+Release 406 [2006-03-07]:
+
+from thorsten:
+    o latch lc using fpga ff in loopback_lc stf test
+
+from arthur:
+    o add interface to fpga ff for lc signals
+    o remove stale rs485 code
+    o prevent spurious interrupts on fpga reload
+    o atwd_sample_periode uses a new algorithm
+    o fix find command line in build
+
+-----------------------------------------------------------------------------
+Release 405 [2006-01-26]:
+
+from arthur:
+    o cleanup -- remove .rej files
+    o move comm thresholds to new location
+    o switch upper and lower lc channels in analog mux inputs
+    o lc span is now computed correctly
+    o forgot to add stub for hal_FPGA_set_comm_params
+
+from thorsten:
+    o stf fpga build 246, extend lc to catch edge conditions, mirror 
+      comm thresholds to domapp
+
+-----------------------------------------------------------------------------
 Release 404 [2005-12-08]:
 
 from thorsten:
