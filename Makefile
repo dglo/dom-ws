@@ -18,8 +18,8 @@ links:
 
 doc:
 	cd ../hal; doxygen doxygen.conf
-	cd epxa10/stf-docs; make stf-tests.pdf
-	cd epxa10/iceboot-docs; make iceboot-ug.pdf
+#	cd epxa10/stf-docs; make stf-tests.pdf
+#	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
 doc.install: doc
 	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"

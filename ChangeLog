@@ -1,3 +1,12 @@
+Release 407 [2006-03-24]:
+
+from john kelley:
+    o [issue #132] integrate dom-cal 6.2.4
+
+from arthur:
+    o [issue #68] dcom 036, dcom better bit decoder and registered outputs
+
+-----------------------------------------------------------------------------
 Release 406 [2006-03-07]:
 
 from thorsten:
