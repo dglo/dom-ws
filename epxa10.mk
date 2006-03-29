@@ -63,7 +63,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 
 
 all: pld-versions versions iceboot stfserv menu echomode stfsfe testdomapp  \
-	domcal5 wiggle domapp-test
+	domcal5 wiggle domapp-test domapp
 
 booter_config:
 	cd epxa10/booter; make config_files

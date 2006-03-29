@@ -1,3 +1,16 @@
+Release 408 [2006-03-29]:
+
+from johnj:
+    o [issue #186] integrate domapp into dom-mb releases
+
+from arthur:
+    o [issue #191] set comm parameters for domapp.sbi
+    o use version rom mif file to get dcom version
+
+from thorsten:
+    o [issue #187] integrate dcom 036 into domapp fpga
+
+-----------------------------------------------------------------------------
 Release 407 [2006-03-24]:
 
 from john kelley:

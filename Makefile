@@ -45,7 +45,7 @@ pld-versions:
 REL=$(shell cat prod.num)
 RTB=dom-mb-$(REL).tar.gz
 IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
-	iceboot stf testdomapp
+	iceboot stf testdomapp domapp
 
 release: $(RTB)
 	@scp ChangeLog $(RTB) \

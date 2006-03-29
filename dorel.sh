@@ -22,7 +22,7 @@ fi
 
 BINS="iceboot domcal5"
 BINS="${BINS} domapp-test"
-BINGZS="menu stfserv wiggle echomode testdomapp"
+BINGZS="menu stfserv wiggle echomode testdomapp domapp"
 SBI='simpletest.sbi'
 CBSBI='configboot.sbi'
 FS='startup.fs az-setup.fs'
