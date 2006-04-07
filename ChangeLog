@@ -1,3 +1,10 @@
+Release 409 [2006-04-07]:
+
+from arthur:
+    o [issue #246] shift and open slightly the position requirement for the
+      pulser tests
+
+-----------------------------------------------------------------------------
 Release 408 [2006-03-29]:
 
 from johnj:
