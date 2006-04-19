@@ -1,3 +1,11 @@
+Release 410 [2006-04-19]:
+
+from arthur:
+    o [issue #278] iceboot incorrectly calculates flash chip 1 end address...
+    o [issue #273] integer vector comparison in iceboot
+    o [issue #251] support gzip -- remove obselete zcompress support
+
+-----------------------------------------------------------------------------
 Release 409 [2006-04-07]:
 
 from arthur:
