@@ -1,3 +1,14 @@
+Release 411 [2006-05-01]:
+
+from thorsten:
+    o [issue #294] timestamp last sn entry in dom-fpga
+
+from arthur:
+    o [issue #311] need published release notes for dom-mb releases on glacier
+    o [issue #313] lc window calculation is wrong in hal
+    o [issue #294] sn does not deal w/ 32 bit clock rollovers
+
+-----------------------------------------------------------------------------
 Release 410 [2006-04-19]:
 
 from arthur:
