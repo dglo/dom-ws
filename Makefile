@@ -50,8 +50,6 @@ IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
 release: $(RTB)
 	@scp ChangeLog $(RTB) \
 		arthur@glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
-	@ssh glacier.lbl.gov \
-		"(cd /var/www/html/releases/DOM-MB/stable_hex; ln -s ChangeLog RELEASE_NOTES)"
 	@cg tag rel-$(REL)
 	@cp ../.git/refs/tags/rel-$(REL) tags
 	@cg add tags/rel-$(REL)

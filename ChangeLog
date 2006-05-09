@@ -1,3 +1,10 @@
+Release 412 [2006-05-09]:
+
+from arthur:
+    o [issue #348] atwd position tests must use sample speed, not just DAC...
+    o [issue #347] shrink passing window in atwd_pulser_spe
+
+-----------------------------------------------------------------------------
 Release 411 [2006-05-01]:
 
 from thorsten:
