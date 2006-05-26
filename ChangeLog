@@ -1,3 +1,18 @@
+Release 414 [2006-05-26]:
+
+from arthur:
+    o [issue #423] DOM scaler deadtime does not appear to be set properly
+
+-----------------------------------------------------------------------------
+Release 413 [2006-05-19]:
+
+from thorsten:
+    o [issue #414] LC signals do not seem to be sent by V5.0 boards in STF
+
+from arthur:
+    o [issue #377] do not keep linking ChangeLog to RELEASE_NOTES on glacier...
+
+-----------------------------------------------------------------------------
 Release 412 [2006-05-09]:
 
 from arthur:
