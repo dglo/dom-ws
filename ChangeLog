@@ -1,3 +1,10 @@
+Release 416 [2006-06-27]:
+
+from arthur:
+    o [issue #522] add scaler deadtime test
+    o [issue #423] DOM scaler deadtime does not appear to be set properly
+
+-----------------------------------------------------------------------------
 Release 415 [2006-06-02]:
 
 from johnj:

@@ -181,5 +181,6 @@ hack:
 
 domapp-test: booter_config loader hal
 	cd $(PLATFORM)/domapp-test; make ../bin/domapp-test.bin.gz
+	cd $(PLATFORM)/domapp-test; make ../bin/deadtime-test.bin.gz
 
 
