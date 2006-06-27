@@ -1,3 +1,16 @@
+Release 415 [2006-06-02]:
+
+from johnj:
+    o [issues #442, #443, #444] domapp upgrade to V00-03-05
+
+domapp release notes from johnj:
+
+- Issue 444 - Fix missing comment delim. in messageAPIstatus.h and goofy
+              return error masks
+- Issue 443 - don't fail out of SN event loop when HAL indicates overflow
+- Issue 442 - add message to indicate number of LBM overflows
+
+-----------------------------------------------------------------------------
 Release 414 [2006-05-26]:
 
 from arthur:
