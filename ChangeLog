@@ -1,3 +1,10 @@
+Release 417 [2006-06-30]:
+
+from arthur:
+    o [issue #513] supernova stream stops producing scaler information
+    o [issue #534] domapp sn hal tests
+
+-----------------------------------------------------------------------------
 Release 416 [2006-06-27]:
 
 from arthur:
