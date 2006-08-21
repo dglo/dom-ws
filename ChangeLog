@@ -1,3 +1,13 @@
+Release 419 [2006-08-21]:
+
+From Arthur:
+[issue #206] flash file system does not deal with bad sectors -- initial commit, still needs more testing...
+[issue #206] add fis-gc and do not delete fixed data when not found
+[issue #206] do not cp extents and clean up block allocation
+[issue #206] flash file system does not deal with bad sectors -- compress all sbi files and unlock all flash sectors before writing
+[issue #206] flash file system does not deal with bad sectors -- more aggressive in add ent
+[issue #206] flash file system does not deal with bad sectors -- cp non-bad files on gc
+
 Release 418 [2006-07-21]:
 
 from thorsten:
