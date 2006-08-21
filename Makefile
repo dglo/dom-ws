@@ -9,7 +9,7 @@ export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
-export XMLDESCPATH=$(HOME)/build-git/stf-prod-100/stf-std-tests/descriptions
+export XMLDESCPATH=/home/jacobsen/icecube/work/dommb-releases/stf-prod-110/stf-schema
 
 include $(PLATFORM).mk
 
@@ -49,11 +49,11 @@ IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
 
 release: $(RTB)
 	@scp ChangeLog $(RTB) \
-		arthur@glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
-	@cg tag rel-$(REL)
-	@cp ../.git/refs/tags/rel-$(REL) tags
-	@cg add tags/rel-$(REL)
-	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
+		jacobsen@glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
+	@cvs tag rel-$(REL)
+#	@cp ../.git/refs/tags/rel-$(REL) tags
+#	@cg add tags/rel-$(REL)
+#	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
 #	@for i in $(IMPORTS); do \
 #		( cd ../$$i && \
 #		  cvs -z9 import -m "dom-mb `cat ../dom-ws/prod.num`" \
