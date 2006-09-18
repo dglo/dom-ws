@@ -133,7 +133,7 @@ clean:
 #	cd $(PLATFORM)/configboot; make clean
 	cd $(PLATFORM)/dom-cal; make clean		
 	cd $(PLATFORM)/domapp-test; make clean		
-	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
+	rm -rf $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
 
 stfsfe:
 	cd epxa10/stf-sfe; make

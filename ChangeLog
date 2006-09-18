@@ -2,7 +2,8 @@ Next release:
 
 From John:
 [issue #715] support trigger type 4, MPE-only in domapp
-
+[issue #725] make clean chokes on CVS directories
+	
 -----------------------------------------------------------------------------
 Release 419 [2006-08-21]:
 
