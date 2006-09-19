@@ -2,13 +2,11 @@ Release 420 [2006-09-19]:
 
 From johnj:
 [issue #715] support trigger type 4, MPE-only in domapp, with sub issues:
--> [issue #722] domapp - allow pulser operation w/ mpe discriminator triggers (mode 4) in domapp
--> [issue #726] get new domapp updateTriggers() code to pass DMT
-[issue #725] make clean chokes on CVS directories
+ [issue #722] domapp - allow pulser operation w/ mpe discriminator triggers (mode 4) in domapp 	
+ [issue #724] make domapp version message report DOM-MB release number rather than Vxx-yy-zz tag
+ [issue #725] make clean chokes on CVS directories
+ [issue #726] get new domapp updateTriggers() code to pass DMT
 [issue #727] get 'make release' to commit incremented build number 
-[issue #724] make domapp version message report DOM-MB release number rather than Vxx-yy-zz tag
--> [issue #729] make domapp pick up prod.num for actual releases
--> [issue #730] expand 'make clean' to include domapp
 -----------------------------------------------------------------------------
 	
 Release 419 [2006-08-21]:

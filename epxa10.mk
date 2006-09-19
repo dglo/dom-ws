@@ -127,7 +127,7 @@ clean:
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
 	cd $(PLATFORM)/testdomapp; make -f ../../../testdomapp/domapp.mk clean
-	cd $(PLATFORM)/domapp; make clean;
+#	cd $(PLATFORM)/domapp; make clean;
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
 #	cd $(PLATFORM)/configboot; make clean
