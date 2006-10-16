@@ -1,3 +1,10 @@
+Next release:
+
+From johnj:
+[issue #742] reset DOM lookback memory overflow count for every run
+[issue #781] upgrade/improve on-board LED STF testing per John Joseph/Azriel G.
+-----------------------------------------------------------------------------
+
 Release 420 [2006-09-19]:
 
 From johnj:
