@@ -1,12 +1,22 @@
+Release 421 [2006-10-23]:
+
+From johnj:
+[issue #742] reset DOM lookback memory overflow count for every run
+[issue #781] upgrade/improve on-board LED STF testing per John Joseph/Azriel G.
+[issue #302] first pass at delta-compression
+-----------------------------------------------------------------------------
+
 Release 420 [2006-09-19]:
 
 From johnj:
 [issue #715] support trigger type 4, MPE-only in domapp, with sub issues:
- [issue #722] domapp - allow pulser operation w/ mpe discriminator triggers (mode 4) in domapp 	
- [issue #724] make domapp version message report DOM-MB release number rather than Vxx-yy-zz tag
- [issue #726] get new domapp updateTriggers() code to pass DMT
+-> [issue #722] domapp - allow pulser operation w/ mpe discriminator triggers (mode 4) in domapp
+-> [issue #726] get new domapp updateTriggers() code to pass DMT
 [issue #725] make clean chokes on CVS directories
 [issue #727] get 'make release' to commit incremented build number 
+[issue #724] make domapp version message report DOM-MB release number rather than Vxx-yy-zz tag
+-> [issue #729] make domapp pick up prod.num for actual releases
+-> [issue #730] expand 'make clean' to include domapp
 -----------------------------------------------------------------------------
 	
 Release 419 [2006-08-21]:
