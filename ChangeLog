@@ -1,4 +1,4 @@
-Next release:
+Release 421 [2006-10-23]:
 
 From johnj:
 [issue #742] reset DOM lookback memory overflow count for every run
