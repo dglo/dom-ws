@@ -1,5 +1,7 @@
-Next release:
-[isssue #793] upgrade domapp.sbi to build439 for bimodal baseline and "ghost" fixes
+Release 422 [2006-10-24]:
+
+From johnj:
+[isssue #793] upgrade domapp.sbi and simpletest.sbi to build439 for bimodal baseline and "ghost" fixes
 -----------------------------------------------------------------------------
 
 Release 421 [2006-10-23]:
