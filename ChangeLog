@@ -1,4 +1,6 @@
 
+From johnj:
+[issue #1145]: stf - apply patch for MPE discriminator tests
 From jkelley:
 [issue #941] DOMCal on release branch incompatible with filesystem in release >=419
 ----------------------------------------------------------------------------		
