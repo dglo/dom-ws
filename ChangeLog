@@ -1,4 +1,8 @@
+Release 423 [2007-02-03]:
 
+From kael/johnj:
+[issue #1188]: apply kael's pedestal baseline shift patch and zero out FPGA pedestal 
+               pattern before collecting pedestals
 From johnj:
 [issue #1145]: stf - apply patch for MPE discriminator tests
 From jkelley:
