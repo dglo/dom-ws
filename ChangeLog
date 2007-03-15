@@ -2,6 +2,8 @@ NEXT RELEASE
 
 From johnj:
 [issue #1243]: domapp - add variable length lookback memory messages 
+[issue #1251]: domapp - add ascii monitoring message when scaler deadtime changes
+	
 ----------------------------------------------------------------------------
 Release 423 [2007-02-03]:
 
