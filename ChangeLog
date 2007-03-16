@@ -1,5 +1,7 @@
-NEXT RELEASE
+Release 424 [2007-03-16]:
 
+From jerry p.: 
+[issue #1254]: stf - fix for atwd_pedestal_sweep_forced
 From johnj:
 [issue #1243]: domapp - add variable length lookback memory messages 
 [issue #1251]: domapp - add ascii monitoring message when scaler deadtime changes
