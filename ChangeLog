@@ -1,7 +1,14 @@
 Next:
 
 From johnj:
-1313: supernova data sometimes has repeated values
+[issue #1313]: supernova data sometimes has repeated values
+From jkelley:
+[issue #1232]: domcal - add domapp FPGA baseline calibration
+[issue #0677]: domcal - domcal no longer writes results to flash memory
+[issue #1422]: stf - relax width resolution requirement in flasher_width test
+[issue #1423]: stf - fix current peak extraction in flasher_brightness test
+
+Note: stf updates require add-schema run
 
 ----------------------------------------------------------------------------
 Release 424 [2007-03-16]:
