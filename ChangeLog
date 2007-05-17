@@ -1,6 +1,7 @@
 Next:
 
 From johnj:
+[issue #1435]: Collect full readouts for beacon hits during delta compression
 [issue #1313]: supernova data sometimes has repeated values
 From jkelley:
 [issue #1232]: domcal - add domapp FPGA baseline calibration
