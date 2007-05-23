@@ -1,5 +1,7 @@
 
-Next: 
+From thorsten:
+[issue #1460]: domapp - Rel 425 at NPX produces hit type 128]
+From johnj:
 [issue #1463]: domapp - dump all raw FPGA header words to monitoring stream 
 	       if unexpected trigger bits occur
 
