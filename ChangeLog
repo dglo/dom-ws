@@ -1,5 +1,13 @@
+Relase 427 [2007-07-11]:
+
 From johnj:
 [issue #1417]: iceboot - 1.8V power supply readout is broken
+From thorsten:
+[issue #1611]: configboot to iceboot transition problem
+[issue #1480]: ATWD baseline is shifted for one chip
+[issue #1468]: Pedestal shifts seen in DOM-MB 425
+[issue #1232]: DOMCal 6.x baseline calibrations do not agree with DAQ baselines	
+	
 ----------------------------------------------------------------------------
 
 
