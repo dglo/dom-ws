@@ -1,11 +1,13 @@
-
-From jkelley:
-[issue #1632]: DOM-Cal cannot successfully calibrate SHDR DOMs
-
+Next:
+From johnj:
+[issue #1590]: domapp - record pedestal values for each ATWD channel in ASCII monitoring
+[issue #1597]: domapp - record number of DOM launches in monitoring, 
+	                not just SPE rates (addition of 'fast' monitoring record)
 ----------------------------------------------------------------------------
 
-Relase 427 [2007-07-11]:
-
+Release 427 [2007-07-11]:
+From jkelley:
+[issue #1632]: DOM-Cal cannot successfully calibrate SHDR DOMs
 From johnj:
 [issue #1417]: iceboot - 1.8V power supply readout is broken
 From thorsten:
