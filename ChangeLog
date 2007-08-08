@@ -1,5 +1,6 @@
 Next:
 From johnj:
+[Issue #1430]: domapp/hal - include scaler deadtime measurement in monitoring stream
 [issue #1590]: domapp - record pedestal values for each ATWD channel in ASCII monitoring
 [issue #1597]: domapp - record number of DOM launches in monitoring, 
 	                not just SPE rates (addition of 'fast' monitoring record)
