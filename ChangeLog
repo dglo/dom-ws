@@ -1,6 +1,7 @@
 Next:
 From johnj:
-[Issue #1691]: Build of domapp [or other DOM-MB project] fails to notice if any of *.h change (doesn't rebuild)
+[issue #1697]: dom-ws - remove "make clean" in make target for dom-cal
+[issue #1691]: Build of domapp [or other DOM-MB project] fails to notice if any of *.h change (doesn't rebuild)
 [Issue #1430]: domapp/hal - include scaler deadtime measurement in monitoring stream
 [issue #1590]: domapp - record pedestal values for each ATWD channel in ASCII monitoring
 [issue #1597]: domapp - record number of DOM launches in monitoring, 

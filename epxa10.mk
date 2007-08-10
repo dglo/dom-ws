@@ -71,7 +71,7 @@ booter_config:
 loader:
 	cd epxa10/loader; make all
 
-hal:
+hal: # This target doesn't work for some reason - renaming it DOES work
 	cd epxa10/hal; make all
 
 iceboot:
@@ -173,7 +173,7 @@ domcal4: domcalbase
 	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal4.bin.gz	
 
 domcal5: domcalbase
-	cd $(PLATFORM)/dom-cal; make clean
+#	cd $(PLATFORM)/dom-cal; make clean
 	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV5" $(DOMCALBINGZ)
 	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal5.bin.gz	
 hack:
