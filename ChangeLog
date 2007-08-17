@@ -1,5 +1,7 @@
 Next:
 From johnj:
+[issue #1712]: domapp - Enable LC "up AND down" mode in domapp (SW fix and API extension)
+[issue #1711]: domapp - Returned GET_DATA buffer sizes are too small
 [issue #1705]: domapp - Fix API to allow enable 'SLC Only' mode 
 [issue #1697]: dom-ws - remove "make clean" in make target for dom-cal
 [issue #1691]: Build of domapp [or other DOM-MB project] fails to notice if any of *.h change (doesn't rebuild)
