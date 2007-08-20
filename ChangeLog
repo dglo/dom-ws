@@ -1,14 +1,19 @@
 Next:
 From johnj:
+[issue #1717]: domapp - Swap LC modes 4 and 5
 [issue #1712]: domapp - Enable LC "up AND down" mode in domapp (SW fix and API extension)
 [issue #1711]: domapp - Returned GET_DATA buffer sizes are too small
 [issue #1705]: domapp - Fix API to allow enable 'SLC Only' mode 
 [issue #1697]: dom-ws - remove "make clean" in make target for dom-cal
-[issue #1691]: Build of domapp [or other DOM-MB project] fails to notice if any of *.h change (doesn't rebuild)
+[issue #1691]: Build of domapp [or other DOM-MB project] 
+	                fails to notice if any of *.h change (doesn't rebuild)
 [Issue #1430]: domapp/hal - include scaler deadtime measurement in monitoring stream
 [issue #1590]: domapp - record pedestal values for each ATWD channel in ASCII monitoring
 [issue #1597]: domapp - record number of DOM launches in monitoring, 
 	                not just SPE rates (addition of 'fast' monitoring record)
+[issue #1677]: domapp - Hit counts as read out in pedestal data don't agree with
+	                new fast moni hit counts
+[issue #1644]: domapp - DATA_ACC_SET_MONI_IVAL units in doc are inconsistent w/ domapp
 ----------------------------------------------------------------------------
 
 Release 427 [2007-07-11]:
