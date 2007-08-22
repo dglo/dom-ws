@@ -1,3 +1,8 @@
+Next:
+From johnj/hagar:
+Issue 1706: get radboot for DRM into release.hex for Hagar & co.
+----------------------------------------------------------------------------
+
 Release 427 [2007-08-20]:
 From thorsten/johnj:
 [issue #1678]: domconfigs - LC settings are wrong for SLC hit DOMs
