@@ -21,10 +21,10 @@ doc:
 #	cd epxa10/stf-docs; make stf-tests.pdf
 #	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
-doc.install: doc
-	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
-	cd epxa10/stf-docs; make install
-	cd epxa10/iceboot-docs; make install
+#doc.install: doc
+#	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
+#	cd epxa10/stf-docs; make install
+#	cd epxa10/iceboot-docs; make install
 
 VERDIR = $(PLATFORM)/public/dom-fpga
 PVERDIR = $(PLATFORM)/public/dom-cpld
@@ -48,8 +48,8 @@ IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
 	iceboot stf testdomapp domapp
 
 release: $(RTB)
-	@scp ChangeLog $(RTB) \
-		jacobsen@glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
+	cp ChangeLog $(RTB) \
+		/net/usr/pdaq/packaged-releases/DOM-MB/stable_hex
 	@cvs tag rel-$(REL)
 #	@cp ../.git/refs/tags/rel-$(REL) tags
 #	@cg add tags/rel-$(REL)
