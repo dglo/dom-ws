@@ -1,3 +1,9 @@
+Next:
+From johnj:
+1758: 'make release' doesn't push out release notes correctly
+	
+----------------------------------------------------------------------------
+
 Release 429 [2007-09-10]:
 From johnj/jkelley: 
 1757: Need DOM-MB release with updated domcal project 
