@@ -1,5 +1,6 @@
 Next:
 From johnj:
+1794: fix typo in api doc
 1758: 'make release' doesn't push out release notes correctly
 	
 ----------------------------------------------------------------------------
