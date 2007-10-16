@@ -1,8 +1,12 @@
+Next:
+From johnj:
+1416: domapp - implement idle meter
+----------------------------------------------------------------------------
+	
 Release 430 [2007-10-15]:
 1818: domapp should emit a message when it's ready for action
 1794: fix typo in api doc
 1758: 'make release' doesn't push out release notes correctly
-	
 ----------------------------------------------------------------------------
 
 Release 429 [2007-09-10]:
