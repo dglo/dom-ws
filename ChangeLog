@@ -1,5 +1,6 @@
 Next:
 From johnj:
+1813: DOMApp - charge histogramming needed [for IceTop; partially resolved]
 1876: rewind DOM FPGA back to what was in DOM-MB-426 [hardware timeouts]
 1416: domapp - implement idle meter
 ----------------------------------------------------------------------------
