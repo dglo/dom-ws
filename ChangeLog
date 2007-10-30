@@ -1,3 +1,8 @@
+Next:
+From johnj:
+1911: domapp - correctly enable icetop chargestamp mode when requested
+----------------------------------------------------------------------------
+
 Release 431 [2007-10-29]:
 From johnj:
 1813: DOMApp - charge histogramming needed [for IceTop; partially resolved]
