@@ -1,8 +1,16 @@
 Next:
 From johnj:
 0001854: domapptest.py - FastMoniTestHV sometimes fails on PCTS
-1913: domapp - IceTop charge stamps: handle overflows correctly
-1911: domapp - correctly enable icetop chargestamp mode when requested
+0001913: domapp - IceTop charge stamps: handle overflows correctly
+0001911: domapp - correctly enable icetop chargestamp mode when requested
+From Thorsten:
+0002368: dom-fpga: update domapp and stf/iceboot/simpletest FPGAs
+	- locked ATWD control signal output flip-flops to IO-cells (caused
+	compile to compile variation of ATWD baseline)
+	- fixed beacon tagging (caused SLC problem Mantis 1678)
+	- fixed slave register icetop readback
+	- changed timing at the end of CCLK to give ATWD more time from CCLK to
+	DSET (double peak identified in stf fpga)
 ----------------------------------------------------------------------------
 
 Release 431 [2007-10-29]:
