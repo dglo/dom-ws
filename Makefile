@@ -50,7 +50,7 @@ IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
 release: $(RTB)
 	cp ChangeLog /net/usr/pdaq/packaged-releases/DOM-MB/stable_hex/RELEASE_NOTES
 	cp $(RTB) /net/usr/pdaq/packaged-releases/DOM-MB/stable_hex
-	@cvs tag rel-$(REL)
+	# JEJ removed this - not necessary & causing problems   @cvs tag rel-$(REL)
 #	@cp ../.git/refs/tags/rel-$(REL) tags
 #	@cg add tags/rel-$(REL)
 #	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
