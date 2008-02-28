@@ -1,8 +1,9 @@
-Next:
+Release 432 [2008-02-28]:
 From johnj:
 0001854: domapptest.py - FastMoniTestHV sometimes fails on PCTS
 0001913: domapp - IceTop charge stamps: handle overflows correctly
 0001911: domapp - correctly enable icetop chargestamp mode when requested
+0002368: update domapp and stf/iceboot/simpletest FPGAs
 From Thorsten:
 0002368: dom-fpga: update domapp and stf/iceboot/simpletest FPGAs
 	- locked ATWD control signal output flip-flops to IO-cells (caused
