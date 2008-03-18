@@ -1,9 +1,20 @@
+
+Release 433 [2008-02-18]:
+From johnj:
+0002427: Build system nukes epxa10/bin/CVS and then "cvs tag" operation fails
+From jkelley:
+0002424: dom-cal - Add ATWD delta_t calibration
+0002425: dom-cal - Change FADC delta_t calibration to use domapp FPGA
+	           (delta_t 1 clock cycle larger than stf FPGA)	
+----------------------------------------------------------------------------
+	
 Release 432 [2008-02-28]:
 From johnj:
 0001854: domapptest.py - FastMoniTestHV sometimes fails on PCTS
 0001913: domapp - IceTop charge stamps: handle overflows correctly
 0001911: domapp - correctly enable icetop chargestamp mode when requested
 0002368: update domapp and stf/iceboot/simpletest FPGAs
+0002382: dom-ws: Remove 2nd CVS tag in release procedure
 From Thorsten:
 0002368: dom-fpga: update domapp and stf/iceboot/simpletest FPGAs
 	- locked ATWD control signal output flip-flops to IO-cells (caused
