@@ -1,4 +1,9 @@
+Next:
+From johnj:
+0001529: Some DOMs have bad ATWD chips and we need to be able to configure pDAQ so that only one chip gets read out
 
+----------------------------------------------------------------------------
+	
 Release 433 [2008-02-18]:
 From johnj:
 0002427: Build system nukes epxa10/bin/CVS and then "cvs tag" operation fails
