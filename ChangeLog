@@ -1,3 +1,8 @@
+Release 435 [2008-08-01]:
+From thorsten:
+0002795: PedestalStabilityTest sometimes fails
+----------------------------------------------------------------------------
+
 Release 434 [2008-07-18]:
 From johnj:
 0002572: Implement icetop minbias hits
