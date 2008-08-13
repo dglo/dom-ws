@@ -1,8 +1,7 @@
-
+Release 436 [2008-08-13]:
 From jkelley:
 0002680: dom-cal - ATWD delta_T calibration is incorrect (too small)
 0002819: dom-cal - DOM-Cal XML transfer is uncompressed
-
 ----------------------------------------------------------------------------	
 
 Release 435 [2008-08-01]:
