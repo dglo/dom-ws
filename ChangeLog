@@ -1,3 +1,8 @@
+Next:
+From johnj:
+0002997: Domapp should explicitly disable flasher boards for normal runs
+----------------------------------------------------------------------------		
+
 Release 436 [2008-08-13]:
 From jkelley:
 0002680: dom-cal - ATWD delta_T calibration is incorrect (too small)
