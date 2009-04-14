@@ -1,5 +1,6 @@
 Next:
 From johnj:
+0003248: Make sure flasherboard gets disabled at end of run and allow surface to change FB settings mid-run
 0002997: Domapp should explicitly disable flasher boards for normal runs
 From jkelley:
 0003094: dom-cal - Fix FE impedance for new toroids
