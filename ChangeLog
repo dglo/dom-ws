@@ -1,7 +1,8 @@
-Next:
+Release 437 [2009-05-18]:
 From johnj:
 0003248: Make sure flasherboard gets disabled at end of run and allow surface to change FB settings mid-run
 0002997: Domapp should explicitly disable flasher boards for normal runs
+0003312 (with thorsten): FPGA + iceboot fix for dropped DOMs
 From jkelley:
 0003094: dom-cal - Fix FE impedance for new toroids
 0003112: dom-cal - Add new PMT discriminator calibration
