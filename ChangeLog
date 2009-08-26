@@ -1,3 +1,7 @@
+Release 438:
+From johnj:
+0003497: Setting SLC mode should fail if engineering format is set.
+	
 Release 437 [2009-05-18]:
 From johnj:
 0003248: Make sure flasherboard gets disabled at end of run and allow surface to change FB settings mid-run
