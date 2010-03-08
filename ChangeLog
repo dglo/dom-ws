@@ -1,6 +1,23 @@
+Release 439 [2010-03-09]:
+From johnj:
+0003844: Change 'F' monitoring records to report HLC instead of SLC
+
+From cweaver, jbraun:
+use tag V07-05-02 for dom-cal...
+
+From cweaver:
+Change delta_t calibration to use 300 MHz sampling rate 
+    and compute leading edges by fitting functional forms to recorded pulses
+
+From jbraun:
+Add capability to set a minimum voltage used during the HV calibration
+Change SPE fit to use gaussian sample error estimates
+----------------------------------------------------------------------------		
+
 Release 438:
 From johnj:
 0003497: Setting SLC mode should fail if engineering format is set.
+----------------------------------------------------------------------------		
 	
 Release 437 [2009-05-18]:
 From johnj:
