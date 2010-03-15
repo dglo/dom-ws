@@ -1,3 +1,9 @@
+Release 440 [2010-03-15]:
+From johnj:
+0003862: Permanently roll back domapp.sbi and osdep.c to 436/438 versions
+
+----------------------------------------------------------------------------		
+
 Release 439 [2010-03-09]:
 From johnj:
 0003844: Change 'F' monitoring records to report HLC instead of SLC
