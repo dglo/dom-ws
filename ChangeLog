@@ -1,7 +1,10 @@
+Release 441 [pending]:
+0004063: set LBM buffer size message doesn't return a proper status
+----------------------------------------------------------------------------
+	
 Release 440 [2010-03-15]:
 From johnj:
 0003862: Permanently roll back domapp.sbi and osdep.c to 436/438 versions
-
 ----------------------------------------------------------------------------		
 
 Release 439 [2010-03-09]:
