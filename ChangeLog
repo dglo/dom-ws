@@ -1,4 +1,10 @@
+Release 442 [2010-08-12]:
+From johnj:
+0004062: Fix wrap-around issue in DOMApp [reprise]
+----------------------------------------------------------------------------
+	
 Release 441 [2010-06-28]:
+From johnj:
 0004062: Fix wrap-around issue in DOMApp
 0004064: Add simple unit tests to be run on request by surface
 0004063: set LBM buffer size message doesn't return a proper status
