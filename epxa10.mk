@@ -63,7 +63,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 
 
 all: pld-versions versions iceboot stfserv menu echomode stfsfe testdomapp  \
-	domcal5 wiggle domapp-test
+	domcal5 wiggle domapp-test domapp
 
 booter_config:
 	cd epxa10/booter; make config_files
@@ -71,7 +71,7 @@ booter_config:
 loader:
 	cd epxa10/loader; make all
 
-hal:
+hal: # This target doesn't work for some reason - renaming it DOES work
 	cd epxa10/hal; make all
 
 iceboot:
@@ -127,13 +127,13 @@ clean:
 	cd $(PLATFORM)/stf-apps; make clean
 	cd $(PLATFORM)/stf; make clean
 	cd $(PLATFORM)/testdomapp; make -f ../../../testdomapp/domapp.mk clean
-#	cd $(PLATFORM)/domapp; make clean;
+	cd $(PLATFORM)/domapp; make clean;
 	cd $(PLATFORM)/stf-docs; make clean
 	cd $(PLATFORM)/iceboot-docs; make clean
 #	cd $(PLATFORM)/configboot; make clean
 	cd $(PLATFORM)/dom-cal; make clean		
 	cd $(PLATFORM)/domapp-test; make clean		
-	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
+	rm -f $(PLATFORM)/bin/*bin* $(PLATFORM)/bin/*.hex $(PLATFORM)/lib/* sendfile
 
 stfsfe:
 	cd epxa10/stf-sfe; make
@@ -173,7 +173,7 @@ domcal4: domcalbase
 	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal4.bin.gz	
 
 domcal5: domcalbase
-	cd $(PLATFORM)/dom-cal; make clean
+#	cd $(PLATFORM)/dom-cal; make clean
 	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV5" $(DOMCALBINGZ)
 	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal5.bin.gz	
 hack:
@@ -181,5 +181,6 @@ hack:
 
 domapp-test: booter_config loader hal
 	cd $(PLATFORM)/domapp-test; make ../bin/domapp-test.bin.gz
+	cd $(PLATFORM)/domapp-test; make ../bin/deadtime-test.bin.gz
 
 

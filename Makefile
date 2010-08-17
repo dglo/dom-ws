@@ -9,7 +9,7 @@ export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
-export XMLDESCPATH=$(HOME)/build-git/stf-prod/stf-std-tests/descriptions
+export XMLDESCPATH=/home/jacobsen/icecube/work/dommb-releases/stf-prod-110/stf-schema
 
 include $(PLATFORM).mk
 
@@ -18,13 +18,13 @@ links:
 
 doc:
 	cd ../hal; doxygen doxygen.conf
-	cd epxa10/stf-docs; make stf-tests.pdf
-	cd epxa10/iceboot-docs; make iceboot-ug.pdf
+#	cd epxa10/stf-docs; make stf-tests.pdf
+#	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
-doc.install: doc
-	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
-	cd epxa10/stf-docs; make install
-	cd epxa10/iceboot-docs; make install
+#doc.install: doc
+#	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
+#	cd epxa10/stf-docs; make install
+#	cd epxa10/iceboot-docs; make install
 
 VERDIR = $(PLATFORM)/public/dom-fpga
 PVERDIR = $(PLATFORM)/public/dom-cpld
@@ -45,22 +45,23 @@ pld-versions:
 REL=$(shell cat prod.num)
 RTB=dom-mb-$(REL).tar.gz
 IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
-	iceboot stf testdomapp
+	iceboot stf testdomapp domapp
 
 release: $(RTB)
-	@scp ChangeLog $(RTB) \
-		arthur@glacier.lbl.gov:/var/www/html/releases/DOM-MB/stable_hex
-	@cg tag rel-$(REL)
-	@cp ../.git/refs/tags/rel-$(REL) tags
-	@cg add tags/rel-$(REL)
-	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
-	@for i in $(IMPORTS); do \
-		( cd ../$$i && \
-		  cvs import -m "dom-mb `cat ../dom-ws/prod.num`" \
-		     $$i rel-4xx rel-$(REL) ) | tee import.log \
-	 done
+	cp ChangeLog /net/usr/pdaq/packaged-releases/DOM-MB/stable_hex/RELEASE_NOTES
+	cp $(RTB) /net/usr/pdaq/packaged-releases/DOM-MB/stable_hex
+	# JEJ removed this - not necessary & causing problems   @cvs tag rel-$(REL)
+#	@cp ../.git/refs/tags/rel-$(REL) tags
+#	@cg add tags/rel-$(REL)
+#	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
+#	@for i in $(IMPORTS); do \
+#		( cd ../$$i && \
+#		  cvs -z9 import -m "dom-mb `cat ../dom-ws/prod.num`" \
+#		     $$i rel-4xx rel-$(REL) ) | tee import.log \
+#	 done
 	@echo "`cat prod.num` 1 + p" | dc > prod.num.2
 	@mv prod.num.2 prod.num
+	@cvs commit -m "updated tag" prod.num
 
 $(RTB):
 	@./mkprod.sh

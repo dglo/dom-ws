@@ -22,7 +22,7 @@ fi
 
 BINS="iceboot domcal5"
 BINS="${BINS} domapp-test"
-BINGZS="menu stfserv wiggle echomode testdomapp"
+BINGZS="menu stfserv wiggle echomode testdomapp domapp"
 SBI='simpletest.sbi'
 CBSBI='configboot.sbi'
 FS='startup.fs az-setup.fs'
@@ -65,34 +65,20 @@ if ! cp -l ${sbidir}/${SBI} ${REL}/iceboot.sbi; then
 fi
 
 #
-# cp configboot.sbi (and compress it...)
+# cp configboot.sbi
 #
 if ! cp -l ${cbsbidir}/${CBSBI} ${REL}; then
     echo "can not cp configboot sbi file: ${cbsbidir}/${CBSBI}"
     exit 1
 fi
 
-if ! gzip -c ${REL}/${CBSBI} > ${REL}/cb.sbi.gz; then
-    echo "can not compress configboot sbi file: ${REL}/${CBSBI}"
-    exit 1
-fi
-
-rm -f ${REL}/${CBSBI}
-
 #
-# cp stf-nocomm.sbi and compress it...
+# cp stf-nocomm.sbi
 #
 if ! cp -l ${ncsbidir}/${SBI} ${REL}/stf-nocomm.sbi; then
     echo "can not cp no-comm sbi file: ${ncsbidir}/${SBI}"
     exit 1
 fi
-
-if ! gzip -c ${REL}/stf-nocomm.sbi > ${REL}/stf-nc.sbi.gz; then
-    echo "can not compress: ${REL}/stf-nocomm.sbi"
-    exit 1
-fi
-
-rm -f ${REL}/stf-nocomm.sbi
 
 #
 # cp domapp.sbi...
@@ -101,6 +87,17 @@ if ! cp -l ../dom-fpga/domapp/domapp.sbi ${REL}/domapp.sbi; then
     echo "can not find sbi file: ../dom-fpga/domapp/domapp.sbi"
     exit 1
 fi
+
+#
+# compress .sbi files
+#
+for sbi in ${REL}/*.sbi; do
+	if ! gzip -c $sbi  > `echo ${sbi}.gz`; then
+		echo "can not compress:  ${sbi}.gz"
+		exit 1
+	fi
+	rm -f $sbi
+done
 
 #
 # cp .fs files
