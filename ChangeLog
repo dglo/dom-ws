@@ -1,4 +1,6 @@
-Release NEXT RELEASE:
+Release 443 [NEXT]:
+From johnj:
+0004922 (domapp): Change LBM default size
 From cweaver:
 dom-cal: Update DOMCal version to 7.5.3
 ----------------------------------------------------------------------------
