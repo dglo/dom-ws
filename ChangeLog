@@ -1,6 +1,8 @@
 Release 443 [NEXT]:
 From johnj:
 0004922 (domapp): Change LBM default size
+0004877 (domapp): Set average of pedestal pattern from surface
+
 From cweaver:
 dom-cal: Update DOMCal version to 7.5.3
 ----------------------------------------------------------------------------
