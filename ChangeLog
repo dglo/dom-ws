@@ -4,6 +4,9 @@ From johnj:
 0004922 (domapp): Change LBM default size
 0004877 (domapp): Set average of pedestal pattern from surface
 
+From thorsten:
+0004925 (dom-fpga): Use (and test) Thorsten's new DOMApp FPGA (build 674)
+	
 From cweaver:
 dom-cal: Update DOMCal version to 7.5.3
 ----------------------------------------------------------------------------
