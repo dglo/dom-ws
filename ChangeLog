@@ -1,4 +1,4 @@
-Release 443 [NEXT]:
+Release 443 [2011-06-08]:
 From johnj:
 0004941 (dom-ws): Update 'make release' to use SVN rather than CVS
 0004922 (domapp): Change LBM default size
