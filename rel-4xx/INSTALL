@@ -1,9 +1,0 @@
-rpms you will need:
-	dor-driver
-	domhub-tools 201+
-
-to install a release:
-
-1) gzip -dc dom-mb-NNN.tar.gz | tar xf -
-2) cd dom-mb-NNN
-3) ldall release.hex

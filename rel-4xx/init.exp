@@ -1,7 +1,0 @@
-send "\r"
-expect "^> "
-send "init\r"
-expect "^fis init: all data on flash will be lost: are you sure \[y/n\]\? "
-send "y"
-expect "^> "
-
