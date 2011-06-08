@@ -1,12 +1,9 @@
-Release 443 [2011-06-08]:
+Release 443 [NEXT]:
 From johnj:
 0004941 (dom-ws): Update 'make release' to use SVN rather than CVS
 0004922 (domapp): Change LBM default size
 0004877 (domapp): Set average of pedestal pattern from surface
 
-From thorsten:
-0004925 (dom-fpga): Use (and test) Thorsten's new DOMApp FPGA (build 674)
-	
 From cweaver:
 dom-cal: Update DOMCal version to 7.5.3
 ----------------------------------------------------------------------------

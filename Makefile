@@ -61,7 +61,7 @@ release: $(RTB)
 #	 done
 	@echo "`cat prod.num` 1 + p" | dc > prod.num.2
 	@mv prod.num.2 prod.num
-	@cvs commit -m "updated tag" prod.num
+	@svn commit -m "updated tag" prod.num
 
 $(RTB):
 	@./mkprod.sh
