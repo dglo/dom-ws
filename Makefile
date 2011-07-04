@@ -2,14 +2,14 @@
 # main makefile for the dom-ws project
 #
 PLATFORM=epxa10
+SHELL=/bin/bash
 #PLATFORM=Linux-i386
 
 export PROJECT_TAG=devel
-export ICESOFT_BUILD:=$(shell /bin/sh getbld.sh)
+export ICESOFT_BUILD:=$(shell /bin/bash getbld.sh)
 export LIBHAL=../lib/libhal.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
-export XMLDESCPATH=/home/jacobsen/icecube/work/dommb-releases/stf-prod-110/stf-schema
 
 include $(PLATFORM).mk
 
