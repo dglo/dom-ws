@@ -1,3 +1,13 @@
+Release 444 [TBD]:
+From jkelley:
+0005660 (domapp): Online pedestals inaccurate after some DOM state changes
+0005661 (domapp): Online pedestal calculation: improve rounding
+	
+From cweaver, jkelley:
+0001414 (domapp): Make sure no SPE hits get into pedestals during pedestal collection
+0005603 (domapp): Online pedestal determination - filter out stray light
+	
+----------------------------------------------------------------------------	
 Release 443 [2011-06-08]:
 From johnj:
 0004941 (dom-ws): Update 'make release' to use SVN rather than CVS
