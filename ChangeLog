@@ -1,4 +1,4 @@
-Release 444 [TBD]:
+Release 444 [2012-08-03]:
 From jkelley:
 0005660 (domapp): Online pedestals inaccurate after some DOM state changes
 0005661 (domapp): Online pedestal calculation: improve rounding
