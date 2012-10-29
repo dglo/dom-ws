@@ -1,3 +1,14 @@
+Release 445 [2012-10-29]:
+
+From jkelley:
+0006022 (domapp): Detect baseline shifts during pedestal collection
+0005953 (iceboot): gunzip can hang
+0006023 (iceboot): add missing Forth stack operations
+	
+From mnewcomb:
+0005065 (domapp): Improved polling for data and increased message packing efficiency
+
+----------------------------------------------------------------------------
 Release 444 [2012-08-03]:
 From jkelley:
 0005660 (domapp): Online pedestals inaccurate after some DOM state changes
