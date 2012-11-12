@@ -1,10 +1,11 @@
-Release 445 [2012-10-29]:
+Release 445 [2012-11-12 re-release]:
 
 From jkelley:
 0006022 (domapp): Detect baseline shifts during pedestal collection
+0006124 (domapp): statistics are wrong in baseline shift significance calculation	
 0005953 (iceboot): gunzip can hang
 0006023 (iceboot): add missing Forth stack operations
-	
+
 From mnewcomb:
 0005065 (domapp): Improved polling for data and increased message packing efficiency
 
