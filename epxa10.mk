@@ -29,7 +29,7 @@ export PTES = $(PTESD)/booter/pte.S
 export CRT0=$(WD)/lib/crt0.o
 export LIBK=$(WD)/lib/libkernel.a
 
-export ARM_HOME := /usr
+export ARM_HOME := /usr/local
 export AFLAGS := -mcpu=arm920t  -I../public
 SYSINCLUDE :=-I$(ARM_HOME)/arm-elf/arm-elf/include \
 	-I$(ARM_HOME)/arm-elf/lib/gcc-lib/arm-elf/3.2/include \
@@ -49,7 +49,9 @@ export OBJCOPY = arm-elf-objcopy
 export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(ARM_HOME)/arm-elf/arm-elf/lib/libm.a \
 	$(ARM_HOME)/arm-elf/lib/gcc-lib/arm-elf/3.2/libgcc.a \
-	$(ARM_HOME)/arm-elf/lib/libz.a 
+	$(ARM_HOME)/arm-elf/lib/libz.a \
+	
+export SYS_SEARCH = -L $(ARM_HOME)/arm-elf/arm-elf/lib -L $(ARM_HOME)/arm-elf/lib/gcc-lib/arm-elf/3.2 -L $(ARM_HOME)/arm-elf/lib
 
 .c.o:
 	$(CC) -c $(CFLAGS) $<
