@@ -2,6 +2,7 @@
 # files we import...
 #
 WD=..
+export XMLDESCPATH = $(shell pwd)/../stf/stf-prod/stf-schema
 export BINDIR=$(WD)/bin
 export SFIBIN=$(BINDIR)/sfi.bin
 export ICEBOOTHEX=$(BINDIR)/iceboot.hex

@@ -7,7 +7,7 @@ export SFIBIN=$(BINDIR)/sfi
 export ICEBOOTBIN=$(BINDIR)/iceboot
 export STFSERVBIN=$(BINDIR)/stfserv
 export MENUBIN=$(BINDIR)/menu
-
+export XMLDESCPATH = $(shell pwd)/../stf/stf-prod/stf-schema
 export EPXAHD = $(WD)/public
 export EPXAH = 
 
