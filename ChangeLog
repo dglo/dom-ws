@@ -1,11 +1,12 @@
-Release 446 [2014-04-02]:
+Release 446 [2014-04-XX]:
 
 From jkelley:
 0001349 (hal): supernova buffer increase
 0006720 (domapp): increase default number of pedestal light contamination trials
 	
 From mnewcomb:
-0006800: Update dom-mb code to build on a 64 bit machine
+0006926 (domapp): message packing requires SN stream to be enabled
+0006800 Update dom-mb code to build on a 64 bit machine
 	
 ----------------------------------------------------------------------------
 Release 445 [2012-11-12 re-release]:
