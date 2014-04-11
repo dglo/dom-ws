@@ -2,6 +2,8 @@ Release 446 [2014-04-11]:
 
 From jkelley:
 0001349 (hal): supernova buffer increase
+0006369 (DOMCal): PMT discriminator calibration results sent even if HV
+	calibration disabled
 0006720 (domapp): increase default number of pedestal light contamination trials
 	
 From mnewcomb:
