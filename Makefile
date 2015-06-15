@@ -48,8 +48,8 @@ IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
 	iceboot stf testdomapp domapp
 
 release: $(RTB)
-	cp ChangeLog /net/user/pdaq/packaged-releases/DOM-MB/stable_hex/RELEASE_NOTES
-	cp $(RTB) /net/user/pdaq/packaged-releases/DOM-MB/stable_hex
+	cp ChangeLog /data/user/pdaq/packaged-releases/DOM-MB/stable_hex/RELEASE_NOTES
+	cp $(RTB) /data/user/pdaq/packaged-releases/DOM-MB/stable_hex
 	# JEJ removed this - not necessary & causing problems   @cvs tag rel-$(REL)
 #	@cp ../.git/refs/tags/rel-$(REL) tags
 #	@cg add tags/rel-$(REL)
