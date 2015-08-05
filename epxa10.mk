@@ -51,7 +51,7 @@ export SYSLIBS = $(ARM_HOME)/arm-elf/arm-elf/lib/libc.a \
 	$(ARM_HOME)/arm-elf/arm-elf/lib/libm.a \
 	$(ARM_HOME)/arm-elf/lib/gcc-lib/arm-elf/3.2/libgcc.a \
 	$(ARM_HOME)/arm-elf/lib/libz.a \
-	
+
 export SYS_SEARCH = -L $(ARM_HOME)/arm-elf/arm-elf/lib -L $(ARM_HOME)/arm-elf/lib/gcc-lib/arm-elf/3.2 -L $(ARM_HOME)/arm-elf/lib
 
 .c.o:
@@ -176,9 +176,15 @@ domcal4: domcalbase
 	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal4.bin.gz	
 
 domcal5: domcalbase
-#	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make clean
 	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV5" $(DOMCALBINGZ)
-	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal5.bin.gz	
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal5.bin.gz
+
+domcal_scint: domcalbase
+	cd $(PLATFORM)/dom-cal; make clean
+	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV5 -DDOMCAL_SCINT" $(DOMCALBINGZ)
+	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal_scint.bin.gz
+
 hack:
 	cd $(PLATFORM)/configboot; make hack.hex
 
