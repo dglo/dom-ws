@@ -1,6 +1,8 @@
+Release 448 [2015-07-11]
 
 From jkelley:
 0007453 (domcal): Support calibration of R1924-based scintillator modules
+0007458 (dom-fpga): Head of releases branch is an experimental FPGA image
 
 ----------------------------------------------------------------------------
 Release 447 [2015-06-12]:
