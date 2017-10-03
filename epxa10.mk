@@ -66,7 +66,7 @@ export SYS_SEARCH = -L $(ARM_HOME)/arm-elf/arm-elf/lib -L $(ARM_HOME)/arm-elf/li
 
 
 all: pld-versions versions iceboot stfserv menu echomode stfsfe testdomapp  \
-	domcal5 wiggle domapp-test domapp
+	domcal wiggle domapp-test domapp
 
 booter_config:
 	cd epxa10/booter; make config_files
@@ -175,10 +175,9 @@ domcal4: domcalbase
 	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV4" $(DOMCALBINGZ)
 	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal4.bin.gz	
 
-domcal5: domcalbase
+domcal: domcalbase
 	cd $(PLATFORM)/dom-cal; make clean
 	cd $(PLATFORM)/dom-cal; make -I "../iceboot" "CFLAGS=$(CFLAGS) -DDOMCAL_REV5" $(DOMCALBINGZ)
-	cd $(PLATFORM)/dom-cal; mv $(DOMCALBINGZ) $(BINDIR)/domcal5.bin.gz
 
 domcal_scint: domcalbase
 	cd $(PLATFORM)/dom-cal; make clean

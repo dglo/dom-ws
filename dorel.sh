@@ -20,9 +20,9 @@ if ! mkdir ${REL}; then
     exit 1
 fi
 
-BINS="iceboot domcal5"
+BINS="iceboot"
 BINS="${BINS} domapp-test"
-BINGZS="menu stfserv wiggle echomode testdomapp domapp"
+BINGZS="menu stfserv wiggle echomode testdomapp domapp domcal"
 SBI='simpletest.sbi'
 CBSBI='configboot.sbi'
 FS='startup.fs az-setup.fs'
@@ -37,11 +37,7 @@ for f in ${BINS}; do
     fi
     cp ${bindir}/${f}.bin.gz ${REL}/${f}.bin.gz
     gunzip ${REL}/${f}.bin.gz
-    if [[ ${f} == "domcal5" ]]; then
-	mv ${REL}/${f}.bin ${REL}/domcal
-    else
-	mv ${REL}/${f}.bin ${REL}/${f}
-    fi
+    mv ${REL}/${f}.bin ${REL}/${f}
 done
 
 #
