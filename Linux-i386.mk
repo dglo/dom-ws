@@ -7,12 +7,12 @@ export SFIBIN=$(BINDIR)/sfi
 export ICEBOOTBIN=$(BINDIR)/iceboot
 export STFSERVBIN=$(BINDIR)/stfserv
 export MENUBIN=$(BINDIR)/menu
-
+export XMLDESCPATH = $(shell pwd)/../stf/stf-prod/stf-schema
 export EPXAHD = $(WD)/public
 export EPXAH = 
 
 export CPPFLAGS = -I../public -I.. -I../../../tools/expat-1.2/expat $(GENDEFS)
-export CFLAGS = -g -Wall $(CPPFLAGS)
+export CFLAGS = -g -m32 -Wall $(CPPFLAGS)
 
 export CPP = cpp
 export CC = gcc
@@ -27,31 +27,19 @@ export LIBEXPAT=/usr/lib/libexpat.a
 .c.o:
 	$(CC) -c $(CFLAGS) $<
 
-all: iceboot stfserv menu newbuild
+all: versions iceboot
 
-iceboot:
+iceboot: versions
 	cd Linux-i386/hal; make all
 	cd Linux-i386/iceboot; make all
 
-stfserv:
-	cd Linux-i386/hal; make all
-	cd Linux-i386/stf; make all
-	cd Linux-i386/stf-apps; make $(STFSERVBIN)
+decode64:
+	cd Linux-i386/domapp-test; make ../bin/decode64
 
-menu:
-	cd Linux-i386/hal; make all
-	cd Linux-i386/stf; make all
-	cd Linux-i386/stf-apps; make $(MENUBIN)
+encode64:
+	cd Linux-i386/domapp-test; make ../bin/encode64
 
 clean:
 	cd $(PLATFORM)/iceboot; make clean
 	cd $(PLATFORM)/hal; make clean
-	cd $(PLATFORM)/stf-apps; make clean
-	cd $(PLATFORM)/stf; make clean
-	rm -f $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile
-
-
-
-
-
-
+	rm -rf $(PLATFORM)/bin/* $(PLATFORM)/lib/* sendfile

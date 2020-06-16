@@ -1,5 +1,0 @@
-eval spawn telnet $argv
-send "\r"
-expect "> "
-send "ymodem1k\r"
-expect "C"

@@ -2,13 +2,12 @@
 # main makefile for the dom-ws project
 #
 PLATFORM=epxa10
+SHELL=/bin/bash
 #PLATFORM=Linux-i386
 
 export PROJECT_TAG=devel
-export ICESOFT_BUILD=$(shell /bin/sh getbld.sh)
+export ICESOFT_BUILD:=$(shell /bin/bash getbld.sh)
 export LIBHAL=../lib/libhal.a
-
-export LIBEXPAT=/usr/arm-elf/lib/libexpat.a
 
 export GENDEFS=-DICESOFT_BUILD=$(ICESOFT_BUILD) -DPROJECT_TAG=$(PROJECT_TAG)
 
@@ -17,119 +16,15 @@ include $(PLATFORM).mk
 links:
 	gawk -f mkws.awk dom.ws
 
-remove:
-	rm -rf $(PLATFORM)
-
-tags:
-	cd $(PLATFORM); find . -name '*.[ch]' | etags - 
-
 doc:
 	cd ../hal; doxygen doxygen.conf
-	cd epxa10/stf-docs; make stf-tests.pdf
-	cd epxa10/iceboot-docs; make iceboot-ug.pdf
+#	cd epxa10/stf-docs; make stf-tests.pdf
+#	cd epxa10/iceboot-docs; make iceboot-ug.pdf
 
-doc.install: doc
-	cd ../hal/html; tar cf - . | (cd ~/public_html/dom-mb; tar xf -)
-
-newbuild:
-	/bin/sh newbld.sh
-
-domserv: domserv.c
-	gcc -o domserv -Wall domserv.c -lutil
-
-sendfile: sendfile.c
-	gcc -o sendfile -Wall sendfile.c
-
-iceboot.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
-	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
-		iceboot.sbi.gz
-
-stf.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
-	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
-		stf.sbi.gz
-
-domapp.sbi.gz: ../dom-fpga/resources/epxa10/simpletest_com_13.sbi
-	gzip -c ../dom-fpga/resources/epxa10/simpletest_com_13.sbi > \
-		domapp.sbi.gz
-
-release.hex: mkrelease.sh domserv all iceboot.sbi.gz stf.sbi.gz domapp.sbi.gz
-	/bin/sh mkrelease.sh ./epxa10/bin/iceboot.bin.gz \
-		./epxa10/bin/stfserv.bin.gz \
-		../iceboot/resources/startup.fs \
-		iceboot.sbi.gz \
-		stf.sbi.gz \
-		domapp.sbi.gz \
-		domapp.bin.gz
-
-HWPROJECTS=dom-cpld dom-fpga
-SWPROJECTS=hal dom-loader configboot iceboot stf dom-ws
-PROJECTS=$(HWPROJECTS) $(SWPROJECTS)
-DEVEL_RELEASE=1
-DEVEL_BUILD=1
-
-commit:
-	cd ..; cvs commit $(SWPROJECTS)
-
-diff:
-	cd ..; cvs diff $(SWPROJECTS)
-
-update:
-	cd ..; cvs update $(SWPROJECTS)
-
-hwdiff:
-	cd ..; cvs diff $(HWPROJECTS)
-
-hwupdate:
-	cd ..; cvs update $(HWPROJECTS)
-
-tag-build:
-	cd ..; cvs tag devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) $(PROJECTS)
-
-tag-diff:
-	cd ..; cvs diff -r devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) $(PROJECTS)
-
-branch-build:
-	cd ..; cvs rtag -b -r devel-$(DEVEL_RELEASE)-$(DEVEL_BUILD) \
-		devel-$(DEVEL_RELEASE) $(PROJECTS)
-
-viewtags:
-	@echo hal
-	@cd ../hal; cvs status -v project.mk | \
-		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	@echo dom-loader
-	@cd ../dom-loader; cvs status -v project.mk | \
-		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-#	@echo configboot
-#	@cd ../configboot; \
-#		cvs status -v \
-#			./private/epxa10/configboot/configboot.c | \
-#		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	@echo dom-cpld
-	@cd ../dom-cpld; cvs status -v Dom_Cpld_rev2.vhd | \
-		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	@echo dom-fpga
-	@cd ../dom-fpga; cvs status -v scripts/mkmif.sh | \
-		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	@echo iceboot
-	@cd ../iceboot; cvs status -v project.mk | \
-		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	@echo stf
-	@cd ../stf; cvs status -v project.mk | \
-		grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-	@echo dom-ws
-	@cvs status -v Makefile | grep 'V[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-
-stfmode.class: stfmode.java
-	javac stfmode.java
-
-alloff.class: alloff.java
-	javac alloff.java
-
-html-install: stfmode.class
-	cp stfmode.class alloff.class /usr/lib/cgi-bin/stf/xml/bin
-	cd epxa10/stf-sfe; make html-install
-	cd epxa10/std-tests; make install
-
+#doc.install: doc
+#	cd ../hal/html; tar cf - . | ssh glacier.lbl.gov "(cd ~/public_html/dom-mb; tar xf -)"
+#	cd epxa10/stf-docs; make install
+#	cd epxa10/iceboot-docs; make install
 
 VERDIR = $(PLATFORM)/public/dom-fpga
 PVERDIR = $(PLATFORM)/public/dom-cpld
@@ -144,3 +39,42 @@ pld-versions:
 	cd ../dom-cpld; make
 	cp ../dom-cpld/pld-version.h $(PVERDIR)
 
+#
+# release stuff...
+#
+REL=$(shell cat prod.num)
+RTB=dom-mb-$(REL).tar.gz
+IMPORTS=dom-cal dom-cpld dom-fpga dom-loader dom-ws fb-cpld hal \
+	iceboot stf testdomapp domapp
+
+release: $(RTB)
+	cp ChangeLog /data/user/pdaq/packaged-releases/DOM-MB/stable_hex/RELEASE_NOTES
+	cp $(RTB) /data/user/pdaq/packaged-releases/DOM-MB/stable_hex
+	# JEJ removed this - not necessary & causing problems   @cvs tag rel-$(REL)
+#	@cp ../.git/refs/tags/rel-$(REL) tags
+#	@cg add tags/rel-$(REL)
+#	@cg commit -m "release `cat prod.num`" tags/rel-$(REL)
+#	@for i in $(IMPORTS); do \
+#		( cd ../$$i && \
+#		  cvs -z9 import -m "dom-mb `cat ../dom-ws/prod.num`" \
+#		     $$i rel-4xx rel-$(REL) ) | tee import.log \
+#	 done
+	@echo "`cat prod.num` 1 + p" | dc > prod.num.2
+	@mv prod.num.2 prod.num
+	@svn commit -m "updated tag" prod.num
+
+$(RTB):
+	@./mkprod.sh
+	@echo created: $(RTB)
+
+#
+# for convenience...
+#
+rtb: $(RTB)
+
+ChangeLog: prod.num
+	@./mklog.sh > ChangeLog.$(REL)
+	@cat ChangeLog.$(REL) ChangeLog > t
+	@rm -f ChangeLog.$(REL)
+	@mv t ChangeLog
+	@echo "updated ChangeLog, do not forget to edit..."

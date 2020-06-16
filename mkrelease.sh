@@ -1,86 +1,59 @@
 # !/bin/sh
 
 #
-# mkrelease.sh, make a release .hex file
+# mkrelease.sh, make a release.hex file
 #
+cp init.exp /tmp/$$.se
 
-#
-# start dom server
-#
-./domserv >& /dev/null &
+echo 'send "ry\r"' >> /tmp/$$.se
+echo 'expect "C"' >> /tmp/$$.se
+echo 'send "^A"' >> /tmp/$$.se
+echo 'expect "^domterm> "' >> /tmp/$$.se
+echo "send \"sz -q -k --ymodem $*\r\"" >> /tmp/$$.se 
+echo 'expect "^domterm> "' >> /tmp/$$.se
+echo 'send "status\n"' >> /tmp/$$.se
+echo 'expect "^0\r\ndomterm> "' >> /tmp/$$.se
+echo 'send "\n"' >> /tmp/$$.se
+echo 'sleep 2' >> /tmp/$$.se
+echo 'send "\r"' >> /tmp/$$.se
+echo 'expect "^> "' >> /tmp/$$.se
 
-#
-# initialize flash filesystem...
-#
-expect init.exp localhost 5001
-
-#
-# for each file to install...
-#
-for f in $*; do
-    echo "installing ${f}..."
-
-    #
-    # start ymodem
-    #
-    expect ymodem.exp localhost 5001
-
-    #
-    # give some time for domserv to reset ports...
-    #
-    sleep 1
-
-    #
-    # upload the program
-    #
-    sz -k --ymodem --tcp-client localhost:5501 $f
-
-    #
-    # is it a gzip file?
-    #
-    if echo $f | grep -q '\.gz$'; then
-	nm=`basename $f | sed 's/\.gz$//1'`
-	
-	#
-	# strip .bin if it exists...
-	#
-	nm=`echo ${nm} | sed 's/\.bin$//1'`
-
-	expect creategz.exp localhost 5001 $nm;
-    else
-	nm=`basename $f`
-	expect create.exp localhost 5001 $nm;
-    fi
+for ((i=0; i<$#; i++)); do
+    echo 'send "create\r"' >> /tmp/$$.se
+    echo 'expect "^> "' >> /tmp/$$.se
 done
 
-#
-# send sigusr1
-#
-kill -USR1 `pgrep iceboot`
+echo "send \"dump-flash\r\"" >> /tmp/$$.se
+echo "expect \"^> \"" >> /tmp/$$.se
+echo "send \"ls\r\"" >> /tmp/$$.se
+echo "expect \"^> \"" >> /tmp/$$.se
 
-#
-# wait for dump to finish...
-#
-sleep 20
+if ! se sim < /tmp/$$.se; then
+    rm -f /tmp/$$.se
+    echo "mkrelease.sh: unable to run install script"
+    exit 1
+fi
+
+rm -f /tmp/$$.se
+
+echo "convert dump file..."
 
 #
 # convert dump file to hex...
 #
-arm-elf-objcopy -I binary -O ihex flash.dump flash.hex
+if ! arm-elf-objcopy -I binary -O ihex flash.dump flash.hex; then
+	echo "mkrelease.sh: unable to create flash hex image"
+	exit 1
+fi
 
 #
 # remove redundant (empty) entries...
 #
-grep -E -v \
+# grep-2.5 is broken using UTF-8, set lang to workaround this...
+#
+env LANG=en_US grep -E -v \
     '^:[0-9A-Z]+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF[0-9A-Z]+.$' \
     flash.hex > release.hex
-
-#
-# FIXME: remove repeated address offsets...
-#
-#
-# awk { remove ^:02 dup }
-#
 
 #
 # now do the ebi0 and ebi1 flash files...
@@ -91,21 +64,18 @@ dd bs=4M count=1 skip=1 if=flash.dump of=flash.dump.1
 for i in 0 1; do
 	arm-elf-objcopy -I binary -O ihex flash.dump.${i} flash.hex.${i}
 
-	grep -E -v \
+	# grep-2.5 is broken using UTF-8, set lang to workaround this...
+	env LANG=en_US grep -E -v \
     		'^:[0-9A-Z]+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF[0-9A-Z]+.$' \
     		flash.hex.${i} > release.hex.${i}
 done
 
 #
-# cleanup...
+# display md5sum...
 #
-kill `pgrep domserv`
-wait
+md5sum flash.dump
+
+echo "cleaning up..."
+rm -f /tmp/ds.$$
 rm -f flash.hex flash.dump
 rm -f flash.hex.[01] flash.dump.[01]
-
-
-
-
-
-
