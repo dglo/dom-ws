@@ -9,6 +9,8 @@ From jkelley:
 0008801 (domapp): add support for FADC-only mode
 0008811 (domapp): add extended mode control
 0008812 (domcal): user input parsing for ATWD select has an impossible condition
+0008827 (domcal): crash during histogram fitting
+0008833 (domcal): iterated HV-gain calibration can falsely fail due to "too few points"
 
 ----------------------------------------------------------------------------
 
